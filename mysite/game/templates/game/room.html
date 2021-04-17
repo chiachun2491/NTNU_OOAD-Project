@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p>Room : {{ room.permanent_url }}</p>
+<p>Status : {{ room.status }}  </p>
+<p id="chat-log">Players : {{ room.players }}</p>
+</body>
+    {{ room.permanent_url|json_script:"room-name" }}
+    {#  <script>  #}
+    <script>
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/game/'
+            + roomName
+            + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data.message);
+            document.querySelector('#chat-log').textContent += (data.message + '\n');
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Game socket closed unexpectedly');
+        };
+
+    </script>
+</html>
