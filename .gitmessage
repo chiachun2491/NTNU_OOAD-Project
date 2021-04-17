@@ -1,0 +1,41 @@
+# commit log 請遵造以下格式，並注意半形冒號後面有一個空格
+# 
+# <type>(<scope>): <subject>
+# - type: 代表 commit 的類別：feat, fix, docs, style, refactor, test, chore，必要欄位。
+# - scope: 代表 commit 影響的範圍，例如資料庫、控制層、模板層等等，視專案不同而不同，為可選欄位。
+# - subject: 代表此 commit 的簡短描述，不要超過 50 個字元，結尾不要加句號，為必要欄位。
+#
+# <body> {非必要}
+# * Body 部份是對本次 Commit 的詳細描述，可以分成多行
+# * 說明程式碼變動的項目與原因，還有與先前行為的對比
+#
+# <footer> {非必要}
+# 
+# 範例
+# feat(backend): implementation login api function
+#
+# finished login module and integration with server login api
+#
+# Closes OR-xxxx 
+# 
+# <Type>
+# 請遵守下列標籤
+# feat: 新增/修改功能 (feature)
+# fix: 修補 bug (bug fix)
+# docs: 新增/修改文件 (documentation)
+# style: 不影響程式碼運行的變動 white-space, formatting, missing semi colons, etc
+# refactor: 功能重構 (既不是新增功能，也不是修補 bug 的程式碼變動)
+# perf: 優化效能
+# test: 增加測試
+# chore: build/ci/3rd 程序或輔助工具的變動 (maintain)
+# revert: 撤銷回覆先前的 commit 例如：revert: type(scope): subject (回覆版本：xxxx)。
+# add: 增加一些跟功能無關的檔案
+# 
+# <Subject>
+# 用來簡要描述影響本次變動，概述即可
+# 
+# <Body>
+# 具體的修改訊息，越詳細越好
+# 
+# <Footer>
+# 如果是要關閉特定 Issue 或 Bug. 可以使用 Closes PROJECT-1 or Resolves PROJECT-1 or Fixes PROJECT-1 
