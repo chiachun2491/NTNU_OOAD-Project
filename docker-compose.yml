@@ -1,0 +1,51 @@
+version: '3'
+services:
+
+    # docker run --name some-redis  -p 6379:6379  -d redis redis-server --appendonly yes
+
+    redis:
+      container_name: ooad-redis
+      image: redis
+      restart: always
+      command: ["redis-server", "--appendonly", "yes"]
+      ports:
+        - "6379:6379"
+      volumes:
+        - redis-data:/data
+      depends_on:
+        - db
+
+    migration:
+      build: .
+      command: bash -c "python manage.py makemigrations && python manage.py migrate"
+      volumes:
+        - .:/mysite
+
+    app:
+      container_name: ooad-django
+      build: .
+      command: bash -c "python manage.py runserver 0.0.0.0:8000"
+      restart: always
+      ports:
+        - "8000:8000"
+      volumes:
+        - .:/mysite
+      env_file:
+        - django_secrets.env
+      depends_on:
+        - db
+        - redis
+
+    db:
+      container_name: ooad-postgres
+      restart: always
+      ports:
+        - "5432:5432"
+      image: postgres
+      env_file:
+        - django_secrets.env
+      volumes:
+        - pgdata:/var/lib/postgresql/data/
+volumes:
+    redis-data:
+    pgdata:
