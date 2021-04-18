@@ -44,7 +44,7 @@ from enum import Enum
             62 ~ 64:    rocks
             65 ~70:     map
         
-        identuty: 71 ~ 81 (skip)
+        identity: 71 ~ 81 (skip)
 
 """
 class Card():

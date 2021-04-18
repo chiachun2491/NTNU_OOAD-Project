@@ -8,6 +8,8 @@
 
 from enum import Enum
 from random import shuffle
+import logging
+logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
 
 from player import Player
 from card import *
@@ -74,18 +76,18 @@ gole_list: {self.gold_list}"""
         while self.round <= 3:
             if self.state == Game_State.reset:
                 self.round += 1
-                print(f"round {self.round} start")
+                logging.info(f"round {self.round} start")
                 self.round_reset()
                 self.state = Game_State.play                
             elif self.state == Game_State.play:
                 # TODO: play game
-                print(f"round {self.round} end") # debug
+                logging.info(f"round {self.round} end")
                 self.state = Game_State.game_point
             elif self.state == Game_State.game_point:
-                # TODO: set player point
                 winner = self.player_list[0] # debug
                 self.calc_point(winner, [p for p in self.player_list if p.role==winner.role]) # debug(parameter)
                 self.view_player(self.player_list) # debug
+
                 if self.round == 3:
                     self.state = Game_State.set_point
                     continue
@@ -163,7 +165,7 @@ gole_list: {self.gold_list}"""
     def calc_point(self, winner: Player, winner_list: list):
         num_winner = len(winner_list)
 
-        if num_winner == 0: # sometime no winner in 3 player
+        if num_winner == 0: # sometime no winner in 3,4 player
             return
 
         if winner.role: # good dwarve win
@@ -190,13 +192,13 @@ gole_list: {self.gold_list}"""
     """
         calculate each player points and rank
     """
-    def calc_rank(self,):
+    def calc_rank(self):
         pass
 
     """
         visualize the board (may pass to frontend render)
     """
-    def visualization(self,):
+    def visualization(self):
         for row in range(5):
             print([self.board[row][col] for col in range(9)])
         print()
@@ -205,10 +207,10 @@ gole_list: {self.gold_list}"""
     # for debug
     def view_player(self, player_list):
         for i, player in enumerate(player_list):
-            print(f"{i}\tpoint: {player.point}\trole: {player.role}")
+            logging.debug(f"{i}\tpoint: {player.point}\trole: {player.role}\t hand cards: {player.hand_cards}")
 
 if __name__ == '__main__':
     gc = Game_Controller(4)
-    print(gc)
+    logging.info(gc)
     gc.visualization()
     gc.state_control()
