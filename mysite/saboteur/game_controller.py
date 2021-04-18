@@ -35,6 +35,11 @@ class Game_Controller():
         self.player_list = [Player() for _ in range(self.num_player)]
         self.board = [[Card() for _ in range(9)] for _ in range(5)]
         self.role_list = self.set_role()
+        self.gold_list = []
+        self.gold_list += [1 for _ in range(16)]
+        self.gold_list += [2 for _ in range(8)]
+        self.gold_list += [3 for _ in range(4)]
+        shuffle(self.gold_list)
 
     def __repr__(self):
         return f"""
@@ -42,7 +47,8 @@ round: {self.round} player numbers: {self.num_player}
 state: {self.state}
 card pool: {len(self.card_pool)}
 folddeck: {len(self.fold_deck)}
-role list: {self.role_list}"""
+role list: {self.role_list}
+gole_list: {self.gold_list}"""
 
     """
         set number of role of each round by rule
@@ -73,19 +79,22 @@ role list: {self.role_list}"""
                 self.state = Game_State.play                
             elif self.state == Game_State.play:
                 # TODO: play game
-                print("playing end")
+                print(f"round {self.round} end") # debug
                 self.state = Game_State.game_point
             elif self.state == Game_State.game_point:
                 # TODO: set player point
+                winner = self.player_list[0] # debug
+                self.calc_point(winner, [p for p in self.player_list if p.role==winner.role]) # debug(parameter)
+                self.view_player(self.player_list) # debug
                 if self.round == 3:
                     self.state = Game_State.set_point
                     continue
-                self.round_reset()
+                self.state = Game_State.reset
             elif self.state == Game_State.set_point:
                 self.calc_rank()
                 self.round += 1
 
-            self.visualization()
+            # self.visualization() # debug
 
     """
         reset board at new round start        
@@ -106,9 +115,11 @@ role list: {self.role_list}"""
         random role for each players at new round start
     """
     def set_player_role(self):
+        self.role_list = self.set_role()
         shuffle(self.role_list)
         for i, player in enumerate(self.player_list):
             player.role = self.role_list[i]
+        self.role_list.pop() # pop the last identity card that doesn't use
 
     """
         set player(s) action state
@@ -144,17 +155,57 @@ role list: {self.role_list}"""
         pass
 
     """
+        calculate points for each player at every game point.
+        and consider all player are greedy select the highest point gold card
+        :parms winner: which player connected the end road that has gold (Player)
+        :parms winner_list: players who is same team with winner
+    """
+    def calc_point(self, winner: Player, winner_list: list):
+        num_winner = len(winner_list)
+
+        if num_winner == 0: # sometime no winner in 3 player
+            return
+
+        if winner.role: # good dwarve win
+            gold_list = sorted(self.gold_list[:num_winner], reverse=True)
+            self.gold_list = self.gold_list[num_winner+1:]
+            winner_list.reverse()
+            idx = winner_list.index(winner)
+            while len(gold_list) > 0:
+                winner_list[idx % num_winner].point += gold_list.pop(0)
+                idx += 1
+        else:
+            point_rule = [0, 4, 3, 3, 2] # bad dwarve point by rule
+
+            for player in range(num_winner):
+                point = point_rule[num_winner]
+                winner_list[player].point += point
+                while point > 0:
+                    idx = 0
+                    while idx < len(self.gold_list):
+                        if point - self.gold_list[idx] >= 0:
+                            point -= self.gold_list.pop(idx)
+                        idx += 1
+
+    """
         calculate each player points and rank
     """
     def calc_rank(self,):
         pass
 
+    """
+        visualize the board (may pass to frontend render)
+    """
     def visualization(self,):
         for row in range(5):
             print([self.board[row][col] for col in range(9)])
         print()
         pass
 
+    # for debug
+    def view_player(self, player_list):
+        for i, player in enumerate(player_list):
+            print(f"{i}\tpoint: {player.point}\trole: {player.role}")
 
 if __name__ == '__main__':
     gc = Game_Controller(4)
