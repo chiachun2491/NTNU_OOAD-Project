@@ -42,7 +42,7 @@ class Game_Controller():
         self.gold_list += [2 for _ in range(8)]
         self.gold_list += [3 for _ in range(4)]
         shuffle(self.gold_list)
-        hands_rule = [0,0,0,6,6,6,5,5,4,4,4]
+        hands_rule = [None,None,None,6,6,6,5,5,4,4,4] # number of hand cards by rule
         self.num_hands = hands_rule[num_player]
 
     def __repr__(self):
@@ -58,15 +58,10 @@ gole_list: {self.gold_list}"""
         set number of role of each round by rule
     """
     def set_role(self): # TODO: refactor
+        num_bad_rule = [None,None,None,1,1,2,2,3,3,3,4] # bad dwarve num by rule
         role_list = []
-        if self.num_player <= 4:
-            num_bad = 1
-        elif self.num_player <= 6:
-            num_bad = 2
-        elif self.num_player <= 9:
-            num_bad = 3
-        elif self.num_player <= 10:
-            num_bad = 4
+        num_bad = num_bad_rule[self.num_player]
+
         role_list = [0] * num_bad
         role_list += [1] * (self.num_player + 1 - num_bad)
         return role_list
@@ -194,7 +189,7 @@ gole_list: {self.gold_list}"""
                 winner_list[idx % num_winner].point += gold_list.pop(0)
                 idx += 1
         else:
-            point_rule = [0, 4, 3, 3, 2] # bad dwarve point by rule
+            point_rule = [None, 4, 3, 3, 2] # bad dwarve point by rule
 
             for player in range(num_winner):
                 point = point_rule[num_winner]
