@@ -31,7 +31,7 @@ class Game_Controller():
     def __init__(self, num_player):
         self.round = 0
         self.state = Game_State.reset
-        self.card_pool = [Card() for _ in range(71)]
+        self.card_pool = [Card(idx) for idx in range(4, 71)]
         self.fold_deck = [Card() for _ in range(0)]
         self.num_player = num_player
         self.player_list = [Player() for _ in range(self.num_player)]
@@ -42,20 +42,22 @@ class Game_Controller():
         self.gold_list += [2 for _ in range(8)]
         self.gold_list += [3 for _ in range(4)]
         shuffle(self.gold_list)
+        hands_rule = [0,0,0,6,6,6,5,5,4,4,4]
+        self.num_hands = hands_rule[num_player]
 
     def __repr__(self):
         return f"""
 round: {self.round} player numbers: {self.num_player}
 state: {self.state}
 card pool: {len(self.card_pool)}
-folddeck: {len(self.fold_deck)}
+fold deck: {len(self.fold_deck)}
 role list: {self.role_list}
 gole_list: {self.gold_list}"""
 
     """
         set number of role of each round by rule
     """
-    def set_role(self):
+    def set_role(self): # TODO: refactor
         role_list = []
         if self.num_player <= 4:
             num_bad = 1
@@ -82,6 +84,12 @@ gole_list: {self.gold_list}"""
             elif self.state == Game_State.play:
                 # TODO: play game
                 logging.info(f"round {self.round} end")
+                idx = 0
+                while len(self.card_pool) > 0:
+                    now_play = self.player_list[idx % self.num_player]
+                    now_play.hand_cards.pop(0) # debug
+                    self.deal_card([now_play])
+                    idx += 1
                 self.state = Game_State.game_point
             elif self.state == Game_State.game_point:
                 winner = self.player_list[0] # debug
@@ -142,6 +150,9 @@ gole_list: {self.gold_list}"""
         self.board_reset()
         self.set_player_role()
         self.set_player_state(self.player_list)
+        self.card_pool = [Card(idx) for idx in range(4, 71)]
+        shuffle(self.card_pool)
+        self.deal_card(self.player_list)
 
     """
         check the player behavior is legality or not
@@ -151,18 +162,24 @@ gole_list: {self.gold_list}"""
 
     """
         deal card for player(s)
+        check card_pool length before call
         :parms player_list: List[Player]
     """
     def deal_card(self, player_list):
-        pass
+        for player in player_list:
+            if self.state == Game_State.reset:
+                player.hand_cards = self.card_pool[ : self.num_hands]
+                self.card_pool = self.card_pool[self.num_hands+1 : ]
+            elif self.state == Game_State.play:
+                player.hand_cards += [self.card_pool.pop(0)]
 
     """
         calculate points for each player at every game point.
         and consider all player are greedy select the highest point gold card
-        :parms winner: which player connected the end road that has gold (Player)
+        :parms winner: which player connected the end road that has gold (List[Player])
         :parms winner_list: players who is same team with winner
     """
-    def calc_point(self, winner: Player, winner_list: list):
+    def calc_point(self, winner: Player, winner_list):
         num_winner = len(winner_list)
 
         if num_winner == 0: # sometime no winner in 3,4 player
@@ -207,10 +224,11 @@ gole_list: {self.gold_list}"""
     # for debug
     def view_player(self, player_list):
         for i, player in enumerate(player_list):
-            logging.debug(f"{i}\tpoint: {player.point}\trole: {player.role}\t hand cards: {player.hand_cards}")
+            logging.debug(f"{i}\tpoint: {player.point}\trole: {player.role}\t hand cards: {player.hand_cards} {len(player.hand_cards)}")
 
 if __name__ == '__main__':
     gc = Game_Controller(4)
     logging.info(gc)
     gc.visualization()
     gc.state_control()
+    logging.info(gc)
