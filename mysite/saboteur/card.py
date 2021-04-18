@@ -152,6 +152,6 @@ class Map(Action):
         pass
 
 class Identity(Card):
-    def __init__(self, card_no=-1, is_dwarve=True):
+    def __init__(self, card_no=-1, is_good=True):
         super().__init__(card_no=card_no)
-        self.is_dwarve = is_dwarve
+        self.is_good = is_good
