@@ -11,7 +11,7 @@ from enum import Enum
 """
     card
     the abstract class of all cards
-    card number defind:
+    card number define:
         road: 0 ~ 43
             0:          ╬ [1, 1, 1, 1, 1] start road
             1:          ╬ [1, 1, 1, 1, 1] end road(gold)

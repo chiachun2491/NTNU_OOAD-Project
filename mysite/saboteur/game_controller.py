@@ -75,17 +75,36 @@ gole_list: {self.gold_list}"""
                 self.round += 1
                 logging.info(f"round {self.round} start")
                 self.round_reset()
-                self.state = Game_State.play                
+                self.state = Game_State.play
             elif self.state == Game_State.play:
                 # TODO: play game
+                turn = 0
+                while True: # debug
+                    now_play = self.player_list[turn % self.num_player]
+                    
+                    logging.debug(f"player {turn % self.num_player}'s turn:")
+                    card, pos = now_play.play_card()
+
+                    if self.check_legality(now_play, card, pos):
+                        r = pos // 9 # debug
+                        c = pos % 9 # debug
+                        self.board[r][c] = card # debug
+                        pass
+                    
+                    if len(self.card_pool) > 0:
+                        self.deal_card([now_play])
+                    
+                    flag = 0
+                    for player in self.player_list:
+                        if len(player.hand_cards) == 0:
+                            flag += 1
+
+                    if flag == self.num_player:
+                        break
+
+                    turn += 1
                 logging.info(f"round {self.round} end")
-                idx = 0
-                while len(self.card_pool) > 0:
-                    now_play = self.player_list[idx % self.num_player]
-                    now_play.hand_cards.pop(0) # debug
-                    self.deal_card([now_play])
-                    idx += 1
-                self.state = Game_State.game_point
+                self.state = Game_State.set_point # debug set_point
             elif self.state == Game_State.game_point:
                 winner = self.player_list[0] # debug
                 self.calc_point(winner, [p for p in self.player_list if p.role==winner.role]) # debug(parameter)
@@ -145,14 +164,15 @@ gole_list: {self.gold_list}"""
         self.board_reset()
         self.set_player_role()
         self.set_player_state(self.player_list)
-        self.card_pool = [Card(idx) for idx in range(4, 71)]
+        self.card_pool = [Card(idx) for idx in range(4, 30)] # debug 30
         shuffle(self.card_pool)
         self.deal_card(self.player_list)
 
     """
         check the player behavior is legality or not
     """
-    def check_legality(self, player: Player, card: Card):
+    def check_legality(self, player: Player, card: Card, pos: int) -> bool:
+        return True # debug
         pass
 
     """
@@ -224,6 +244,6 @@ gole_list: {self.gold_list}"""
 if __name__ == '__main__':
     gc = Game_Controller(4)
     logging.info(gc)
-    gc.visualization()
     gc.state_control()
+    gc.visualization()
     logging.info(gc)

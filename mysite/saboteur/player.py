@@ -21,9 +21,15 @@ class Player():
 
     """
         paly a road card on to board or an action card to some player
-    """
-    def play_card(self, card: Card) -> Card:
-        pass
 
-    def fold_card(self, card: Card) -> Card:
-        pass
+        :returns card: the card that player play
+        :returns pos: the position of the card
+        pos define:
+            -1:         game_controller.fold_deck
+            0 ~ 44:     game_controller.board
+            45 ~ 54:    game_controller.player_list[0 ~ 9]
+    """
+    def play_card(self) -> (Card, int):
+        card = self.hand_cards.pop(0) # debug
+        pos = input("input position:") # debug
+        return card, int(pos) # debug int()
