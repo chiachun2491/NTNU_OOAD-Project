@@ -184,7 +184,7 @@ gole_list: {self.gold_list}"""
         for player in player_list:
             if self.state == Game_State.reset:
                 player.hand_cards = self.card_pool[ : self.num_hands]
-                self.card_pool = self.card_pool[self.num_hands+1 : ]
+                self.card_pool = self.card_pool[self.num_hands : ]
             elif self.state == Game_State.play:
                 player.hand_cards += [self.card_pool.pop(0)]
 
@@ -201,8 +201,8 @@ gole_list: {self.gold_list}"""
             return
 
         if winner.role: # good dwarve win
-            gold_list = sorted(self.gold_list[:num_winner], reverse=True)
-            self.gold_list = self.gold_list[num_winner+1:]
+            gold_list = sorted(self.gold_list[ : num_winner], reverse=True)
+            self.gold_list = self.gold_list[num_winner : ]
             winner_list.reverse()
             idx = winner_list.index(winner)
             while len(gold_list) > 0:
