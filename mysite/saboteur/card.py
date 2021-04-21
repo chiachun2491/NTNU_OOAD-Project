@@ -6,7 +6,7 @@
 # @Link   : https://github.com/DannyLeee
 # @Date   : 2021/4/16 下午11:02:05
 
-from enum import Enum
+from enum import Enum, IntEnum
 
 """
     card
@@ -114,7 +114,7 @@ class Road(Card):
 """
     action type for action card
 """
-class Action_Type(Enum):
+class Action_Type(IntEnum):
     miner_lamp = 0
     minecart = 1
     mine_pick = 2

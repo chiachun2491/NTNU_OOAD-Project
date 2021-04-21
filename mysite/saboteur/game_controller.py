@@ -76,6 +76,7 @@ gole_list: {self.gold_list}"""
                 logging.info(f"round {self.round} start")
                 self.round_reset()
                 self.state = Game_State.play
+                self.view_player(self.player_list) # debug
             elif self.state == Game_State.play:
                 # TODO: play game
                 turn = 0
@@ -83,13 +84,14 @@ gole_list: {self.gold_list}"""
                     now_play = self.player_list[turn % self.num_player]
                     
                     logging.debug(f"player {turn % self.num_player}'s turn:")
+                    
                     card, pos = now_play.play_card()
+                    legal, not_legal_msg = self.check_legality(now_play, card, pos)
+                    while not legal:
+                        logging.debug(not_legal_msg)
+                        card, pos = now_play.play_card()
 
-                    if self.check_legality(now_play, card, pos):
-                        r = pos // 9 # debug
-                        c = pos % 9 # debug
-                        self.board[r][c] = card # debug
-                        pass
+                    self.set_board(card, pos)
                     
                     if len(self.card_pool) > 0:
                         self.deal_card([now_play])
@@ -164,16 +166,34 @@ gole_list: {self.gold_list}"""
         self.board_reset()
         self.set_player_role()
         self.set_player_state(self.player_list)
-        self.card_pool = [Card(idx) for idx in range(4, 30)] # debug 30
+        self.card_pool = [Card(idx) for idx in range(4, 15)] # debug 15
+        self.card_pool += [Action(idx, is_break=True) for idx in range(44, 60)] # debug
         shuffle(self.card_pool)
         self.deal_card(self.player_list)
 
     """
         check the player behavior is legality or not
     """
-    def check_legality(self, player: Player, card: Card, pos: int) -> bool:
-        return True # debug
+    def check_legality(self, player: Player, card: Card, pos: int) -> (bool, str):
+        return True, "" # debug
         pass
+
+    """
+        set board when the player behavior is legality
+        :parms card: the card need to be set on board or player
+        :parms pos: the position of the card determine on board or player
+                    (see Player.play_card for more position definition)
+    """
+    def set_board(self, card: Card, pos: int):
+        if pos == -1: # fold any card
+            self.fold_deck += [card]
+        elif pos <= 44: # play road card on board
+            r = pos //9
+            c = pos % 9
+            self.board[r][c] = card
+        else: # play action card to player
+            pos -= 45
+            self.player_list[pos].action_state[card.action_type] = card.is_break
 
     """
         deal card for player(s)
@@ -239,7 +259,7 @@ gole_list: {self.gold_list}"""
     # for debug
     def view_player(self, player_list):
         for i, player in enumerate(player_list):
-            logging.debug(f"{i}\tpoint: {player.point}\trole: {player.role}\t hand cards: {player.hand_cards} {len(player.hand_cards)}")
+            logging.debug(f"{i} point: {player.point}\trole: {player.role}\thand cards: {player.hand_cards} {len(player.hand_cards)}\tstate: {player.action_state}")
 
 if __name__ == '__main__':
     gc = Game_Controller(4)
@@ -247,3 +267,4 @@ if __name__ == '__main__':
     gc.state_control()
     gc.visualization()
     logging.info(gc)
+    gc.view_player(gc.player_list)
