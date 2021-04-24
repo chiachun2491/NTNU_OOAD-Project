@@ -68,13 +68,14 @@ class Road_Type(Enum):
     connected: [int] *5 (middel, top, right, down, left) 0 for not connect
 """
 class Road(Card):
-    def __init__(self, card_no, road_type: Road_Type):
+    def __init__(self, card_no, road_type: Road_Type=Road_Type.normal):
         super().__init__(card_no=card_no)
         self.rotate = 0
         self.road_type = road_type
         self.connected = self.road_connection()
 
     def road_connection(self):
+        connected = [0] * 5
         if self.card_no == 0 or self.card_no == 1 or \
             (self.card_no >= 13 and self.card_no <= 17):
             connected = [1] * 5

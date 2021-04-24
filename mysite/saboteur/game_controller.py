@@ -89,6 +89,7 @@ gole_list: {self.gold_list}"""
                     legal, not_legal_msg = self.check_legality(now_play, card, pos)
                     while not legal:
                         logging.debug(not_legal_msg)
+                        
                         card, pos = now_play.play_card()
 
                     self.set_board(card, pos)
@@ -166,8 +167,11 @@ gole_list: {self.gold_list}"""
         self.board_reset()
         self.set_player_role()
         self.set_player_state(self.player_list)
-        self.card_pool = [Card(idx) for idx in range(4, 15)] # debug 15
-        self.card_pool += [Action(idx, is_break=True) for idx in range(44, 60)] # debug
+        self.card_pool = [Road(idx) for idx in range(4, 18)] # debug 15
+        self.card_pool += [Action(idx, is_break=False) for idx in range(44, 46)] # debug 2 good lamp
+        self.card_pool += [Action(idx, is_break=True) for idx in range(46, 49)] # debug 3 bad lamp
+        self.card_pool += [Rocks(idx, is_break=False) for idx in range(62, 65)] # debug 3 rocks
+        self.card_pool += [Map(idx, is_break=False) for idx in range(65, 67)] # debug 2 map
         shuffle(self.card_pool)
         self.deal_card(self.player_list)
 
@@ -190,7 +194,13 @@ gole_list: {self.gold_list}"""
         elif pos <= 44: # play road card on board
             r = pos //9
             c = pos % 9
-            self.board[r][c] = card
+            if isinstance(card, Road):
+                self.board[r][c] = card
+            elif isinstance(card, Rocks):
+                self.board[r][c] = Road(-1)
+            elif isinstance(card, Map):
+                logging.debug(self.board[r][c])
+                # TODO: pass msg to player
         else: # play action card to player
             pos -= 45
             self.player_list[pos].action_state[card.action_type] = card.is_break
