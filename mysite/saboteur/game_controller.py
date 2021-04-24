@@ -181,6 +181,40 @@ gole_list: {self.gold_list}"""
         self.deal_card(self.player_list)
 
     """
+        check the road is connect to road beside or not
+        :parms card: the present card
+        :parms row: the present row
+        :parms col: the present column
+        :returns is_connect: the road is connect to rock or not (Bool)
+    """    
+    def connect_to_rock(self, card: Road, row: int, col:int) -> bool:
+        is_connect = 0
+        
+        # check above, under, left and right road side's are rock or not
+        if row-1>=0:
+            beside = self.board[row-1][col]
+            if beside.card_no != -1 and \
+                (card.connected[1] ^ self.board[row-1][col].connected[3]) :
+                is_connect += 1
+        if row+1<=4:
+            beside = self.board[row+1][col]
+            if beside.card_no != -1 and \
+                (card.connected[3] ^ self.board[row+1][col].connected[1]) :
+                is_connect += 1
+        if col-1>=0:
+            beside = self.board[row][col-1]
+            if beside.card_no != -1 and \
+                (card.connected[4] ^ self.board[row][col-1].connected[2]) :
+                is_connect += 1
+        if col+1<=8:
+            beside = self.board[row][col+1]
+            if beside.card_no != -1 and \
+                (card.connected[2] ^ self.board[row][col+1].connected[4]) :
+                is_connect += 1
+
+        return is_connect
+
+    """
         check the player behavior is legality or not
         :parms player: the player who play card in this turn
         :parms card: the card which `player` play
@@ -205,8 +239,14 @@ gole_list: {self.gold_list}"""
                 elif self.board[r][c].card_no != -1:
                     legality = False
                     illegal_msg = "the position have road already"
-                # TODO: check road is connect to start or not
-                pass
+                elif self.connect_to_rock(card, r, c):
+                    legality = False
+                    illegal_msg = "road can't connect to rock"
+                else:
+                    # check road is connect to start or not
+                    self.went = [[False for _ in range(9)] for _ in range(5)]
+                    legality = self.check_connect(card, r, c)
+                    illegal_msg = "the position does not connect to start road"
         
             elif isinstance(card, Rocks):
                 if self.board[r][c].road_type == Road_Type.start \
