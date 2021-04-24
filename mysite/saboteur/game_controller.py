@@ -35,7 +35,7 @@ class Game_Controller():
         self.fold_deck = [Card() for _ in range(0)]
         self.num_player = num_player
         self.player_list = [Player() for _ in range(self.num_player)]
-        self.board = [[Card() for _ in range(9)] for _ in range(5)]
+        self.board = [[Road() for _ in range(9)] for _ in range(5)]
         self.role_list = self.set_role()
         self.gold_list = []
         self.gold_list += [1 for _ in range(16)]
@@ -86,11 +86,13 @@ gole_list: {self.gold_list}"""
                     logging.debug(f"player {turn % self.num_player}'s turn:")
                     
                     card, pos, action_type = now_play.play_card()
-                    legal, not_legal_msg = self.check_legality(now_play, card, pos)
+                    legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
                     while not legal:
-                        logging.debug(not_legal_msg)
-                        
+                        # return illegal card to player
+                        self.deal_card([now_play], card)
+                        logging.debug(f"{illegal_msg}\n")
                         card, pos, action_type = now_play.play_card()
+                        legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
 
                     self.set_board(card, pos, action_type)
                     
@@ -180,10 +182,56 @@ gole_list: {self.gold_list}"""
 
     """
         check the player behavior is legality or not
+        :parms player: the player who play card in this turn
+        :parms card: the card which `player` play
+        :parms pos: the position that the `card` need to be set
+        :parms action_type: the choice of repair which tool to of the multi-repair action card
+        :return legality: the `player` play the `card` at the `pos` is legal or not
+        :return illegal_msg: the illegal message will show to player if illegal
     """
-    def check_legality(self, player: Player, card: Card, pos: int) -> (bool, str):
-        return True, "" # debug
-        pass
+    def check_legality(self, player: Player, card: Card, pos: int, action_type: int) -> (bool, str):
+        legality = True
+        illegal_msg = ""
+
+        if pos == -1: # fold card
+            pass # do nothing
+        elif pos <= 44: # play road card on board
+            r = pos //9
+            c = pos % 9
+            if isinstance(card, Road):
+                if sum(player.action_state):
+                    legality = False
+                    illegal_msg = "some tool are broken can't build road"
+                elif self.board[r][c].card_no != -1:
+                    legality = False
+                    illegal_msg = "the position have road already"
+                # TODO: check road is connect to start or not
+                pass
+        
+            elif isinstance(card, Rocks):
+                if self.board[r][c].road_type == Road_Type.start \
+                    or self.board[r][c].road_type == Road_Type.end:
+                    legality = False
+                    illegal_msg = "rock card can't destroy start/end road"
+                elif self.board[r][c].card_no == -1:
+                        legality = False
+                        illegal_msg = "rock card can't destroy empty position"
+
+            elif isinstance(card, Map):
+                if self.board[r][c].road_type != Road_Type.end:
+                    legality = False
+                    illegal_msg = "map card can't peek non end road"
+            
+            else:
+                legality = False
+                illegal_msg = "except rocks and map action, card can't play on card board"
+        
+        else: # play action card to player
+            pos -= 45
+            legality = self.player_list[pos].action_state[action_type] ^ card.is_break
+            illegal_msg = "" if legality else "the player's tool are already broken/repaired"
+
+        return legality, illegal_msg
 
     """
         set board when the player behavior is legality
@@ -213,14 +261,18 @@ gole_list: {self.gold_list}"""
         deal card for player(s)
         check card_pool length before call
         :parms player_list: List[Player]
+        :parms card: return the card if player play an illegal card (Card)
     """
-    def deal_card(self, player_list):
+    def deal_card(self, player_list, card: Card=None):
         for player in player_list:
             if self.state == Game_State.reset:
                 player.hand_cards = self.card_pool[ : self.num_hands]
                 self.card_pool = self.card_pool[self.num_hands : ]
             elif self.state == Game_State.play:
-                player.hand_cards += [self.card_pool.pop(0)]
+                if card is not None:
+                    player.hand_cards += [card]
+                else:
+                    player.hand_cards += [self.card_pool.pop(0)]
 
     """
         calculate points for each player at every game point.
@@ -268,7 +320,7 @@ gole_list: {self.gold_list}"""
         for row in range(5):
             print([self.board[row][col] for col in range(9)])
         print()
-        pass
+        # TODO: pass to frontend render
 
     # for debug
     def view_player(self, player_list):

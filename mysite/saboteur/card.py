@@ -68,7 +68,7 @@ class Road_Type(Enum):
     connected: [int] *5 (middel, top, right, down, left) 0 for not connect
 """
 class Road(Card):
-    def __init__(self, card_no, road_type: Road_Type=Road_Type.normal):
+    def __init__(self, card_no=-1, road_type: Road_Type=Road_Type.normal):
         super().__init__(card_no=card_no)
         self.rotate = 0
         self.road_type = road_type
