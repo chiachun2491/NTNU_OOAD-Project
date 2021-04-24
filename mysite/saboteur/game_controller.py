@@ -157,7 +157,8 @@ gole_list: {self.gold_list}"""
             for player in player_list:
                 player.action_state = [False for _ in range(3)]
         elif self.state == Game_State.play:
-            pass
+            player = player_list[0]
+            player.action_state[action.action_type] = action.is_break
 
     """
         reset the board, card pool, players state at new round start
@@ -203,7 +204,7 @@ gole_list: {self.gold_list}"""
                 # TODO: pass msg to player
         else: # play action card to player
             pos -= 45
-            self.player_list[pos].action_state[card.action_type] = card.is_break
+            self.set_player_state([self.player_list[pos]], card)
 
     """
         deal card for player(s)
