@@ -57,7 +57,7 @@ gole_list: {self.gold_list}"""
     """
         set number of role of each round by rule
     """
-    def set_role(self): # TODO: refactor
+    def set_role(self):
         num_bad_rule = [None,None,None,1,1,2,2,3,3,3,4] # bad dwarve num by rule
         role_list = []
         num_bad = num_bad_rule[self.num_player]
@@ -85,14 +85,14 @@ gole_list: {self.gold_list}"""
                     
                     logging.debug(f"player {turn % self.num_player}'s turn:")
                     
-                    card, pos = now_play.play_card()
+                    card, pos, action_type = now_play.play_card()
                     legal, not_legal_msg = self.check_legality(now_play, card, pos)
                     while not legal:
                         logging.debug(not_legal_msg)
                         
-                        card, pos = now_play.play_card()
+                        card, pos, action_type = now_play.play_card()
 
-                    self.set_board(card, pos)
+                    self.set_board(card, pos, action_type)
                     
                     if len(self.card_pool) > 0:
                         self.deal_card([now_play])
@@ -151,14 +151,15 @@ gole_list: {self.gold_list}"""
     """
         set player(s) action state
         :parms player_list: List[Player]
+        :parms action_type: the choice of repair which tool to of the multi-repair action card
     """
-    def set_player_state(self, player_list, action: Action=None):
+    def set_player_state(self, player_list, action: Action=None, action_type: int=-1):
         if self.state == Game_State.reset:
             for player in player_list:
                 player.action_state = [False for _ in range(3)]
         elif self.state == Game_State.play:
             player = player_list[0]
-            player.action_state[action.action_type] = action.is_break
+            player.action_state[action_type] = action.is_break
 
     """
         reset the board, card pool, players state at new round start
@@ -173,6 +174,7 @@ gole_list: {self.gold_list}"""
         self.card_pool += [Action(idx, is_break=True) for idx in range(46, 49)] # debug 3 bad lamp
         self.card_pool += [Rocks(idx, is_break=False) for idx in range(62, 65)] # debug 3 rocks
         self.card_pool += [Map(idx, is_break=False) for idx in range(65, 67)] # debug 2 map
+        self.card_pool += [Action(59, [Action_Type.mine_pick, Action_Type.minecart])] # debug
         shuffle(self.card_pool)
         self.deal_card(self.player_list)
 
@@ -188,8 +190,9 @@ gole_list: {self.gold_list}"""
         :parms card: the card need to be set on board or player
         :parms pos: the position of the card determine on board or player
                     (see Player.play_card for more position definition)
+        :parms action_type: the choice of repair which tool to of the multi-repair action card
     """
-    def set_board(self, card: Card, pos: int):
+    def set_board(self, card: Card, pos: int, action_type: int):
         if pos == -1: # fold any card
             self.fold_deck += [card]
         elif pos <= 44: # play road card on board
@@ -204,7 +207,7 @@ gole_list: {self.gold_list}"""
                 # TODO: pass msg to player
         else: # play action card to player
             pos -= 45
-            self.set_player_state([self.player_list[pos]], card)
+            self.set_player_state([self.player_list[pos]], card, action_type)
 
     """
         deal card for player(s)
