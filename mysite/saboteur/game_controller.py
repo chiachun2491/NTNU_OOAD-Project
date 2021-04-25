@@ -44,6 +44,7 @@ class Game_Controller():
         shuffle(self.gold_list)
         hands_rule = [None,None,None,6,6,6,5,5,4,4,4] # number of hand cards by rule
         self.num_hands = hands_rule[num_player]
+        self.went = [[False for _ in range(9)] for _ in range(5)]
 
     def __repr__(self):
         return f"""
@@ -171,14 +172,59 @@ gole_list: {self.gold_list}"""
         self.board_reset()
         self.set_player_role()
         self.set_player_state(self.player_list)
-        self.card_pool = [Road(idx) for idx in range(4, 18)] # debug 15
-        self.card_pool += [Action(idx, is_break=False) for idx in range(44, 46)] # debug 2 good lamp
-        self.card_pool += [Action(idx, is_break=True) for idx in range(46, 49)] # debug 3 bad lamp
-        self.card_pool += [Rocks(idx, is_break=False) for idx in range(62, 65)] # debug 3 rocks
-        self.card_pool += [Map(idx, is_break=False) for idx in range(65, 67)] # debug 2 map
-        self.card_pool += [Action(59, [Action_Type.mine_pick, Action_Type.minecart])] # debug
+        self.card_pool = [Road(idx) for idx in range(4, 44)] # debug 15
+        # self.card_pool += [Action(idx, is_break=False) for idx in range(44, 46)] # debug 2 good lamp
+        # self.card_pool += [Action(idx, is_break=True) for idx in range(46, 49)] # debug 3 bad lamp
+        # self.card_pool += [Rocks(idx, is_break=False) for idx in range(62, 65)] # debug 3 rocks
+        # self.card_pool += [Map(idx, is_break=False) for idx in range(65, 67)] # debug 2 map
+        # self.card_pool += [Action(59, [Action_Type.mine_pick, Action_Type.minecart])] # debug
         shuffle(self.card_pool)
         self.deal_card(self.player_list)
+
+    """
+        check the road is connect to starting road or not with DFS algorithm
+        :parms card: the present card
+        :parms row: the present row
+        :parms col: the present column
+        :returns is_connect: the road is connect or not (Bool)
+    """
+    def connect_to_start(self, card: Road, row: int, col: int):
+        is_connect = False
+        # card = self.board[row][col]
+        self.went[row][col] = True
+
+        if row == 2 and col == 0:
+            is_connect = True
+            return is_connect
+        
+        # boundary & self side connect & beside's road didn't go
+        # has card beside & beside's card can connect
+        # card beside can connect to middle
+        if col-1 >= 0 and card.connected[4] and not self.went[row][col-1]: # left
+            beside = self.board[row][col-1]
+            if beside.card_no != -1 and beside.connected[2]\
+                and beside.connected[0]:
+                is_connect = self.connect_to_start(self.board[row][col-1], row, col-1)
+        
+        elif row-1 >= 0 and card.connected[1] and not self.went[row-1][col]: # top
+            beside = self.board[row-1][col]
+            if beside.card_no != -1 and beside.connected[3]\
+                and beside.connected[0]:
+                is_connect = self.connect_to_start(self.board[row-1][col], row-1, col)
+
+        elif row+1 <= 4 and card.connected[3] and not self.went[row+1][col]: # down
+            beside = self.board[row+1][col]
+            if beside.card_no != -1 and beside.connected[1]\
+                and beside.connected[0]:
+                is_connect = self.connect_to_start(self.board[row+1][col], row+1, col)
+        
+        elif col+1 <= 8 and card.connected[2] and not self.went[row][col+1]: # right
+            beside = self.board[row][col+1]
+            if beside.card_no != -1 and beside.connected[4]\
+                and beside.connected[0]:
+                is_connect = self.connect_to_start(self.board[row][col+1], row, col+1)
+        
+        return is_connect
 
     """
         check the road is connect to road beside or not
@@ -245,7 +291,7 @@ gole_list: {self.gold_list}"""
                 else:
                     # check road is connect to start or not
                     self.went = [[False for _ in range(9)] for _ in range(5)]
-                    legality = self.check_connect(card, r, c)
+                    legality = self.connect_to_start(card, r, c)
                     illegal_msg = "the position does not connect to start road"
         
             elif isinstance(card, Rocks):
