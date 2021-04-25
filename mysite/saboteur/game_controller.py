@@ -206,19 +206,19 @@ gole_list: {self.gold_list}"""
                 and beside.connected[0]:
                 is_connect = self.connect_to_start(self.board[row][col-1], row, col-1)
         
-        elif row-1 >= 0 and card.connected[1] and not self.went[row-1][col]: # top
+        if row-1 >= 0 and card.connected[1] and not self.went[row-1][col]: # top
             beside = self.board[row-1][col]
             if beside.card_no != -1 and beside.connected[3]\
                 and beside.connected[0]:
                 is_connect = self.connect_to_start(self.board[row-1][col], row-1, col)
 
-        elif row+1 <= 4 and card.connected[3] and not self.went[row+1][col]: # down
+        if row+1 <= 4 and card.connected[3] and not self.went[row+1][col]: # down
             beside = self.board[row+1][col]
             if beside.card_no != -1 and beside.connected[1]\
                 and beside.connected[0]:
                 is_connect = self.connect_to_start(self.board[row+1][col], row+1, col)
         
-        elif col+1 <= 8 and card.connected[2] and not self.went[row][col+1]: # right
+        if col+1 <= 8 and card.connected[2] and not self.went[row][col+1]: # right
             beside = self.board[row][col+1]
             if beside.card_no != -1 and beside.connected[4]\
                 and beside.connected[0]:
