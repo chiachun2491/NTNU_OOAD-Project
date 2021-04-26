@@ -202,29 +202,31 @@ gole_list: {self.gold_list}"""
         # card beside can connect to middle
         if col-1 >= 0 and card.connected[4] and not self.went[row][col-1]: # left
             beside = self.board[row][col-1]
-            if beside.card_no != -1 and beside.connected[2]\
+            if beside.card_no != -1 and beside.connected[2] \
                 and beside.connected[0]:
                 is_connect = self.connect_to_start(self.board[row][col-1], row, col-1)
+                return is_connect
         
         if row-1 >= 0 and card.connected[1] and not self.went[row-1][col]: # top
             beside = self.board[row-1][col]
-            if beside.card_no != -1 and beside.connected[3]\
+            if beside.card_no != -1 and beside.connected[3] \
                 and beside.connected[0]:
                 is_connect = self.connect_to_start(self.board[row-1][col], row-1, col)
+                return is_connect
 
         if row+1 <= 4 and card.connected[3] and not self.went[row+1][col]: # down
             beside = self.board[row+1][col]
-            if beside.card_no != -1 and beside.connected[1]\
+            if beside.card_no != -1 and beside.connected[1] \
                 and beside.connected[0]:
                 is_connect = self.connect_to_start(self.board[row+1][col], row+1, col)
+                return is_connect
         
         if col+1 <= 8 and card.connected[2] and not self.went[row][col+1]: # right
             beside = self.board[row][col+1]
-            if beside.card_no != -1 and beside.connected[4]\
+            if beside.card_no != -1 and beside.connected[4] \
                 and beside.connected[0]:
                 is_connect = self.connect_to_start(self.board[row][col+1], row, col+1)
-        
-        return is_connect
+                return is_connect
 
     """
         check the road is connect to road beside or not
