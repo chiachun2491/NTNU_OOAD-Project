@@ -15,8 +15,8 @@ from enum import Enum, IntEnum
         road: 0 ~ 43
             0:          ╬ [1, 1, 1, 1, 1] start road
             1:          ╬ [1, 1, 1, 1, 1] end road(gold)
-            2:          ╔ [1, 0, 1, 1, 0] end road(rock)
-            3:          ╔ [1, 0, 0, 1, 1] end road(rock)
+            2:          ╔ [1, 1, 1, 1, 1] end road(rock)
+            3:          ╔ [1, 1, 1, 1, 1] end road(rock)
             4 ~ 7:      ║ [1, 1, 0, 1, 0]
             8 ~ 12:     ╠ [1, 1, 1, 1, 0]
             13 ~ 17:    ╬ [1, 1, 1, 1, 1]
@@ -42,7 +42,7 @@ from enum import Enum, IntEnum
             60:         mine_lamp + minecart
             61:         mine_pick + mine_lamp
             62 ~ 64:    rocks
-            65 ~70:     map
+            65 ~ 70:     map
         
         identity: 71 ~ 81 (skip)
 
@@ -76,12 +76,12 @@ class Road(Card):
 
     def road_connection(self):
         connected = [0] * 5
-        if self.card_no == 0 or self.card_no == 1 or \
+        if self.card_no >= 0 or self.card_no <= 3 or \
             (self.card_no >= 13 and self.card_no <= 17):
             connected = [1] * 5
-        elif self.card_no == 2 or (self.card_no >= 18 and self.card_no <= 21):
+        elif self.card_no >= 18 and self.card_no <= 21:
             connected = [1, 0, 1, 1, 0]
-        elif self.card_no == 3 or (self.card_no >= 22 and self.card_no <= 26):
+        elif self.card_no >= 22 and self.card_no <= 26:
             connected = [1, 0, 0, 1, 1]
         elif self.card_no >= 4 and self.card_no <= 7:
             connected = [1, 1, 0, 1, 0]
