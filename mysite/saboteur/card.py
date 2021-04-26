@@ -110,6 +110,10 @@ class Road(Card):
         elif self.card_no == 43:
             connected = [0, 0, 1, 0, 1]
 
+        if self.rotate != 0:
+            connected[1], connected[3] = connected[3], connected[1]
+            connected[2], connected[4] = connected[4], connected[2]
+
         return connected
 
 """

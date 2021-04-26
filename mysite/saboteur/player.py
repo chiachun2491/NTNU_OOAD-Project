@@ -8,7 +8,7 @@
 
 import logging
 
-from card import Card, Action
+from card import *
 
 """
     Player
@@ -42,4 +42,9 @@ class Player():
                 action_type = input("input action type: ") # debug
             else:
                 action_type = card.action_type
+        elif isinstance(card, Road):
+            rotate = input("input rotate degrees: ") # debug
+            card.rotate = int(rotate)
+            card.connected = card.road_connection()
+
         return card, int(pos), int(action_type) # debug int()
