@@ -45,6 +45,8 @@ class Game_Controller():
         hands_rule = [None,None,None,6,6,6,5,5,4,4,4] # number of hand cards by rule
         self.num_hands = hands_rule[num_player]
         self.went = [[False for _ in range(9)] for _ in range(5)]
+        self.winner = None
+        self.winner_lsit = []
 
     def __repr__(self):
         return f"""
@@ -78,6 +80,8 @@ gole_list: {self.gold_list}"""
                 self.round_reset()
                 self.state = Game_State.play
                 self.view_player(self.player_list) # debug
+                self.visualization() # debug
+
             elif self.state == Game_State.play:
                 # TODO: play game
                 turn = 0
@@ -96,6 +100,18 @@ gole_list: {self.gold_list}"""
                         legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
 
                     self.set_board(card, pos, action_type)
+
+                    if pos==7 or pos==17 or \
+                        pos==25 or pos==35 or pos==43: # good dwarf win
+                        logging.debug(f"gold position: {self.gold_pos}")
+                        gold_row = self.gold_pos // 9
+                        gold_col = self.gold_pos % 9
+                        self.went = [[False for _ in range(9)] for _ in range(5)]
+                        if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col):
+                            logging.info("GOOD dwarfs win")
+                            self.winner_lsit = [winner for winner in self.player_list if winner.role]
+                            self.winner = now_play
+                            break
                     
                     if len(self.card_pool) > 0:
                         self.deal_card([now_play])
@@ -109,17 +125,24 @@ gole_list: {self.gold_list}"""
                         break
 
                     turn += 1
+                if flag == self.num_player: # bad dwarf win
+                    logging.info("BAD dwarfs win")
+                    self.winner_lsit = [winner for winner in self.player_list if winner.role==False]
+
                 logging.info(f"round {self.round} end")
-                self.state = Game_State.set_point # debug set_point
+                self.state = Game_State.game_point
+
             elif self.state == Game_State.game_point:
-                winner = self.player_list[0] # debug
-                self.calc_point(winner, [p for p in self.player_list if p.role==winner.role]) # debug(parameter)
+                self.calc_point(self.winner_lsit, self.winner) # debug(parameter)
                 self.view_player(self.player_list) # debug
+                self.winner = None
+                self.winner_lsit = []
 
                 if self.round == 3:
                     self.state = Game_State.set_point
                     continue
                 self.state = Game_State.reset
+
             elif self.state == Game_State.set_point:
                 self.calc_rank()
                 self.round += 1
@@ -136,6 +159,7 @@ gole_list: {self.gold_list}"""
         self.board[2][0] = Road(0, Road_Type.start)
         end_road = [1, 2, 3]
         shuffle(end_road)
+        self.gold_pos = end_road.index(1)*18 + 8
         i = 0
         for row in range(0, 5, 2):
             self.board[row][8] = Road(end_road[i], Road_Type.end)
@@ -172,7 +196,7 @@ gole_list: {self.gold_list}"""
         self.board_reset()
         self.set_player_role()
         self.set_player_state(self.player_list)
-        self.card_pool = [Road(idx) for idx in range(4, 44)] # debug 15
+        self.card_pool = [Road(idx) for idx in range(4, 44)] # debug
         # self.card_pool += [Action(idx, is_break=False) for idx in range(44, 46)] # debug 2 good lamp
         # self.card_pool += [Action(idx, is_break=True) for idx in range(46, 49)] # debug 3 bad lamp
         # self.card_pool += [Rocks(idx, is_break=False) for idx in range(62, 65)] # debug 3 rocks
@@ -365,25 +389,25 @@ gole_list: {self.gold_list}"""
     """
         calculate points for each player at every game point.
         and consider all player are greedy select the highest point gold card
-        :parms winner: which player connected the end road that has gold (List[Player])
         :parms winner_list: players who is same team with winner
+        :parms winner: which player connected the end road that has gold (List[Player])
     """
-    def calc_point(self, winner: Player, winner_list):
+    def calc_point(self, winner_list: list, winner: Player=None):
         num_winner = len(winner_list)
 
         if num_winner == 0: # sometime no winner in 3,4 player
             return
 
-        if winner.role: # good dwarve win
+        if winner is not None: # good dwarf win
             gold_list = sorted(self.gold_list[ : num_winner], reverse=True)
             self.gold_list = self.gold_list[num_winner : ]
-            winner_list.reverse()
+            winner_list.reverse() # Counterclockwise
             idx = winner_list.index(winner)
             while len(gold_list) > 0:
                 winner_list[idx % num_winner].point += gold_list.pop(0)
                 idx += 1
         else:
-            point_rule = [None, 4, 3, 3, 2] # bad dwarve point by rule
+            point_rule = [None, 4, 3, 3, 2] # bad dwarf point by rule
 
             for player in range(num_winner):
                 point = point_rule[num_winner]
