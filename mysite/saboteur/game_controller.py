@@ -83,7 +83,6 @@ gole_list: {self.gold_list}"""
                 self.visualization() # debug
 
             elif self.state == Game_State.play:
-                # TODO: play game
                 turn = 0
                 while True: # debug
                     now_play = self.player_list[turn % self.num_player]
@@ -133,7 +132,7 @@ gole_list: {self.gold_list}"""
                 self.state = Game_State.game_point
 
             elif self.state == Game_State.game_point:
-                self.calc_point(self.winner_lsit, self.winner) # debug(parameter)
+                self.calc_point(self.winner_lsit, self.winner)
                 self.view_player(self.player_list) # debug
                 self.winner = None
                 self.winner_lsit = []
@@ -196,12 +195,18 @@ gole_list: {self.gold_list}"""
         self.board_reset()
         self.set_player_role()
         self.set_player_state(self.player_list)
-        self.card_pool = [Road(idx) for idx in range(4, 44)] # debug
-        # self.card_pool += [Action(idx, is_break=False) for idx in range(44, 46)] # debug 2 good lamp
-        # self.card_pool += [Action(idx, is_break=True) for idx in range(46, 49)] # debug 3 bad lamp
-        # self.card_pool += [Rocks(idx, is_break=False) for idx in range(62, 65)] # debug 3 rocks
-        # self.card_pool += [Map(idx, is_break=False) for idx in range(65, 67)] # debug 2 map
-        # self.card_pool += [Action(59, [Action_Type.mine_pick, Action_Type.minecart])] # debug
+        self.card_pool = [Road(idx) for idx in range(4, 44)]
+        self.card_pool += [Action(idx, Action_Type.miner_lamp, is_break=False) for idx in range(44, 47)]
+        self.card_pool += [Action(idx, Action_Type.miner_lamp, is_break=True) for idx in range(47, 49)]
+        self.card_pool += [Action(idx, Action_Type.minecart, is_break=False) for idx in range(49, 52)]
+        self.card_pool += [Action(idx, Action_Type.minecart, is_break=True) for idx in range(52, 54)]
+        self.card_pool += [Action(idx, Action_Type.mine_pick, is_break=False) for idx in range(54, 57)]
+        self.card_pool += [Action(idx, Action_Type.mine_pick, is_break=True) for idx in range(57, 59)]
+        self.card_pool += [Action(59, [Action_Type.mine_pick, Action_Type.minecart])]
+        self.card_pool += [Action(60, [Action_Type.miner_lamp, Action_Type.minecart])]
+        self.card_pool += [Action(61, [Action_Type.mine_pick, Action_Type.miner_lamp])]
+        self.card_pool += [Rocks(idx) for idx in range(62, 65)]
+        self.card_pool += [Map(idx) for idx in range(65, 70)]
         shuffle(self.card_pool)
         self.deal_card(self.player_list)
 
