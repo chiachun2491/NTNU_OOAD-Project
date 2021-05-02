@@ -1,0 +1,31 @@
+$brown: #6F5523;
+$dark-brown: #403013;
+
+.bg-brown {
+  background-color: $brown;
+
+  span .navbar-toggler-icon {
+    color: white;
+  }
+}
+
+
+.btn-brown {
+  color: white;
+  background-color: $brown;
+  border-color: $brown;
+
+  &:active ,&:focus ,&:hover {
+    color: white;
+    background-color: $dark-brown;
+    border-color: $dark-brown;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba($dark-brown , 50%);
+  }
+}
+
+.btn-round {
+  border-radius: 20px;
+}
