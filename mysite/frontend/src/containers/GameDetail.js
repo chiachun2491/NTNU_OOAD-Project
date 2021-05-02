@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faUserFriends, faSignInAlt} from "@fortawesome/free-solid-svg-icons";
 import * as PropTypes from "prop-types";
 
-class GamesDetail extends Component {
+class GameDetail extends Component {
     state = {
       data: ''
     };
@@ -26,4 +26,4 @@ class GamesDetail extends Component {
     }
 }
 
-export default GamesDetail;
+export default GameDetail;
