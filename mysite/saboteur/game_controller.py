@@ -44,7 +44,7 @@ class Game_Controller():
         self.num_hands = hands_rule[num_player]
         self.went = [[False for _ in range(9)] for _ in range(5)]
         self.winner = None
-        self.winner_lsit = []
+        self.winner_list = []
         self.turn = 0
 
     """
@@ -64,7 +64,7 @@ class Game_Controller():
             "gold_list": self.gold_list,
             "went": self.went,
             "winner": self.winner,
-            "winner_list": self.winner_lsit
+            "winner_list": self.winner_list
         }
         return json.dumps(repr_, default=serialize)
 
@@ -125,7 +125,7 @@ class Game_Controller():
                         self.went = [[False for _ in range(9)] for _ in range(5)]
                         if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col):
                             logging.info("GOOD dwarfs win")
-                            self.winner_lsit = [winner for winner in self.player_list if winner.role]
+                            self.winner_list = [winner for winner in self.player_list if winner.role]
                             self.winner = now_play
                             break
                     
@@ -143,16 +143,16 @@ class Game_Controller():
                     self.turn += 1
                 if flag == self.num_player: # bad dwarf win
                     logging.info("BAD dwarfs win")
-                    self.winner_lsit = [winner for winner in self.player_list if winner.role==False]
+                    self.winner_list = [winner for winner in self.player_list if winner.role==False]
 
                 logging.info(f"round {self.round} end")
                 self.state = Game_State.game_point
 
             elif self.state == Game_State.game_point:
-                self.calc_point(self.winner_lsit, self.winner)
+                self.calc_point(self.winner_list, self.winner)
                 self.view_player(self.player_list) # debug
                 self.winner = None
-                self.winner_lsit = []
+                self.winner_list = []
 
                 if self.round == 3:
                     self.state = Game_State.set_point
