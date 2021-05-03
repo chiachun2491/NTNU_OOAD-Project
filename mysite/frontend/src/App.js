@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import {Route} from 'react-router-dom';
 import CustomLayout from "./containers/Layout";
-import {Home, Games, Profile} from "./pages";
-import GameDetail from "./containers/GameDetail";
-
+import {Home, Games, Profile, Account} from "./pages";
+// import GameDetail from "./containers/GameDetail";
+import Hello from "./components/Hello";
 
 
 class App extends Component {
@@ -11,9 +11,9 @@ class App extends Component {
     return (
         <CustomLayout>
             <Route path="/"  exact component={Home}/>
-            <Route path="/games/:roomName/" exact component={GameDetail}/>
-            <Route path="/games/" exact component={Games}/>
-            <Route path="/profile/" exact component={Profile}/>
+            <Route path="/games"  component={Games}/>
+            <Route path="/account"  component={Account}/>
+            <Route path={"/hello/"} exact component={Hello}/>
 
         </CustomLayout>
     );
