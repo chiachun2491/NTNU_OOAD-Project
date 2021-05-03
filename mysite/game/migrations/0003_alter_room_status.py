@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='room',
             name='status',
-            field=models.CharField(choices=[(game.models.Room.StatusType['ORGANIZE'], game.models.Room.StatusType['ORGANIZE']), (game.models.Room.StatusType['PLAYING'], game.models.Room.StatusType['PLAYING']), (game.models.Room.StatusType['END'], game.models.Room.StatusType['END'])], default='organize', max_length=8),
+            field=models.CharField(choices=[(game.models.GameRoom.StatusType['ORGANIZE'], game.models.GameRoom.StatusType['ORGANIZE']), (game.models.GameRoom.StatusType['PLAYING'], game.models.GameRoom.StatusType['PLAYING']), (game.models.GameRoom.StatusType['END'], game.models.GameRoom.StatusType['END'])], default='organize', max_length=8),
         ),
     ]

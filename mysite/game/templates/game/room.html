@@ -6,8 +6,15 @@
 </head>
 <body>
 <p>Room : {{ room.permanent_url }}</p>
-<p>Status : {{ room.status }}  </p>
-<p id="chat-log">Players : {{ room.players }}</p>
+<p>Status : <span id="status">{{ room.status }} </span> </p>
+<p>Players : {% for player in room.players.all %} {{ player }} {% endfor %}</p>
+
+<input id="play_btn" type="button" value="Playing">
+<input id="end_btn" type="button" value="End Game">
+
+<p id="game-log">Game logs: <br></p>
+
+<a href="{% url 'game:index' %}" class="badge badge-primary my-auto"><i class="fas fa-plus-circle"></i> Back to lobby</a>
 </body>
     {{ room.permanent_url|json_script:"room-name" }}
     {#  <script>  #}
@@ -24,12 +31,32 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            console.log(data.message);
-            document.querySelector('#chat-log').textContent += (data.message + '\n');
+            console.log(data);
+            if (data.event === 'chat_message') {
+                document.querySelector('#game-log').textContent += (data.message + ' ');
+            }
+            else if (data.event === 'status_change') {
+                document.querySelector('#status').textContent = (data.message + ' ');
+            }
+
         };
 
         chatSocket.onclose = function(e) {
             console.error('Game socket closed unexpectedly');
+        };
+
+        document.querySelector('#play_btn').onclick = function(e) {
+            chatSocket.send(JSON.stringify({
+                'event': 'status_change',
+                'message': 'playing'
+            }));
+        };
+
+        document.querySelector('#end_btn').onclick = function(e) {
+            chatSocket.send(JSON.stringify({
+                'event': 'status_change',
+                'message': 'end'
+            }));
         };
 
     </script>
