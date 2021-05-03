@@ -8,18 +8,17 @@
 
 from util import *
 
-from card import *
 
 """
     Player
 """
 class Player():
-    def __init__(self,):
-        self.id = 0
-        self.point = 0
-        self.hand_cards = [Card() for _ in range(6)]
-        self.role = True
-        self.action_state = [False for _ in range(3)]
+    def __init__(self, id, point, hand_cards, role, action_state):
+        self.id = id
+        self.point = point
+        self.hand_cards = create_card_list(hand_cards)
+        self.role = role
+        self.action_state = action_state
         
     """
         output json format representation with Str

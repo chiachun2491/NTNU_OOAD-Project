@@ -11,7 +11,21 @@ from random import shuffle
 import logging
 import json
 from pprint import pformat
- 
+from card import *
 
 def serialize(obj):
     return obj.__dict__
+
+def create_card_list(obj_list):
+    card_list = []
+    for obj in obj_list:
+        if obj["card_no"] <= 43:
+            card = Road(**obj)
+        elif obj["card_no"] <= 61:
+            card = Action(**obj)
+        elif obj["card_no"] <= 64:
+            card = Rocks(**obj)
+        elif obj["card_no"] <= 70:
+            card = Map(**obj)
+        card_list += [card]
+    return card_list

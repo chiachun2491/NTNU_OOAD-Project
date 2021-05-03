@@ -10,7 +10,6 @@ from util import *
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
 
 from player import Player
-from card import *
 
 
 """
@@ -26,26 +25,25 @@ class Game_State(IntEnum):
     Game_Controller
 """
 class Game_Controller():
-    def __init__(self, num_player):
-        self.round = 0
-        self.state = Game_State.reset
-        self.card_pool = [Card(idx) for idx in range(4, 71)]
-        self.fold_deck = [Card() for _ in range(0)]
+    def __init__(self, round, num_player, player_list, state, turn, card_pool,\
+                fold_deck, board, role_list, gold_list, went, winner, winner_list, gold_pos):
+        super().__init__()
+        self.round = round
         self.num_player = num_player
-        self.player_list = [Player() for _ in range(self.num_player)]
-        self.board = [[Road() for _ in range(9)] for _ in range(5)]
-        self.role_list = self.set_role()
-        self.gold_list = []
-        self.gold_list += [1 for _ in range(16)]
-        self.gold_list += [2 for _ in range(8)]
-        self.gold_list += [3 for _ in range(4)]
-        shuffle(self.gold_list)
+        self.player_list = [Player(**obj) for obj in player_list]
+        self.state = state
+        self.turn = turn
+        self.card_pool = create_card_list(card_pool)
+        self.fold_deck = create_card_list(fold_deck)
+        self.board = [[Road(**obj) for obj in row] for row in board]
+        self.role_list = role_list
+        self.gold_list = gold_list
         hands_rule = [None,None,None,6,6,6,5,5,4,4,4] # number of hand cards by rule
-        self.num_hands = hands_rule[num_player]
-        self.went = [[False for _ in range(9)] for _ in range(5)]
-        self.winner = None
-        self.winner_list = []
-        self.turn = 0
+        self.num_hands = hands_rule[self.num_player]
+        self.went = went
+        self.winner = winner
+        self.winner_list = winner_list
+        self.gold_pos = gold_pos
 
     """
         output json format representation with Str
@@ -64,7 +62,8 @@ class Game_Controller():
             "gold_list": self.gold_list,
             "went": self.went,
             "winner": self.winner,
-            "winner_list": self.winner_list
+            "winner_list": self.winner_list,
+            "gold_pos": self.gold_pos
         }
         return json.dumps(repr_, default=serialize)
 
@@ -96,7 +95,8 @@ class Game_Controller():
                 logging.info(f"round {self.round} start")
                 self.round_reset()
                 self.state = Game_State.play
-                self.view_player(self.player_list) # debug
+                logging.info(pformat(self.to_json()))
+                # self.view_player(self.player_list) # debug
                 self.visualization() # debug
 
             elif self.state == Game_State.play:
@@ -172,13 +172,14 @@ class Game_Controller():
             end road at [0][8], [2][8], [4][8]
     """
     def board_reset(self,):
-        self.board[2][0] = Road(0, Road_Type.start)
+        self.board = [[Road() for _ in range(9)] for _ in range(5)]
+        self.board[2][0] = Road(0, road_type=Road_Type.start)
         end_road = [1, 2, 3]
         shuffle(end_road)
         self.gold_pos = end_road.index(1)*18 + 8
         i = 0
         for row in range(0, 5, 2):
-            self.board[row][8] = Road(end_road[i], Road_Type.end)
+            self.board[row][8] = Road(end_road[i], road_type=Road_Type.end)
             i += 1
 
     """
@@ -209,21 +210,27 @@ class Game_Controller():
     """
     def round_reset(self,):
         self.state = Game_State.reset
+        if self.round == 1:
+            self.gold_list = []
+            self.gold_list += [1 for _ in range(16)]
+            self.gold_list += [2 for _ in range(8)]
+            self.gold_list += [3 for _ in range(4)]
+            shuffle(self.gold_list)
         self.board_reset()
         self.set_player_role()
         self.set_player_state(self.player_list)
         self.card_pool = [Road(idx) for idx in range(4, 44)]
-        self.card_pool += [Action(idx, Action_Type.miner_lamp, is_break=False) for idx in range(44, 47)]
-        self.card_pool += [Action(idx, Action_Type.miner_lamp, is_break=True) for idx in range(47, 49)]
-        self.card_pool += [Action(idx, Action_Type.minecart, is_break=False) for idx in range(49, 52)]
-        self.card_pool += [Action(idx, Action_Type.minecart, is_break=True) for idx in range(52, 54)]
-        self.card_pool += [Action(idx, Action_Type.mine_pick, is_break=False) for idx in range(54, 57)]
-        self.card_pool += [Action(idx, Action_Type.mine_pick, is_break=True) for idx in range(57, 59)]
+        self.card_pool += [Action(idx, Action_Type.miner_lamp, is_break=True) for idx in range(44, 47)]
+        self.card_pool += [Action(idx, Action_Type.miner_lamp, is_break=False) for idx in range(47, 49)]
+        self.card_pool += [Action(idx, Action_Type.minecart, is_break=True) for idx in range(49, 52)]
+        self.card_pool += [Action(idx, Action_Type.minecart, is_break=False) for idx in range(52, 54)]
+        self.card_pool += [Action(idx, Action_Type.mine_pick, is_break=True) for idx in range(54, 57)]
+        self.card_pool += [Action(idx, Action_Type.mine_pick, is_break=False) for idx in range(57, 59)]
         self.card_pool += [Action(59, [Action_Type.mine_pick, Action_Type.minecart])]
         self.card_pool += [Action(60, [Action_Type.miner_lamp, Action_Type.minecart])]
         self.card_pool += [Action(61, [Action_Type.mine_pick, Action_Type.miner_lamp])]
         self.card_pool += [Rocks(idx) for idx in range(62, 65)]
-        self.card_pool += [Map(idx) for idx in range(65, 70)]
+        self.card_pool += [Map(idx) for idx in range(65, 71)]
         shuffle(self.card_pool)
         self.deal_card(self.player_list)
 
@@ -358,7 +365,7 @@ class Game_Controller():
             
             else:
                 legality = False
-                illegal_msg = "except rocks and map action, card can't play on card board"
+                illegal_msg = "except rocks and map action, can't play on card board"
         
         else: # play action card to player
             pos -= 45
@@ -452,7 +459,7 @@ class Game_Controller():
     """
     def visualization(self):
         for row in range(5):
-            print([self.board[row][col] for col in range(9)])
+            print([self.board[row][col].card_no for col in range(9)])
         print()
         # TODO: pass to frontend render
 
@@ -462,9 +469,11 @@ class Game_Controller():
             logging.debug(f"{i} point: {player.point}\trole: {player.role}\thand cards: {player.hand_cards} {len(player.hand_cards)}\tstate: {player.action_state}")
 
 if __name__ == '__main__':
-    gc = Game_Controller(4)
-    logging.info(gc)
-    # gc.state_control()
+    with open("test2.json") as fp:
+        obj = json.load(fp)
+    gc = Game_Controller(**obj)
+    logging.info(pformat(gc.to_json()))
+    gc.state_control()
     # gc.visualization()
     # logging.info(gc)
     # gc.view_player(gc.player_list)

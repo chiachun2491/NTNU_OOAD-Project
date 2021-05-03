@@ -74,9 +74,9 @@ class Road_Type(IntEnum):
     connected: [int] *5 (middel, top, right, down, left) 0 for not connect
 """
 class Road(Card):
-    def __init__(self, card_no=-1, road_type: Road_Type=Road_Type.normal):
+    def __init__(self, card_no=-1, rotate: int=0, road_type: Road_Type=Road_Type.normal, connected: list=None):
         super().__init__(card_no=card_no)
-        self.rotate = 0
+        self.rotate = rotate
         self.road_type = road_type
         self.connected = self.road_connection()
 
@@ -88,14 +88,13 @@ class Road(Card):
         repr_ = json.loads(repr_)
         repr_.update({
             "rotate": self.rotate,
-            "road_type": int(self.road_type),
-            "connected": self.connected
+            "road_type": int(self.road_type)
         })
         return json.dumps(repr_)
 
     def road_connection(self):
         connected = [0] * 5
-        if self.card_no >= 0 or self.card_no <= 3 or \
+        if self.card_no >= 0 and self.card_no <= 3 or \
             (self.card_no >= 13 and self.card_no <= 17):
             connected = [1] * 5
         elif self.card_no >= 18 and self.card_no <= 21:
