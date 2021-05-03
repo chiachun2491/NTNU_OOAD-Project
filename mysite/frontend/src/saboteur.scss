@@ -26,6 +26,22 @@ $dark-brown: #403013;
   }
 }
 
+.btn-outline-brown {
+  color: $brown;
+  background-color: transparent;
+  border-color: $brown;
+
+  &:active ,&:focus ,&:hover {
+    color: white;
+    background-color: $brown;
+    border-color: $brown;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba($brown , 50%);
+  }
+}
+
 .btn-round {
   border-radius: 20px;
 }
