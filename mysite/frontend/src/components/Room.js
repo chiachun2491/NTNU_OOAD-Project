@@ -12,7 +12,7 @@ class RoomItem extends Component {
             <Card className='my-2'>
                 <Card.Body className='d-flex justify-content-between align-items-center'>
                     <span><FontAwesomeIcon icon={faUserFriends} /> {roomName} ({playerAmount} / 4)</span>
-                    <Button variant='brown' href={`/games/${roomName}/`} h> <FontAwesomeIcon icon={faSignInAlt}/></Button>
+                    <Button variant='brown' href={`/games/${roomName}/`} > <FontAwesomeIcon icon={faSignInAlt}/></Button>
                 </Card.Body>
             </Card>
         );
