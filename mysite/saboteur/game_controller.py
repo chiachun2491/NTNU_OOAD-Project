@@ -6,9 +6,7 @@
 # @Link   : https://github.com/DannyLeee
 # @Date   : 2021/4/16 下午9:38:52
 
-from enum import Enum
-from random import shuffle
-import logging
+from util import *
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
 
 from player import Player
@@ -18,7 +16,7 @@ from card import *
 """
     game state at each round
 """
-class Game_State(Enum):
+class Game_State(IntEnum):
     reset = 0
     play = 1
     game_point = 2
@@ -47,15 +45,34 @@ class Game_Controller():
         self.went = [[False for _ in range(9)] for _ in range(5)]
         self.winner = None
         self.winner_lsit = []
+        self.turn = 0
 
+    """
+        output json format representation with Str
+    """
     def __repr__(self):
-        return f"""
-round: {self.round} player numbers: {self.num_player}
-state: {self.state}
-card pool: {len(self.card_pool)}
-fold deck: {len(self.fold_deck)}
-role list: {self.role_list}
-gole_list: {self.gold_list}"""
+        repr_ = {
+            "round": self.round,
+            "num_player": self.num_player,
+            "player_list": self.player_list,
+            "state": int(self.state),
+            "turn": self.turn,
+            "card_pool": self.card_pool,
+            "fold_deck": self.fold_deck,
+            "board": self.board,
+            "role_list": self.role_list,
+            "gold_list": self.gold_list,
+            "went": self.went,
+            "winner": self.winner,
+            "winner_list": self.winner_lsit
+        }
+        return json.dumps(repr_, default=serialize)
+
+    """
+        output json format representation with Dict
+    """
+    def to_json(self):
+        return json.loads(self.__repr__())
 
     """
         set number of role of each round by rule
@@ -83,11 +100,11 @@ gole_list: {self.gold_list}"""
                 self.visualization() # debug
 
             elif self.state == Game_State.play:
-                turn = 0
+                self.turn = 0
                 while True: # debug
-                    now_play = self.player_list[turn % self.num_player]
+                    now_play = self.player_list[self.turn % self.num_player]
                     
-                    logging.debug(f"player {turn % self.num_player}'s turn:")
+                    logging.debug(f"player {self.turn % self.num_player}'s turn:")
                     
                     card, pos, action_type = now_play.play_card()
                     legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
@@ -123,7 +140,7 @@ gole_list: {self.gold_list}"""
                     if flag == self.num_player:
                         break
 
-                    turn += 1
+                    self.turn += 1
                 if flag == self.num_player: # bad dwarf win
                     logging.info("BAD dwarfs win")
                     self.winner_lsit = [winner for winner in self.player_list if winner.role==False]
@@ -447,7 +464,7 @@ gole_list: {self.gold_list}"""
 if __name__ == '__main__':
     gc = Game_Controller(4)
     logging.info(gc)
-    gc.state_control()
-    gc.visualization()
-    logging.info(gc)
-    gc.view_player(gc.player_list)
+    # gc.state_control()
+    # gc.visualization()
+    # logging.info(gc)
+    # gc.view_player(gc.player_list)

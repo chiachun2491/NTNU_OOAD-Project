@@ -6,7 +6,7 @@
 # @Link   : https://github.com/DannyLeee
 # @Date   : 2021/4/16 下午11:02:05
 
-from enum import Enum, IntEnum
+from util import *
 
 """
     card
@@ -52,13 +52,19 @@ class Card():
     def __init__(self, card_no=-1):
         self.card_no = card_no
 
+    """
+        output json format representation with Str
+    """
     def __repr__(self):
-        return f"{self.card_no}"
+        repr_ = {
+            "card_no": self.card_no
+        }
+        return json.dumps(repr_)
 
 """
     road type for road card
 """
-class Road_Type(Enum):
+class Road_Type(IntEnum):
     start = 0
     normal = 1
     end = 2
@@ -73,6 +79,19 @@ class Road(Card):
         self.rotate = 0
         self.road_type = road_type
         self.connected = self.road_connection()
+
+    """
+        output json format representation with Str
+    """
+    def __repr__(self):
+        repr_ = super().__repr__()
+        repr_ = json.loads(repr_)
+        repr_.update({
+            "rotate": self.rotate,
+            "road_type": int(self.road_type),
+            "connected": self.connected
+        })
+        return json.dumps(repr_)
 
     def road_connection(self):
         connected = [0] * 5
@@ -135,6 +154,18 @@ class Action(Card):
         super().__init__(card_no=card_no)
         self.action_type = action_type
         self.is_break = is_break
+    
+    """
+        output json format representation with Str
+    """
+    def __repr__(self):
+        repr_ = super().__repr__()
+        repr_ = json.loads(repr_)
+        repr_.update({
+            "action_type": self.action_type,
+            "is_break": self.is_break
+        })
+        return json.dumps(repr_)
 
 """
     the card can destroy normal road
@@ -143,6 +174,9 @@ class Rocks(Action):
     def __init__(self, card_no=-1, action_type=Action_Type.rocks, is_break=False):
         super().__init__(card_no=card_no, action_type=action_type, is_break=is_break)
     
+    def __repr__(self):
+        return super().__repr__()
+
     def destroy_road(self,):
         pass
 
@@ -152,6 +186,9 @@ class Rocks(Action):
 class Map(Action):
     def __init__(self, card_no=-1, action_type=Action_Type.map, is_break=False):
         super().__init__(card_no=card_no, action_type=action_type, is_break=is_break)
+
+    def __repr__(self):
+        return super().__repr__()
 
     def peek_gold(self,):
         pass
