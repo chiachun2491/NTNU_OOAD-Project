@@ -16,10 +16,14 @@ Including another URLconf
 from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
+from django.urls import re_path
+from django.views.generic import TemplateView
+
 
 urlpatterns = [
+    path('api/auth/', include('authentication.urls')),
     path('chat/', include('chat.urls')),
     path('game/', include('game.urls')),
-    path('accounts/', include('account.urls')),
     path('admin/', admin.site.urls),
+    re_path(r'^.*', TemplateView.as_view(template_name='index.html')),
 ]
