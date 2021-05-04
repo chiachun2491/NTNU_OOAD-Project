@@ -1,0 +1,102 @@
+$brown: #6F5523;
+$dark-brown: #403013;
+
+.bg-brown {
+  background-color: $brown;
+
+  span .navbar-toggler-icon {
+    color: white;
+  }
+}
+
+
+.btn-brown {
+  color: white;
+  background-color: $brown;
+  border-color: $brown;
+
+  &:active ,&:focus ,&:hover {
+    color: white;
+    background-color: $dark-brown;
+    border-color: $dark-brown;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba($dark-brown , 50%);
+  }
+}
+
+.btn-outline-brown {
+  color: $brown;
+  background-color: transparent;
+  border-color: $brown;
+
+  &:active ,&:focus ,&:hover {
+    color: white;
+    background-color: $brown;
+    border-color: $brown;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba($brown , 50%);
+  }
+}
+
+.btn-round {
+  border-radius: 20px;
+}
+
+.gamecard {
+  /* width: 30px; */
+  height: 45px;
+  border-radius: 2px;
+  background-color: lightgray;
+  border: 1px;
+  margin: 2px;
+}
+
+.roadcard {
+  background-color: gray;
+}
+
+.startcard {
+  background-color: aquamarine;
+}
+
+.goalcard {
+  background-color: $dark-brown;
+}
+
+.handcard {
+  width: 15px;
+  height: 24px;
+  border-radius: 2px;
+  background-color: #6DA9E7;
+  border: 1px;
+  border-color: black;
+  margin: 0 auto;
+}
+
+.nametag {
+  background-color: $dark-brown;
+  color: white;
+  width: 100px;
+  height: 25px;
+  margin: 5px;
+  border-radius:10px;
+  text-align: center;
+}
+
+.tool {
+  color: lightgray;
+}
+
+.broken {
+  color: red;
+}
+
+.mycard {
+  background-color: bisque;
+  margin: 2px;
+  height: 80px;
+}
