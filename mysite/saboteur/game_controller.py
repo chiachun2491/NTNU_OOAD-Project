@@ -100,53 +100,49 @@ class Game_Controller():
                 self.visualization() # debug
 
             elif self.state == Game_State.play:
-                self.turn = 0
-                while True: # debug
-                    now_play = self.player_list[self.turn % self.num_player]
-                    
-                    logging.debug(f"player {self.turn % self.num_player}'s turn:")
-                    
+                now_play = self.player_list[self.turn % self.num_player]
+                
+                logging.debug(f"player {self.turn % self.num_player}'s turn:")
+                
+                card, pos, action_type = now_play.play_card()
+                legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
+                while not legal:
+                    # return illegal card to player
+                    self.deal_card([now_play], card)
+                    logging.debug(f"{illegal_msg}\n")
                     card, pos, action_type = now_play.play_card()
                     legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
-                    while not legal:
-                        # return illegal card to player
-                        self.deal_card([now_play], card)
-                        logging.debug(f"{illegal_msg}\n")
-                        card, pos, action_type = now_play.play_card()
-                        legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
 
-                    self.set_board(card, pos, action_type)
+                self.set_board(card, pos, action_type)
 
-                    if pos==7 or pos==17 or \
-                        pos==25 or pos==35 or pos==43: # good dwarf win
-                        logging.debug(f"gold position: {self.gold_pos}")
-                        gold_row = self.gold_pos // 9
-                        gold_col = self.gold_pos % 9
-                        self.went = [[False for _ in range(9)] for _ in range(5)]
-                        if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col):
-                            logging.info("GOOD dwarfs win")
-                            self.winner_list = [winner for winner in self.player_list if winner.role]
-                            self.winner = now_play
-                            break
-                    
-                    if len(self.card_pool) > 0:
-                        self.deal_card([now_play])
-                    
-                    flag = 0
-                    for player in self.player_list:
-                        if len(player.hand_cards) == 0:
-                            flag += 1
+                flag = 0
+                for player in self.player_list:
+                    if len(player.hand_cards) == 0:
+                        flag += 1
 
-                    if flag == self.num_player:
-                        break
+                if pos==7 or pos==17 or \
+                    pos==25 or pos==35 or pos==43: # good dwarf win
+                    logging.debug(f"gold position: {self.gold_pos}")
+                    gold_row = self.gold_pos // 9
+                    gold_col = self.gold_pos % 9
+                    self.went = [[False for _ in range(9)] for _ in range(5)]
+                    if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col):
+                        logging.info("GOOD dwarfs win")
+                        self.winner_list = [winner for winner in self.player_list if winner.role]
+                        self.winner = now_play
+                        flag -= 1
+                
+                if len(self.card_pool) > 0:
+                    self.deal_card([now_play])
 
-                    self.turn += 1
+                self.turn += 1
                 if flag == self.num_player: # bad dwarf win
                     logging.info("BAD dwarfs win")
                     self.winner_list = [winner for winner in self.player_list if winner.role==False]
 
-                logging.info(f"round {self.round} end")
-                self.state = Game_State.game_point
+                if self.winner_list != []:
+                    logging.info(f"round {self.round} end")
+                    self.state = Game_State.game_point
 
             elif self.state == Game_State.game_point:
                 self.calc_point(self.winner_list, self.winner)
