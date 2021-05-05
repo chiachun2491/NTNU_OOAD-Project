@@ -20,13 +20,14 @@
     {#  <script>  #}
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
-
+        const token = localStorage.getItem('access_token');
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
             + '/ws/game/'
             + roomName
-            + '/'
+            + '/?token='
+            + token
         );
 
         chatSocket.onmessage = function(e) {
@@ -42,6 +43,7 @@
         };
 
         chatSocket.onclose = function(e) {
+            console.log(e);
             console.error('Game socket closed unexpectedly');
         };
 
