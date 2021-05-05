@@ -38,7 +38,16 @@ class GameRoom(models.Model):
             self.permanent_url = new_id
         else:
             pass
+
         super().save(*args, **kwargs)  # Call the "real" save() method.
+
+        # Send update notification to room group
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            self.room_group_name(), {
+                'type': 'update_room',
+            }
+        )
 
     def get_absolute_url(self):
         return reverse('game:room', args=[self.permanent_url])
@@ -46,37 +55,71 @@ class GameRoom(models.Model):
     def __str__(self):
         return f'{self.permanent_url}'
 
-    @classmethod
-    def room_group_name(cls, room_name):
-        return f'game_{room_name}'
+    def room_group_name(self):
+        return f'game_{self.permanent_url}'
 
-    def add_player(self, user):
-        self.players.add(user)
+    def join_room(self, username):
+        user = CustomUser.objects.get(username=username)
+        can_speak = False
+
+        if self.status == GameRoom.StatusType.ORGANIZE:
+            self.players.add(user)
+            can_speak = True
+
+        elif self.status == GameRoom.StatusType.PLAYING:
+            if user in self.players.all():
+                self.can_speak = True
+
+        else:  # END
+            pass
+
         self.save()
 
-        # channel_layer = get_channel_layer()
-        # async_to_sync(channel_layer.group_send)(
-        #     f'{self.room_group_name(self.permanent_url)}',
-        #     {
-        #         # TODO: change event type
-        #         'type': 'chat_message',
-        #         'message': f'{user} join game'
-        #     }
-        # )
+        # Send message to room group
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            self.room_group_name(),
+            {
+                # TODO: change event type
+                'type': 'chat_message',
+                'message': f'{user} join game'
+            }
+        )
 
-    def remove_player(self, user):
-        self.players.remove(user)
-        self.save()
+        return can_speak
 
-        # channel_layer = get_channel_layer()
-        # async_to_sync(channel_layer.group_send)(
-        #     f'{self.room_group_name(self.permanent_url)}',
-        #     {
-        #         # TODO: change event type
-        #         'type': 'chat_message',
-        #         'message': f'{user} leave game'
-        #     }
-        # )
+    def leave_room(self, username):
+        if self.status == GameRoom.StatusType.ORGANIZE:
+            user = CustomUser.objects.get(username=username)
+            self.players.remove(user)
+            self.save()
+
+        # Send message to room group
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            self.room_group_name(),
+            {
+                # TODO: change event type
+                'type': 'chat_message',
+                'message': f'{username} leave game'
+            }
+        )
+
+    def change_state(self, status):
+        if status == GameRoom.StatusType.PLAYING:
+            self.status = status
+
+            # TODO: create new n-player GameController
+
+            self.save()
+
+            # TODO: sent update message
+
+        elif status == GameRoom.StatusType.END:
+            self.status = status
+            self.save()
+
+            # TODO sent update message
 
 
 class PlayerData(models.Model):
