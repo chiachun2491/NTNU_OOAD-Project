@@ -13,10 +13,13 @@ from util import *
     Player
 """
 class Player():
-    def __init__(self, id, point, hand_cards, role, action_state):
+    def __init__(self, id, point=0, hand_cards=None, role=0, action_state=[False]*3):
         self.id = id
         self.point = point
-        self.hand_cards = create_card_list(hand_cards)
+        if hand_cards is None:
+            self.hand_cards = []
+        else:
+            self.hand_cards = create_card_list(hand_cards)
         self.role = role
         self.action_state = action_state
         

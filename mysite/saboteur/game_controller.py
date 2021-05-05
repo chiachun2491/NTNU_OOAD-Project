@@ -45,6 +45,17 @@ class Game_Controller():
         self.winner_list = winner_list
         self.gold_pos = gold_pos
 
+    @classmethod
+    def from_scratch(cls, player_id_list):
+        with open("reset.json") as fp:
+            obj = json.load(fp)
+
+        obj.update({
+            "num_player": len(player_id_list),
+            "player_list": [{"id": id} for id in player_id_list]
+        })
+        return cls(**obj)
+
     """
         output json format representation with Str
     """
