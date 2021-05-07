@@ -43,8 +43,6 @@ from util import *
             61:         mine_pick + mine_lamp
             62 ~ 64:    rocks
             65 ~ 70:     map
-        
-        identity: 71 ~ 81 (skip)
 
 """
 class Card():
@@ -131,7 +129,7 @@ class Road(Card):
         elif self.card_no == 43:
             connected = [0, 0, 1, 0, 1]
 
-        if self.rotate != 0:
+        if self.rotate:
             connected[1], connected[3] = connected[3], connected[1]
             connected[2], connected[4] = connected[4], connected[2]
 
@@ -194,8 +192,3 @@ class Map(Action):
 
     def peek_gold(self,):
         pass
-
-class Identity(Card):
-    def __init__(self, card_no=-1, is_good=True):
-        super().__init__(card_no=card_no)
-        self.is_good = is_good
