@@ -72,7 +72,7 @@ class Road_Type(IntEnum):
     
 """
     road card
-    connected: [int] *5 (middel, top, right, down, left) 0 for not connect
+    connected: lsit of connection (middel, top, right, down, left) 0 for not connect (List)
 """
 class Road(Card):
     def __init__(self, card_no=-1, rotate: int=0, road_type: Road_Type=Road_Type.normal, connected: list=None):
@@ -91,8 +91,12 @@ class Road(Card):
             "rotate": self.rotate,
             "road_type": int(self.road_type)
         })
-        return json.dumps(repr_)
+        return json.dumps(repr_) 
 
+    """
+        set the road connection for road connection checking
+        :returns connected: the connection of the road (List)
+    """
     def road_connection(self):
         connected = [0] * 5
         if self.card_no >= 0 and self.card_no <= 3 or \
@@ -147,7 +151,6 @@ class Action_Type(IntEnum):
 
 """
     action card
-    :parms action_type: List[Action_Type]
 """
 class Action(Card):
     def __init__(self, card_no=-1, action_type=Action_Type.miner_lamp, is_break=False):
