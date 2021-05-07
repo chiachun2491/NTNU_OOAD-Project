@@ -459,7 +459,10 @@ class Game_Controller():
         calculate each player points and rank
     """
     def calc_rank(self):
-        pass
+        self.player_list.sort(key= lambda player: player.point, reverse=True)
+        for rank, player in enumerate(self.player_list):
+            logging.debug(f"rank {rank+1}: {player.id}\tpoint: {player.point}")
+        # TODO: pass result to web werver
 
     """
         visualize the board (may pass to frontend render)
