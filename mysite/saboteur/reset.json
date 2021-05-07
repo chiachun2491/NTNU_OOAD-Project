@@ -186,13 +186,7 @@
         "connected": [1, 1, 1, 1, 1],
         "road_type": 1,
         "rotate": 0}]],
-    "role_list": [],
     "gold_list": [],
-    "went": [[false, false, false, false, false, false, false, false, false],   
-             [false, false, false, false, false, false, false, false, false],
-             [false, false, false, false, false, false, false, false, false],
-             [false, false, false, false, false, false, false, false, false],
-             [false, false, false, false, false, false, false, false, false]],
     "winner": null,
     "winner_list": [],
     "gold_pos": 0

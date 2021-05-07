@@ -36,11 +36,7 @@ class Game_Controller():
         self.card_pool = create_card_list(card_pool)
         self.fold_deck = create_card_list(fold_deck)
         self.board = [[Road(**obj) for obj in row] for row in board]
-        self.role_list = role_list
         self.gold_list = gold_list
-        hands_rule = [None,None,None,6,6,6,5,5,4,4,4] # number of hand cards by rule
-        self.num_hands = hands_rule[self.num_player]
-        self.went = went
         self.winner = winner
         self.winner_list = winner_list
         self.gold_pos = gold_pos
@@ -69,9 +65,7 @@ class Game_Controller():
             "card_pool": self.card_pool,
             "fold_deck": self.fold_deck,
             "board": self.board,
-            "role_list": self.role_list,
             "gold_list": self.gold_list,
-            "went": self.went,
             "winner": self.winner,
             "winner_list": self.winner_list,
             "gold_pos": self.gold_pos
@@ -127,12 +121,15 @@ class Game_Controller():
                     logging.debug(f"gold position: {self.gold_pos}")
                     gold_row = self.gold_pos // 9
                     gold_col = self.gold_pos % 9
-                    self.went = [[False for _ in range(9)] for _ in range(5)]
-                    if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col):
+                    went = [[False for _ in range(9)] for _ in range(5)]
+                    if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went):
                         logging.info("GOOD dwarfs win")
                         self.winner_list = [winner for winner in self.player_list if winner.role]
                         self.winner = now_play
                         flag -= 1
+                        logging.info(f"round {self.round} end")
+                        self.game_state = Game_State.game_point
+                        continue
                 
                 if len(self.card_pool) > 0:
                     self.deal_card([now_play])
@@ -141,10 +138,9 @@ class Game_Controller():
                 if flag == self.num_player: # bad dwarf win
                     logging.info("BAD dwarfs win")
                     self.winner_list = [winner for winner in self.player_list if winner.role==False]
-
-                if self.winner_list != []:
                     logging.info(f"round {self.round} end")
                     self.state = Game_State.game_point
+                    continue
 
             elif self.state == Game_State.game_point:
                 self.calc_point(self.winner_list, self.winner)
@@ -239,45 +235,37 @@ class Game_Controller():
         :parms col: the present column
         :returns is_connect: the road is connect or not (Bool)
     """
-    def connect_to_start(self, card: Road, row: int, col: int):
-        is_connect = False
+    def connect_to_start(self, card: Road, row: int, col: int, went: list):
         # card = self.board[row][col]
-        self.went[row][col] = True
+        went[row][col] = True
 
         if row == 2 and col == 0:
-            is_connect = True
-            return is_connect
+            return True
         
         # boundary & self side connect & beside's road didn't go
         # has card beside & beside's card can connect
         # card beside can connect to middle
-        if col-1 >= 0 and card.connected[4] and not self.went[row][col-1]: # left
+        if col-1 >= 0 and card.connected[4] and not went[row][col-1]: # left
             beside = self.board[row][col-1]
-            if beside.card_no != -1 and beside.connected[2] \
-                and beside.connected[0]:
-                is_connect = self.connect_to_start(self.board[row][col-1], row, col-1)
-                return is_connect
+            if beside.card_no != -1 and beside.connected[2] and beside.connected[0]:
+                return self.connect_to_start(self.board[row][col-1], row, col-1, went)
         
-        if row-1 >= 0 and card.connected[1] and not self.went[row-1][col]: # top
+        if row-1 >= 0 and card.connected[1] and not went[row-1][col]: # top
             beside = self.board[row-1][col]
-            if beside.card_no != -1 and beside.connected[3] \
-                and beside.connected[0]:
-                is_connect = self.connect_to_start(self.board[row-1][col], row-1, col)
-                return is_connect
+            if beside.card_no != -1 and beside.connected[3] and beside.connected[0]:
+                return self.connect_to_start(self.board[row-1][col], row-1, col, went)
 
-        if row+1 <= 4 and card.connected[3] and not self.went[row+1][col]: # down
+        if row+1 <= 4 and card.connected[3] and not went[row+1][col]: # down
             beside = self.board[row+1][col]
-            if beside.card_no != -1 and beside.connected[1] \
-                and beside.connected[0]:
-                is_connect = self.connect_to_start(self.board[row+1][col], row+1, col)
-                return is_connect
+            if beside.card_no != -1 and beside.connected[1] and beside.connected[0]:
+                return self.connect_to_start(self.board[row+1][col], row+1, col, went)
         
-        if col+1 <= 8 and card.connected[2] and not self.went[row][col+1]: # right
+        if col+1 <= 8 and card.connected[2] and not went[row][col+1]: # right
             beside = self.board[row][col+1]
-            if beside.card_no != -1 and beside.connected[4] \
-                and beside.connected[0]:
-                is_connect = self.connect_to_start(self.board[row][col+1], row, col+1)
-                return is_connect
+            if beside.card_no != -1 and beside.connected[4] and beside.connected[0]:
+                return self.connect_to_start(self.board[row][col+1], row, col+1, went)
+
+        return False
 
     """
         check the road is connect to road beside or not
@@ -343,8 +331,8 @@ class Game_Controller():
                     illegal_msg = "road can't connect to rock"
                 else:
                     # check road is connect to start or not
-                    self.went = [[False for _ in range(9)] for _ in range(5)]
-                    legality = self.connect_to_start(card, r, c)
+                    went = [[False for _ in range(9)] for _ in range(5)]
+                    legality = self.connect_to_start(card, r, c, went)
                     illegal_msg = "the position does not connect to start road"
         
             elif isinstance(card, Rocks):
