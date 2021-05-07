@@ -61,6 +61,9 @@ class Card():
         }
         return json.dumps(repr_)
 
+    def __eq__(self, other):
+        return self.card_no == other.card_no
+
 """
     road type for road card
 """

@@ -85,21 +85,12 @@ class Game_Controller():
         return json.loads(self.__repr__())
 
     """
-        set number of role of each round by rule
+        a state machine control game state and do game control
+        :parms card_id: the player play card's id
+        :parms postion: the player play card's position
+        :parms act_type: the player play action's type
     """
-    def set_role(self):
-        num_bad_rule = [None,None,None,1,1,2,2,3,3,3,4] # bad dwarve num by rule
-        role_list = []
-        num_bad = num_bad_rule[self.num_player]
-
-        role_list = [0] * num_bad
-        role_list += [1] * (self.num_player + 1 - num_bad)
-        return role_list
-
-    """
-        a state mechine control game state
-    """
-    def state_control(self,):
+    def state_control(self, card_id: int, position: int, act_type: int):
         while self.round <= 3:
             if self.state == Game_State.reset:
                 self.round += 1
@@ -115,13 +106,13 @@ class Game_Controller():
                 
                 logging.debug(f"player {self.turn % self.num_player}'s turn:")
                 
-                card, pos, action_type = now_play.play_card()
+                card, pos, action_type = now_play.play_card(card_id, position, act_type)
                 legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
                 while not legal:
                     # return illegal card to player
                     self.deal_card([now_play], card)
                     logging.debug(f"{illegal_msg}\n")
-                    card, pos, action_type = now_play.play_card()
+                    card, pos, action_type = now_play.play_card(card_id, position, act_type)
                     legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
 
                 self.set_board(card, pos, action_type)

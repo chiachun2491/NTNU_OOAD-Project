@@ -37,29 +37,21 @@ class Player():
         return json.dumps(repr_, default=serialize)
 
     """
-        paly a road card on to board or an action card to some player
-
-        :returns card: the card that player play
-        :returns pos: the position of the card
-        pos define:
-            -1:         game_controller.fold_deck
-            0 ~ 44:     game_controller.board
-            45 ~ 54:    game_controller.player_list[0 ~ 9]
-        :returns action_type: the choice of repair which tool to of the multi-repair action card
+        paly a road card on to board or an action card to some player or fold card
+        :parms card_id: the player play card's id (Int)
+        :prams/returns pos: the position of the card (Int)
+            pos define:
+                -1:         game_controller.fold_deck
+                0 ~ 44:     game_controller.board
+                45 ~ 54:    game_controller.player_list[0 ~ 9]
+        :prams/returns action_type:
+            the choice of repair which tool of the multi-repair action card (Int)
+        :returns card: the card that player play (Card)
     """
-    def play_card(self) -> (Card, int):
-        card = self.hand_cards.pop(0) # debug
-        logging.debug(card)
-        pos = input("input position: ") # debug
-        action_type = -1 # debug
-        if isinstance(card, Action):
-            if isinstance(card.action_type, list):
-                action_type = input("input action type: ") # debug
-            else:
-                action_type = card.action_type
-        elif isinstance(card, Road) and pos != "-1":
-            rotate = input("input rotate degrees: ") # debug
-            card.rotate = int(rotate)
-            card.connected = card.road_connection()
+    def play_card(self, card_id: int, pos: int, action_type: int=-1) -> (Card, int):
+        idx = self.hand_cards.index(Card(card_id))
+        card = self.hand_cards.pop(idx)
+        logging.debug(f"{card} pos: {pos} action_type: {action_type}")
+        return card, pos, action_type
 
-        return card, int(pos), int(action_type) # debug int()
+        return card, pos, action_type
