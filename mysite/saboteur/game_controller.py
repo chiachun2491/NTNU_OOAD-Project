@@ -48,7 +48,7 @@ class Game_Controller():
 
         obj.update({
             "num_player": len(player_id_list),
-            "player_list": [{"id": id} for id in player_id_list]
+            "player_list": [{"id": str(id)} for id in player_id_list]
         })
         return cls(**obj)
 
@@ -180,11 +180,10 @@ class Game_Controller():
         random role for each players at new round start
     """
     def set_player_role(self):
-        self.role_list = self.set_role()
-        shuffle(self.role_list)
+        role_list = self.set_role()
+        shuffle(role_list)
         for i, player in enumerate(self.player_list):
-            player.role = self.role_list[i]
-        self.role_list.pop() # pop the last identity card that doesn't use
+            player.role = role_list[i]
 
     """
         set player(s) action state
@@ -390,11 +389,13 @@ class Game_Controller():
         :parms player_list: List[Player]
         :parms card: return the card if player play an illegal card (Card)
     """
-    def deal_card(self, player_list, card: Card=None):
+    def deal_card(self, player_list: list, card: Card=None):
+        hands_rule = [None,None,None,6,6,6,5,5,4,4,4] # number of hand cards by rule
+        num_hands = hands_rule[self.num_player]
         for player in player_list:
             if self.state == Game_State.reset:
-                player.hand_cards = self.card_pool[ : self.num_hands]
-                self.card_pool = self.card_pool[self.num_hands : ]
+                player.hand_cards = self.card_pool[ : num_hands]
+                self.card_pool = self.card_pool[num_hands : ]
             elif self.state == Game_State.play:
                 if card is not None:
                     player.hand_cards += [card]
