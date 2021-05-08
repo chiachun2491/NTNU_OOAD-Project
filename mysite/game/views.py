@@ -20,11 +20,7 @@ def create(request):
 
 def room_view(request, room_name):
     game_room = get_object_or_404(GameRoom, permanent_url=room_name)
-    if game_room.status == GameRoom.StatusType.ORGANIZE or request.user in game_room.players.all():
-        context = {
-            'room': game_room,
-        }
-        return render(request, 'game/room.html', context)
-    else:
-        return redirect('game:index')
-
+    context = {
+        'room': game_room,
+    }
+    return render(request, 'game/room.html', context)
