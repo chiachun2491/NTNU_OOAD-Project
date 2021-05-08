@@ -90,77 +90,73 @@ class Game_Controller():
         :parms act_type: the player play action's type
     """
     def state_control(self, card_id: int, position: int, act_type: int=-1):
-        while self.round <= 3:
-            if self.game_state == Game_State.reset:
-                self.round += 1
-                logging.info(f"round {self.round} start")
-                self.round_reset()
-                self.game_state = Game_State.play
-                logging.info(pformat(self.to_json()))
-                # self.view_player(self.player_list) # debug
-                self.visualization() # debug
+        if self.game_state == Game_State.reset:
+            self.round += 1
+            logging.info(f"round {self.round} start")
+            self.round_reset()
+            self.game_state = Game_State.play
+            logging.info(pformat(self.to_json()))
+            # self.view_player(self.player_list) # debug
+            self.visualization() # debug
 
-            elif self.game_state == Game_State.play:
-                now_play = self.player_list[self.turn % self.num_player]
-                
-                logging.debug(f"player {self.turn % self.num_player}'s turn:")
-                
+        elif self.game_state == Game_State.play:
+            now_play = self.player_list[self.turn % self.num_player]
+            
+            logging.debug(f"player {self.turn % self.num_player}'s turn:")
+            
+            card, pos, action_type = now_play.play_card(card_id, position, act_type)
+            legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
+            while not legal:
+                # return illegal card to player
+                self.deal_card([now_play], card)
+                logging.debug(f"{illegal_msg}\n")
                 card, pos, action_type = now_play.play_card(card_id, position, act_type)
                 legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
-                while not legal:
-                    # return illegal card to player
-                    self.deal_card([now_play], card)
-                    logging.debug(f"{illegal_msg}\n")
-                    card, pos, action_type = now_play.play_card(card_id, position, act_type)
-                    legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
 
-                self.set_board(card, pos, action_type)
+            self.set_board(card, pos, action_type)
 
-                flag = 0
-                for player in self.player_list:
-                    if len(player.hand_cards) == 0:
-                        flag += 1
+            flag = 0
+            for player in self.player_list:
+                if len(player.hand_cards) == 0:
+                    flag += 1
 
-                if pos==7 or pos==17 or \
-                    pos==25 or pos==35 or pos==43: # good dwarf win
-                    logging.debug(f"gold position: {self.gold_pos}")
-                    gold_row = self.gold_pos // 9
-                    gold_col = self.gold_pos % 9
-                    went = [[False for _ in range(9)] for _ in range(5)]
-                    if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went):
-                        logging.info("GOOD dwarfs win")
-                        self.winner_list = [winner for winner in self.player_list if winner.role]
-                        self.winner = now_play
-                        flag -= 1
-                        logging.info(f"round {self.round} end")
-                        self.game_state = Game_State.game_point
-                        continue
-                
-                if len(self.card_pool) > 0:
-                    self.deal_card([now_play])
-
-                self.turn += 1
-                if flag == self.num_player: # bad dwarf win
-                    logging.info("BAD dwarfs win")
-                    self.winner_list = [winner for winner in self.player_list if winner.role==False]
+            if pos==7 or pos==17 or \
+                pos==25 or pos==35 or pos==43: # good dwarf win
+                logging.debug(f"gold position: {self.gold_pos}")
+                gold_row = self.gold_pos // 9
+                gold_col = self.gold_pos % 9
+                went = [[False for _ in range(9)] for _ in range(5)]
+                if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went):
+                    logging.info("GOOD dwarfs win")
+                    self.winner_list = [winner for winner in self.player_list if winner.role]
+                    self.winner = now_play
+                    flag -= 1
                     logging.info(f"round {self.round} end")
                     self.game_state = Game_State.game_point
-                    continue
+            
+            if len(self.card_pool) > 0:
+                self.deal_card([now_play])
 
-            elif self.game_state == Game_State.game_point:
-                self.calc_point(self.winner_list, self.winner)
-                self.view_player(self.player_list) # debug
-                self.winner = None
-                self.winner_list = []
+            self.turn += 1
+            if flag == self.num_player: # bad dwarf win
+                logging.info("BAD dwarfs win")
+                self.winner_list = [winner for winner in self.player_list if winner.role==False]
+                logging.info(f"round {self.round} end")
+                self.game_state = Game_State.game_point
 
-                if self.round == 3:
-                    self.game_state = Game_State.set_point
-                    continue
-                self.game_state = Game_State.reset
+        elif self.game_state == Game_State.game_point:
+            self.calc_point(self.winner_list, self.winner)
+            self.view_player(self.player_list) # debug
+            self.winner = None
+            self.winner_list = []
+            self.game_state = Game_State.reset
 
-            elif self.game_state == Game_State.set_point:
-                self.calc_rank()
-                self.round += 1
+            if self.round == 3:
+                self.game_state = Game_State.set_point
+
+        elif self.game_state == Game_State.set_point:
+            self.calc_rank()
+            self.round += 1
 
             # self.visualization() # debug
 
@@ -234,6 +230,7 @@ class Game_Controller():
         self.set_player_state(self.player_list)
         self.card_pool = create_card_list([{"card_no": id} for id in range(4, 71)])
         shuffle(self.card_pool)
+        shuffle(self.player_list)
         self.deal_card(self.player_list)
 
     """
