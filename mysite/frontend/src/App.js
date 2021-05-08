@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import {Route} from 'react-router-dom';
 import CustomLayout from "./containers/Layout";
-import {Home, Games, Profile, Account} from "./pages";
-// import GameDetail from "./containers/GameDetail";
+import {Home, Games, Account} from "./pages";
 import Hello from "./components/Hello";
 
 
