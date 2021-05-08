@@ -1,8 +1,7 @@
 import React from 'react';
 
-import {Container, Nav, Navbar, NavDropdown, Button} from "react-bootstrap";
+import {Container, Nav, Navbar, Button} from "react-bootstrap";
 import {withRouter} from 'react-router-dom';
-import CustomButton from "../components/CustomButton";
 import handleLogout from "../components/Logout";
 
 const Header = (props) => {
