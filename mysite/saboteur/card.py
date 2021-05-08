@@ -43,8 +43,6 @@ from util import *
             61:         mine_pick + mine_lamp
             62 ~ 64:    rocks
             65 ~ 70:     map
-        
-        identity: 71 ~ 81 (skip)
 
 """
 class Card():
@@ -61,6 +59,9 @@ class Card():
         }
         return json.dumps(repr_)
 
+    def __eq__(self, other):
+        return self.card_no == other.card_no
+
 """
     road type for road card
 """
@@ -71,14 +72,14 @@ class Road_Type(IntEnum):
     
 """
     road card
-    connected: [int] *5 (middel, top, right, down, left) 0 for not connect
+    connected: lsit of connection (middel, top, right, down, left) 0 for not connect (List)
 """
 class Road(Card):
     def __init__(self, card_no=-1, rotate: int=0, road_type: Road_Type=Road_Type.normal, connected: list=None):
         super().__init__(card_no=card_no)
         self.rotate = rotate
         self.road_type = road_type
-        self.connected = self.road_connection()
+        self.connected = self.get_connection()
 
     """
         output json format representation with Str
@@ -90,9 +91,13 @@ class Road(Card):
             "rotate": self.rotate,
             "road_type": int(self.road_type)
         })
-        return json.dumps(repr_)
+        return json.dumps(repr_) 
 
-    def road_connection(self):
+    """
+        set the road connection for road connection checking
+        :returns connected: the connection of the road (List)
+    """
+    def get_connection(self):
         connected = [0] * 5
         if self.card_no >= 0 and self.card_no <= 3 or \
             (self.card_no >= 13 and self.card_no <= 17):
@@ -128,7 +133,7 @@ class Road(Card):
         elif self.card_no == 43:
             connected = [0, 0, 1, 0, 1]
 
-        if self.rotate != 0:
+        if self.rotate:
             connected[1], connected[3] = connected[3], connected[1]
             connected[2], connected[4] = connected[4], connected[2]
 
@@ -146,13 +151,18 @@ class Action_Type(IntEnum):
 
 """
     action card
-    :parms action_type: List[Action_Type]
 """
 class Action(Card):
-    def __init__(self, card_no=-1, action_type=Action_Type.miner_lamp, is_break=False):
+    def __init__(self, card_no=-1, action_type=None, is_break=None):
         super().__init__(card_no=card_no)
-        self.action_type = action_type
-        self.is_break = is_break
+        if action_type is None:
+            self.action_type = self.get_action()
+        else:
+            self.action_type = action_type
+        if is_break is None:
+            self.is_break = self.get_break()
+        else:
+            self.is_break = is_break
     
     """
         output json format representation with Str
@@ -165,6 +175,31 @@ class Action(Card):
             "is_break": self.is_break
         })
         return json.dumps(repr_)
+
+    def get_action(self):
+        if 44 <= self.card_no and self.card_no <= 48:
+            return Action_Type.miner_lamp
+        elif 49 <= self.card_no and self.card_no <= 53:
+            return Action_Type.minecart
+        elif 54 <= self.card_no and self.card_no <= 58:
+            return Action_Type.mine_pick
+        elif self.card_no == 59:
+            return [Action_Type.mine_pick, Action_Type.minecart]
+        elif self.card_no == 60:
+            return [Action_Type.miner_lamp, Action_Type.minecart]
+        elif self.card_no == 61:
+            return [Action_Type.mine_pick, Action_Type.miner_lamp]
+        elif 62 <= self.card_no and self.card_no <= 64:
+            return Action_Type.rocks
+        elif 65 <= self.card_no and self.card_no <= 70:
+            return Action_Type.map
+
+    def get_break(self):
+        if 44 <= self.card_no and self.card_no <= 46 \
+            or 49 <= self.card_no and self.card_no <= 51 \
+            or 54 <= self.card_no and self.card_no <= 56:
+            return True
+        return False
 
 """
     the card can destroy normal road
@@ -191,8 +226,3 @@ class Map(Action):
 
     def peek_gold(self,):
         pass
-
-class Identity(Card):
-    def __init__(self, card_no=-1, is_good=True):
-        super().__init__(card_no=card_no)
-        self.is_good = is_good

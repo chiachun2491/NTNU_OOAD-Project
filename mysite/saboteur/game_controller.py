@@ -25,25 +25,37 @@ class Game_State(IntEnum):
     Game_Controller
 """
 class Game_Controller():
-    def __init__(self, round, num_player, player_list, state, turn, card_pool,\
-                fold_deck, board, role_list, gold_list, went, winner, winner_list, gold_pos):
+    def __init__(self, round, num_player, player_list, game_state, turn, card_pool,\
+                fold_deck, board, gold_stack, winner, winner_list, gold_pos):
         super().__init__()
         self.round = round
         self.num_player = num_player
         self.player_list = [Player(**obj) for obj in player_list]
-        self.state = state
+        self.game_state = game_state
         self.turn = turn
         self.card_pool = create_card_list(card_pool)
         self.fold_deck = create_card_list(fold_deck)
         self.board = [[Road(**obj) for obj in row] for row in board]
-        self.role_list = role_list
-        self.gold_list = gold_list
-        hands_rule = [None,None,None,6,6,6,5,5,4,4,4] # number of hand cards by rule
-        self.num_hands = hands_rule[self.num_player]
-        self.went = went
+        self.gold_stack = gold_stack
         self.winner = winner
         self.winner_list = winner_list
         self.gold_pos = gold_pos
+
+    """
+        Constructor created from id list
+        :parms player_id_list: the player's id list which need to be create (List[Str])
+        :returns: a Game_Controller object (Game_Controller)
+    """
+    @classmethod
+    def from_scratch(cls, player_id_list):
+        with open("reset.json") as fp:
+            obj = json.load(fp)
+
+        obj.update({
+            "num_player": len(player_id_list),
+            "player_list": [{"id": str(id)} for id in player_id_list]
+        })
+        return cls(**obj)
 
     """
         output json format representation with Str
@@ -53,14 +65,12 @@ class Game_Controller():
             "round": self.round,
             "num_player": self.num_player,
             "player_list": self.player_list,
-            "state": int(self.state),
+            "game_state": int(self.game_state),
             "turn": self.turn,
             "card_pool": self.card_pool,
             "fold_deck": self.fold_deck,
             "board": self.board,
-            "role_list": self.role_list,
-            "gold_list": self.gold_list,
-            "went": self.went,
+            "gold_stack": self.gold_stack,
             "winner": self.winner,
             "winner_list": self.winner_list,
             "gold_pos": self.gold_pos
@@ -74,94 +84,79 @@ class Game_Controller():
         return json.loads(self.__repr__())
 
     """
-        set number of role of each round by rule
+        a state machine control game state and do game control
+        :parms card_id: the player play card's id
+        :parms postion: the player play card's position
+        :parms act_type: the player play action's type
     """
-    def set_role(self):
-        num_bad_rule = [None,None,None,1,1,2,2,3,3,3,4] # bad dwarve num by rule
-        role_list = []
-        num_bad = num_bad_rule[self.num_player]
+    def state_control(self, card_id: int, position: int, act_type: int=-1):
+        if self.game_state == Game_State.reset:
+            self.round += 1
+            logging.info(f"round {self.round} start")
+            self.round_reset()
+            self.game_state = Game_State.play
+            logging.info(pformat(self.to_json()))
+            # self.view_player(self.player_list) # debug
+            self.visualization() # debug
 
-        role_list = [0] * num_bad
-        role_list += [1] * (self.num_player + 1 - num_bad)
-        return role_list
+        elif self.game_state == Game_State.play:
+            now_play = self.player_list[self.turn % self.num_player]
+            
+            logging.debug(f"player {self.turn % self.num_player}'s turn:")
+            
+            card, pos, action_type = now_play.play_card(card_id, position, act_type)
+            legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
+            while not legal:
+                # return illegal card to player
+                self.deal_card([now_play], card)
+                logging.debug(f"{illegal_msg}\n")
+                card, pos, action_type = now_play.play_card(card_id, position, act_type)
+                legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
 
-    """
-        a state mechine control game state
-    """
-    def state_control(self,):
-        while self.round <= 3:
-            if self.state == Game_State.reset:
-                self.round += 1
-                logging.info(f"round {self.round} start")
-                self.round_reset()
-                self.state = Game_State.play
-                logging.info(pformat(self.to_json()))
-                # self.view_player(self.player_list) # debug
-                self.visualization() # debug
+            self.set_board(card, pos, action_type)
 
-            elif self.state == Game_State.play:
-                self.turn = 0
-                while True: # debug
-                    now_play = self.player_list[self.turn % self.num_player]
-                    
-                    logging.debug(f"player {self.turn % self.num_player}'s turn:")
-                    
-                    card, pos, action_type = now_play.play_card()
-                    legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
-                    while not legal:
-                        # return illegal card to player
-                        self.deal_card([now_play], card)
-                        logging.debug(f"{illegal_msg}\n")
-                        card, pos, action_type = now_play.play_card()
-                        legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
+            flag = 0
+            for player in self.player_list:
+                if len(player.hand_cards) == 0:
+                    flag += 1
 
-                    self.set_board(card, pos, action_type)
+            if pos==7 or pos==17 or \
+                pos==25 or pos==35 or pos==43: # good dwarf win
+                logging.debug(f"gold position: {self.gold_pos}")
+                gold_row = self.gold_pos // 9
+                gold_col = self.gold_pos % 9
+                went = [[False for _ in range(9)] for _ in range(5)]
+                if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went):
+                    logging.info("GOOD dwarfs win")
+                    self.winner_list = [winner for winner in self.player_list if winner.role]
+                    self.winner = now_play
+                    flag -= 1
+                    logging.info(f"round {self.round} end")
+                    self.game_state = Game_State.game_point
+            
+            if len(self.card_pool) > 0:
+                self.deal_card([now_play])
 
-                    if pos==7 or pos==17 or \
-                        pos==25 or pos==35 or pos==43: # good dwarf win
-                        logging.debug(f"gold position: {self.gold_pos}")
-                        gold_row = self.gold_pos // 9
-                        gold_col = self.gold_pos % 9
-                        self.went = [[False for _ in range(9)] for _ in range(5)]
-                        if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col):
-                            logging.info("GOOD dwarfs win")
-                            self.winner_list = [winner for winner in self.player_list if winner.role]
-                            self.winner = now_play
-                            break
-                    
-                    if len(self.card_pool) > 0:
-                        self.deal_card([now_play])
-                    
-                    flag = 0
-                    for player in self.player_list:
-                        if len(player.hand_cards) == 0:
-                            flag += 1
-
-                    if flag == self.num_player:
-                        break
-
-                    self.turn += 1
-                if flag == self.num_player: # bad dwarf win
-                    logging.info("BAD dwarfs win")
-                    self.winner_list = [winner for winner in self.player_list if winner.role==False]
-
+            self.turn += 1
+            if flag == self.num_player: # bad dwarf win
+                logging.info("BAD dwarfs win")
+                self.winner_list = [winner for winner in self.player_list if winner.role==False]
                 logging.info(f"round {self.round} end")
-                self.state = Game_State.game_point
+                self.game_state = Game_State.game_point
 
-            elif self.state == Game_State.game_point:
-                self.calc_point(self.winner_list, self.winner)
-                self.view_player(self.player_list) # debug
-                self.winner = None
-                self.winner_list = []
+        elif self.game_state == Game_State.game_point:
+            self.calc_point(self.winner_list, self.winner)
+            self.view_player(self.player_list) # debug
+            self.winner = None
+            self.winner_list = []
+            self.game_state = Game_State.reset
 
-                if self.round == 3:
-                    self.state = Game_State.set_point
-                    continue
-                self.state = Game_State.reset
+            if self.round == 3:
+                self.game_state = Game_State.set_point
 
-            elif self.state == Game_State.set_point:
-                self.calc_rank()
-                self.round += 1
+        elif self.game_state == Game_State.set_point:
+            self.calc_rank()
+            self.round += 1
 
             # self.visualization() # debug
 
@@ -171,7 +166,7 @@ class Game_Controller():
             start road at [2][0]
             end road at [0][8], [2][8], [4][8]
     """
-    def board_reset(self,):
+    def board_reset(self):
         self.board = [[Road() for _ in range(9)] for _ in range(5)]
         self.board[2][0] = Road(0, road_type=Road_Type.start)
         end_road = [1, 2, 3]
@@ -183,112 +178,109 @@ class Game_Controller():
             i += 1
 
     """
+        set number of role of each round by rule
+        :returns: number of role (List)
+    """
+    def set_role(self):
+        num_bad_rule = [None,None,None,1,1,2,2,3,3,3,4] # bad dwarve num by rule
+        role_list = []
+        num_bad = num_bad_rule[self.num_player]
+
+        role_list = [False] * num_bad
+        role_list += [True] * (self.num_player + 1 - num_bad)
+        return role_list
+
+    """
         random role for each players at new round start
     """
     def set_player_role(self):
-        self.role_list = self.set_role()
-        shuffle(self.role_list)
+        role_list = self.set_role()
+        shuffle(role_list)
         for i, player in enumerate(self.player_list):
-            player.role = self.role_list[i]
-        self.role_list.pop() # pop the last identity card that doesn't use
+            player.role = role_list[i]
 
     """
         set player(s) action state
-        :parms player_list: List[Player]
-        :parms action_type: the choice of repair which tool to of the multi-repair action card
+        :parms player_list: list of player that need to be set action state (List[Player])
+        :parms action: action card played by some player (Action)
+        :parms action_type: the choice of repair which tool of the multi-repair action card (Int)
     """
-    def set_player_state(self, player_list, action: Action=None, action_type: int=-1):
-        if self.state == Game_State.reset:
+    def set_player_state(self, player_list: list, action: Action=None, action_type: int=-1):
+        if self.game_state == Game_State.reset:
             for player in player_list:
                 player.action_state = [False for _ in range(3)]
-        elif self.state == Game_State.play:
+        elif self.game_state == Game_State.play:
             player = player_list[0]
             player.action_state[action_type] = action.is_break
 
     """
-        reset the board, card pool, players state at new round start
+        when new round start, 
+        reset the gold stack, board, players' role and state, card pool,
+        then deal card for every player
     """
-    def round_reset(self,):
-        self.state = Game_State.reset
+    def round_reset(self):
         if self.round == 1:
-            self.gold_list = []
-            self.gold_list += [1 for _ in range(16)]
-            self.gold_list += [2 for _ in range(8)]
-            self.gold_list += [3 for _ in range(4)]
-            shuffle(self.gold_list)
+            self.gold_stack = []
+            self.gold_stack += [1 for _ in range(16)]
+            self.gold_stack += [2 for _ in range(8)]
+            self.gold_stack += [3 for _ in range(4)]
+            shuffle(self.gold_stack)
         self.board_reset()
         self.set_player_role()
         self.set_player_state(self.player_list)
-        self.card_pool = [Road(idx) for idx in range(4, 44)]
-        self.card_pool += [Action(idx, Action_Type.miner_lamp, is_break=True) for idx in range(44, 47)]
-        self.card_pool += [Action(idx, Action_Type.miner_lamp, is_break=False) for idx in range(47, 49)]
-        self.card_pool += [Action(idx, Action_Type.minecart, is_break=True) for idx in range(49, 52)]
-        self.card_pool += [Action(idx, Action_Type.minecart, is_break=False) for idx in range(52, 54)]
-        self.card_pool += [Action(idx, Action_Type.mine_pick, is_break=True) for idx in range(54, 57)]
-        self.card_pool += [Action(idx, Action_Type.mine_pick, is_break=False) for idx in range(57, 59)]
-        self.card_pool += [Action(59, [Action_Type.mine_pick, Action_Type.minecart])]
-        self.card_pool += [Action(60, [Action_Type.miner_lamp, Action_Type.minecart])]
-        self.card_pool += [Action(61, [Action_Type.mine_pick, Action_Type.miner_lamp])]
-        self.card_pool += [Rocks(idx) for idx in range(62, 65)]
-        self.card_pool += [Map(idx) for idx in range(65, 71)]
+        self.card_pool = create_card_list([{"card_no": id} for id in range(4, 71)])
         shuffle(self.card_pool)
+        shuffle(self.player_list)
         self.deal_card(self.player_list)
 
     """
         check the road is connect to starting road or not with DFS algorithm
-        :parms card: the present card
-        :parms row: the present row
-        :parms col: the present column
-        :returns is_connect: the road is connect or not (Bool)
+        :parms card: the present road (Road)
+        :parms row: the present row (Int)
+        :parms col: the present column (Int)
+        :parms went: where have went for DFS (Bool[5][9])
+        :returns: the road is connect or not (Bool)
     """
-    def connect_to_start(self, card: Road, row: int, col: int):
-        is_connect = False
+    def connect_to_start(self, card: Road, row: int, col: int, went: list):
         # card = self.board[row][col]
-        self.went[row][col] = True
+        went[row][col] = True
 
         if row == 2 and col == 0:
-            is_connect = True
-            return is_connect
+            return True
         
         # boundary & self side connect & beside's road didn't go
         # has card beside & beside's card can connect
         # card beside can connect to middle
-        if col-1 >= 0 and card.connected[4] and not self.went[row][col-1]: # left
+        if col-1 >= 0 and card.connected[4] and not went[row][col-1]: # left
             beside = self.board[row][col-1]
-            if beside.card_no != -1 and beside.connected[2] \
-                and beside.connected[0]:
-                is_connect = self.connect_to_start(self.board[row][col-1], row, col-1)
-                return is_connect
+            if beside.card_no != -1 and beside.connected[2] and beside.connected[0]:
+                return self.connect_to_start(self.board[row][col-1], row, col-1, went)
         
-        if row-1 >= 0 and card.connected[1] and not self.went[row-1][col]: # top
+        if row-1 >= 0 and card.connected[1] and not went[row-1][col]: # top
             beside = self.board[row-1][col]
-            if beside.card_no != -1 and beside.connected[3] \
-                and beside.connected[0]:
-                is_connect = self.connect_to_start(self.board[row-1][col], row-1, col)
-                return is_connect
+            if beside.card_no != -1 and beside.connected[3] and beside.connected[0]:
+                return self.connect_to_start(self.board[row-1][col], row-1, col, went)
 
-        if row+1 <= 4 and card.connected[3] and not self.went[row+1][col]: # down
+        if row+1 <= 4 and card.connected[3] and not went[row+1][col]: # down
             beside = self.board[row+1][col]
-            if beside.card_no != -1 and beside.connected[1] \
-                and beside.connected[0]:
-                is_connect = self.connect_to_start(self.board[row+1][col], row+1, col)
-                return is_connect
+            if beside.card_no != -1 and beside.connected[1] and beside.connected[0]:
+                return self.connect_to_start(self.board[row+1][col], row+1, col, went)
         
-        if col+1 <= 8 and card.connected[2] and not self.went[row][col+1]: # right
+        if col+1 <= 8 and card.connected[2] and not went[row][col+1]: # right
             beside = self.board[row][col+1]
-            if beside.card_no != -1 and beside.connected[4] \
-                and beside.connected[0]:
-                is_connect = self.connect_to_start(self.board[row][col+1], row, col+1)
-                return is_connect
+            if beside.card_no != -1 and beside.connected[4] and beside.connected[0]:
+                return self.connect_to_start(self.board[row][col+1], row, col+1, went)
+
+        return False
 
     """
         check the road is connect to road beside or not
-        :parms card: the present card
-        :parms row: the present row
-        :parms col: the present column
-        :returns is_connect: the road is connect to rock or not (Bool)
+        :parms card: the present road (Road)
+        :parms row: the present row (Int)
+        :parms col: the present column (Int)
+        :returns is_connect: the num of road is connect to rock (Int)
     """    
-    def connect_to_rock(self, card: Road, row: int, col:int) -> bool:
+    def connect_to_rock(self, card: Road, row: int, col:int) -> int:
         is_connect = 0
         
         # check above, under, left and right road side's are rock or not
@@ -317,12 +309,12 @@ class Game_Controller():
 
     """
         check the player behavior is legality or not
-        :parms player: the player who play card in this turn
-        :parms card: the card which `player` play
-        :parms pos: the position that the `card` need to be set
-        :parms action_type: the choice of repair which tool to of the multi-repair action card
-        :return legality: the `player` play the `card` at the `pos` is legal or not
-        :return illegal_msg: the illegal message will show to player if illegal
+        :parms player: the player who play card in this turn (Player)
+        :parms card: the card which `player` play (Card)
+        :parms pos: the position that the `card` need to be set (Int)
+        :parms action_type: the choice of repair which tool of the multi-repair action card (Int)
+        :return legality: the `player` play the `card` at the `pos` is legal or not (Bool)
+        :return illegal_msg: the illegal message will show to player if illegal (Str)
     """
     def check_legality(self, player: Player, card: Card, pos: int, action_type: int) -> (bool, str):
         legality = True
@@ -345,8 +337,8 @@ class Game_Controller():
                     illegal_msg = "road can't connect to rock"
                 else:
                     # check road is connect to start or not
-                    self.went = [[False for _ in range(9)] for _ in range(5)]
-                    legality = self.connect_to_start(card, r, c)
+                    went = [[False for _ in range(9)] for _ in range(5)]
+                    legality = self.connect_to_start(card, r, c, went)
                     illegal_msg = "the position does not connect to start road"
         
             elif isinstance(card, Rocks):
@@ -372,14 +364,15 @@ class Game_Controller():
             legality = self.player_list[pos].action_state[action_type] ^ card.is_break
             illegal_msg = "" if legality else "the player's tool are already broken/repaired"
 
+        # TODO: pass illegal_msg to web server
         return legality, illegal_msg
 
     """
         set board when the player behavior is legality
-        :parms card: the card need to be set on board or player
-        :parms pos: the position of the card determine on board or player
+        :parms card: the card need to be set on board or player (Card)
+        :parms pos: the position of the card determine on board or player (Int)
                     (see Player.play_card for more position definition)
-        :parms action_type: the choice of repair which tool to of the multi-repair action card
+        :parms action_type: the choice of repair which tool of the multi-repair action card (Int)
     """
     def set_board(self, card: Card, pos: int, action_type: int):
         if pos == -1: # fold any card
@@ -400,16 +393,18 @@ class Game_Controller():
 
     """
         deal card for player(s)
-        check card_pool length before call
-        :parms player_list: List[Player]
+        (check card_pool length before call)
+        :parms player_list: list of player that need to deal card(s) (List[Player])
         :parms card: return the card if player play an illegal card (Card)
     """
-    def deal_card(self, player_list, card: Card=None):
+    def deal_card(self, player_list: list, card: Card=None):
+        hands_rule = [None,None,None,6,6,6,5,5,4,4,4] # number of hand cards by rule
+        num_hands = hands_rule[self.num_player]
         for player in player_list:
-            if self.state == Game_State.reset:
-                player.hand_cards = self.card_pool[ : self.num_hands]
-                self.card_pool = self.card_pool[self.num_hands : ]
-            elif self.state == Game_State.play:
+            if self.game_state == Game_State.reset:
+                player.hand_cards = self.card_pool[ : num_hands]
+                self.card_pool = self.card_pool[num_hands : ]
+            elif self.game_state == Game_State.play:
                 if card is not None:
                     player.hand_cards += [card]
                 else:
@@ -418,8 +413,8 @@ class Game_Controller():
     """
         calculate points for each player at every game point.
         and consider all player are greedy select the highest point gold card
-        :parms winner_list: players who is same team with winner
-        :parms winner: which player connected the end road that has gold (List[Player])
+        :parms winner_list: players who is same team with winner (List[Player])
+        :parms winner: which player connected the end road that has gold (Player)
     """
     def calc_point(self, winner_list: list, winner: Player=None):
         num_winner = len(winner_list)
@@ -428,8 +423,8 @@ class Game_Controller():
             return
 
         if winner is not None: # good dwarf win
-            gold_list = sorted(self.gold_list[ : num_winner], reverse=True)
-            self.gold_list = self.gold_list[num_winner : ]
+            gold_list = sorted(self.gold_stack[ : num_winner], reverse=True)
+            self.gold_stack = self.gold_stack[num_winner : ]
             winner_list.reverse() # Counterclockwise
             idx = winner_list.index(winner)
             while len(gold_list) > 0:
@@ -443,25 +438,25 @@ class Game_Controller():
                 winner_list[player].point += point
                 while point > 0:
                     idx = 0
-                    while idx < len(self.gold_list):
-                        if point - self.gold_list[idx] >= 0:
-                            point -= self.gold_list.pop(idx)
+                    while idx < len(self.gold_stack):
+                        if point - self.gold_stack[idx] >= 0:
+                            point -= self.gold_stack.pop(idx)
                         idx += 1
 
     """
         calculate each player points and rank
     """
     def calc_rank(self):
-        pass
+        self.player_list.sort(key= lambda player: player.point, reverse=True)
+        for rank, player in enumerate(self.player_list):
+            logging.debug(f"rank {rank+1}: {player.id}\tpoint: {player.point}")
+        # TODO: pass result to web werver
 
-    """
-        visualize the board (may pass to frontend render)
-    """
+    # for debug
     def visualization(self):
         for row in range(5):
             print([self.board[row][col].card_no for col in range(9)])
         print()
-        # TODO: pass to frontend render
 
     # for debug
     def view_player(self, player_list):
@@ -469,11 +464,13 @@ class Game_Controller():
             logging.debug(f"{i} point: {player.point}\trole: {player.role}\thand cards: {player.hand_cards} {len(player.hand_cards)}\tstate: {player.action_state}")
 
 if __name__ == '__main__':
-    with open("test2.json") as fp:
-        obj = json.load(fp)
-    gc = Game_Controller(**obj)
+    ## form json
+    # with open("test2.json") as fp:
+    #     obj = json.load(fp)
+    # gc = Game_Controller(**obj)
+
+    ## from id list
+    gc = Game_Controller.from_scratch(["asdf", "qwer", "zxcv"])
     logging.info(pformat(gc.to_json()))
-    gc.state_control()
-    # gc.visualization()
-    # logging.info(gc)
-    # gc.view_player(gc.player_list)
+    gc.state_control(0, 0) # play road/action card
+    gc.state_control(0, 0, 0) # play multi-repair action card

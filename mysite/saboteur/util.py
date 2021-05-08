@@ -16,7 +16,11 @@ from card import *
 def serialize(obj):
     return obj.__dict__
 
-def create_card_list(obj_list):
+"""
+    create a list of card for a dictionary list
+    :parms obj_list: dictionary list (List[Dict])
+"""
+def create_card_list(obj_list: list):
     card_list = []
     for obj in obj_list:
         if obj["card_no"] <= 43:
