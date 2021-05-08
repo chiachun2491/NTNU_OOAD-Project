@@ -89,7 +89,7 @@ class Game_Controller():
         :parms postion: the player play card's position
         :parms act_type: the player play action's type
     """
-    def state_control(self, card_id: int, position: int, act_type: int):
+    def state_control(self, card_id: int, position: int, act_type: int=-1):
         while self.round <= 3:
             if self.game_state == Game_State.reset:
                 self.round += 1
@@ -232,18 +232,7 @@ class Game_Controller():
         self.board_reset()
         self.set_player_role()
         self.set_player_state(self.player_list)
-        self.card_pool = [Road(idx) for idx in range(4, 44)]
-        self.card_pool += [Action(idx, Action_Type.miner_lamp, is_break=True) for idx in range(44, 47)]
-        self.card_pool += [Action(idx, Action_Type.miner_lamp, is_break=False) for idx in range(47, 49)]
-        self.card_pool += [Action(idx, Action_Type.minecart, is_break=True) for idx in range(49, 52)]
-        self.card_pool += [Action(idx, Action_Type.minecart, is_break=False) for idx in range(52, 54)]
-        self.card_pool += [Action(idx, Action_Type.mine_pick, is_break=True) for idx in range(54, 57)]
-        self.card_pool += [Action(idx, Action_Type.mine_pick, is_break=False) for idx in range(57, 59)]
-        self.card_pool += [Action(59, [Action_Type.mine_pick, Action_Type.minecart])]
-        self.card_pool += [Action(60, [Action_Type.miner_lamp, Action_Type.minecart])]
-        self.card_pool += [Action(61, [Action_Type.mine_pick, Action_Type.miner_lamp])]
-        self.card_pool += [Rocks(idx) for idx in range(62, 65)]
-        self.card_pool += [Map(idx) for idx in range(65, 71)]
+        self.card_pool = create_card_list([{"card_no": id} for id in range(4, 71)])
         shuffle(self.card_pool)
         self.deal_card(self.player_list)
 
@@ -378,6 +367,7 @@ class Game_Controller():
             legality = self.player_list[pos].action_state[action_type] ^ card.is_break
             illegal_msg = "" if legality else "the player's tool are already broken/repaired"
 
+        # TODO: pass illegal_msg to web server
         return legality, illegal_msg
 
     """
@@ -477,11 +467,13 @@ class Game_Controller():
             logging.debug(f"{i} point: {player.point}\trole: {player.role}\thand cards: {player.hand_cards} {len(player.hand_cards)}\tstate: {player.action_state}")
 
 if __name__ == '__main__':
-    with open("test2.json") as fp:
-        obj = json.load(fp)
-    gc = Game_Controller(**obj)
+    ## form json
+    # with open("test2.json") as fp:
+    #     obj = json.load(fp)
+    # gc = Game_Controller(**obj)
+
+    ## from id list
+    gc = Game_Controller.from_scratch(["asdf", "qwer", "zxcv"])
     logging.info(pformat(gc.to_json()))
-    gc.state_control()
-    # gc.visualization()
-    # logging.info(gc)
-    # gc.view_player(gc.player_list)
+    gc.state_control(0, 0) # play road/action card
+    gc.state_control(0, 0, 0) # play multi-repair action card
