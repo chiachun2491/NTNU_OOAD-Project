@@ -79,7 +79,7 @@ class Road(Card):
         super().__init__(card_no=card_no)
         self.rotate = rotate
         self.road_type = road_type
-        self.connected = self.road_connection()
+        self.connected = self.get_connection()
 
     """
         output json format representation with Str
@@ -97,7 +97,7 @@ class Road(Card):
         set the road connection for road connection checking
         :returns connected: the connection of the road (List)
     """
-    def road_connection(self):
+    def get_connection(self):
         connected = [0] * 5
         if self.card_no >= 0 and self.card_no <= 3 or \
             (self.card_no >= 13 and self.card_no <= 17):

@@ -2,7 +2,7 @@
     "round": 0,
     "num_player": 0,
     "player_list": [],
-    "state": 0,
+    "game_state": 0,
     "turn": 0,
     "card_pool": [],
     "fold_deck": [],
@@ -186,7 +186,7 @@
         "connected": [1, 1, 1, 1, 1],
         "road_type": 1,
         "rotate": 0}]],
-    "gold_list": [],
+    "gold_stack": [],
     "winner": null,
     "winner_list": [],
     "gold_pos": 0
