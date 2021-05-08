@@ -1,31 +1,19 @@
 import React, {Component} from "react";
 
-import { Card, Button, Container, Row, Col } from 'react-bootstrap';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHammer, faLightbulb, faShoppingCart, faTrashAlt, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
-import * as PropTypes from "prop-types";
+import {Container, Row, Col} from 'react-bootstrap';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faHammer, faLightbulb, faShoppingCart, faTrashAlt, faDoorOpen} from "@fortawesome/free-solid-svg-icons";
 import GameCard from "../components/GameCard";
 
-class GameDetail extends Component {
-    state = {
-      data: ''
-    };
+class GamePlaying extends Component {
+    state = {};
 
     componentDidMount() {
-        const roomName = this.props.match.params.roomName;
-        this.setState({
-            data: roomName
-        });
     };
 
     render() {
         return (
             <>
-                {/* room number */}
-                <div className="text-center">
-                    <span className="nametag roomnumber">Room: {this.state.data}</span>
-                </div>
-
                 {/* Deck */}
                 <Container className="my-3">
                     <Row>
@@ -176,4 +164,4 @@ class GameDetail extends Component {
     }
 }
 
-export default GameDetail;
+export default GamePlaying;

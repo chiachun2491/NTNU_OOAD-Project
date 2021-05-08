@@ -2,7 +2,7 @@ import React from 'react';
 import {useRouteMatch, Route, Switch} from 'react-router-dom';
 import CustomButton from "./components/CustomButton";
 import RoomItem from "./components/Room";
-import GameDetail from "./containers/GameDetail";
+import Game from "./components/Game";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 
@@ -19,7 +19,7 @@ function Games() {
     return (
         <>
             <Switch>
-                <Route path={`${path}/:roomName`} exact component={GameDetail}/>
+                <Route path={`${path}/:roomName`} exact component={Game}/>
                 <Route path={path} exact>
                     <>
                         <CustomButton>新增房間</CustomButton>
