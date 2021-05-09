@@ -46,7 +46,7 @@ class GameRoomConsumer(WebsocketConsumer):
                 self.room.change_status(text_data_json['message'])
 
             elif event == 'play_card':
-                self.room.state_control(text_data_json['card_id'], text_data_json['card_pos'], text_data_json['card_act'])
+                self.room.state_control(int(text_data_json['card_id']), int(text_data_json['card_pos']), int(text_data_json['card_act']))
 
             else:
                 # Send message to room group
