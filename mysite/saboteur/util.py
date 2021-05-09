@@ -6,21 +6,19 @@
 # @Link   : https://github.com/DannyLeee
 # @Date   : 2021/5/3 下午5:36:55
 
-from enum import IntEnum
-from random import shuffle
-import logging
-import json
-from pprint import pformat
-from card import *
+from .card import Road, Action, Rocks, Map
+
 
 def serialize(obj):
     return obj.__dict__
 
-"""
-    create a list of card for a dictionary list
-    :parms obj_list: dictionary list (List[Dict])
-"""
+
 def create_card_list(obj_list: list):
+    """create a list of card for a dictionary list
+
+    :parms
+        obj_list: dictionary list (List[Dict])
+    """
     card_list = []
     for obj in obj_list:
         if obj["card_no"] <= 43:
