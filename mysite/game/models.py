@@ -67,8 +67,7 @@ class GameRoom(models.Model):
 
         elif self.status == GameRoom.StatusType.PLAYING:
             if user in self.players.all():
-                self.can_speak = True
-
+                can_speak = True
         else:  # END
             pass
 
