@@ -1,9 +1,10 @@
 import json
-from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
-from .models import GameRoom
+from channels.generic.websocket import WebsocketConsumer
 from channels.exceptions import DenyConnection
-from saboteur import Game_Controller
+
+from .serializers import GameRoomSerializer
+from .models import GameRoom
 
 
 class GameRoomConsumer(WebsocketConsumer):
@@ -20,7 +21,9 @@ class GameRoomConsumer(WebsocketConsumer):
         )
 
         self.accept()
-
+        # send room data first
+        self.send(text_data=self._get_room_json())
+        # set user can send message or not
         self.can_speak = self.room.join_room(self.scope['user'])
 
     def disconnect(self, close_code):
@@ -36,20 +39,24 @@ class GameRoomConsumer(WebsocketConsumer):
     def receive(self, text_data):
         if self.can_speak:
             text_data_json = json.loads(text_data)
+            print(text_data_json)
             event = text_data_json['event']
-            message = text_data_json['message']
 
             if event == 'status_change':
-                self.room.change_state(message)
+                self.room.change_status(text_data_json['message'])
 
-            # Send message to room group
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
-                {
-                    'type': 'chat_message',
-                    'message': message
-                }
-            )
+            elif event == 'play_card':
+                self.room.state_control(text_data_json['card_id'], text_data_json['card_pos'], text_data_json['card_act'])
+
+            else:
+                # Send message to room group
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'chat_message',
+                        'message': text_data_json['message']
+                    }
+                )
 
     # Receive message from room group
     # Send notification to frontend
@@ -71,6 +78,11 @@ class GameRoomConsumer(WebsocketConsumer):
 
         return game_room
 
+    def _get_room_json(self):
+        serializer = GameRoomSerializer(self.room)
+
+        return json.dumps(serializer.data)
+
     def update_room(self, event):
         self.room = self._get_room()
-
+        self.send(text_data=self._get_room_json())
