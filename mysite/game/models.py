@@ -126,7 +126,11 @@ class GameRoom(models.Model):
         return GameController(**self.game_data)
 
     def init_game_data(self):
-        self.game_data = GameController.from_scratch(self._get_player_list()).to_json()
+        controller = GameController.from_scratch(self._get_player_list())
+        # reset state first
+        controller.state_control(0,0)
+        self.game_data = controller.to_json()
+
 
     def state_control(self, card_id, card_pos, card_act):
         print('model state_control called')
