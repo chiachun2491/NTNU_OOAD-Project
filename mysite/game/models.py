@@ -1,5 +1,3 @@
-from enum import Enum
-
 from authentication.models import CustomUser
 from django.db import models
 from django.urls import reverse
@@ -10,8 +8,9 @@ import hashlib
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-
 # Create your models here.
+
+
 class GameRoom(models.Model):
 
     class StatusType(models.TextChoices):
@@ -63,6 +62,7 @@ class GameRoom(models.Model):
         can_speak = False
 
         if self.status == GameRoom.StatusType.ORGANIZE:
+
             self.players.add(user)
             can_speak = True
 

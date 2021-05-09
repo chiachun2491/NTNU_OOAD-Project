@@ -22,9 +22,9 @@ class Hello extends Component {
                 });
                 return message;
             }).catch((err) => {
-            console.log("Error: ", JSON.stringify(err, null, 4));
-            throw err;
-        });
+                console.log("Error: ", JSON.stringify(err, null, 4));
+                throw err;
+            });
 
     }
 
