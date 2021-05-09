@@ -53,5 +53,3 @@ class Player():
         card = self.hand_cards.pop(idx)
         logging.debug(f"{card} pos: {pos} action_type: {action_type}")
         return card, pos, action_type
-
-        return card, pos, action_type
