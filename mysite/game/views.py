@@ -45,3 +45,10 @@ class GameRoomDetail(RetrieveAPIView):
     lookup_url_kwarg = 'room_name'
 
     permission_classes = [permissions.IsAuthenticated]
+
+
+class GameRoomList(ListAPIView):
+    queryset = GameRoom.objects.all().filter(status=GameRoom.StatusType.ORGANIZE)
+    serializer_class = GameRoomSerializer
+
+    permission_classes = [permissions.IsAuthenticated]

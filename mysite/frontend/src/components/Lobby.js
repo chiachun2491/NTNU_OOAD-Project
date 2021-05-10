@@ -20,20 +20,37 @@ class Lobby extends Component {
 
         this.state = {
             ws: null,
-            roomList: {}
-        };
+            roomList: []
+        }
+        ;
 
         this.createNewRoomClicked = this.createNewRoomClicked.bind()
     }
 
     componentDidMount() {
+        axiosInstance.get('game/room_list/')
+            .then(response => {
+                // console.log(response);
+                let roomList = response.data;
 
+                // sort by value
+                roomList.sort(function (a, b) {
+                    return b.players_data.length - a.players_data.length;
+                });
+
+                this.setState({roomList: roomList});
+
+                // TODO: Websocket connect to fetch new room status
+
+            }).catch(err => {
+            console.error(err);
+        });
     }
 
     createNewRoomClicked() {
         axiosInstance.post('/game/room_create/')
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 window.location.href = '/games/' + response.data.permanent_url + '/';
             }).catch(err => {
             console.error(err);
@@ -43,12 +60,13 @@ class Lobby extends Component {
     render() {
         return (
             <>
-                <Button variant={'brown'} className={'my-3'} block={true} onClick={this.createNewRoomClicked}>新增房間</Button>
-                {/*<CustomButton>新增房間</CustomButton>*/}
-                <RoomItem roomName={'RXQfBz'} playerAmount={3}/>
-                <RoomItem roomName={'GrTniQ'} playerAmount={2}/>
-                <RoomItem roomName={'ib2wbs'} playerAmount={2}/>
-                <RoomItem roomName={'Y60qTZ'} playerAmount={1}/>
+                <Button variant={'brown'} className={'my-3'} block={true}
+                        onClick={this.createNewRoomClicked}>新增房間</Button>
+
+                {this.state.roomList.map(room => (
+                    <RoomItem key={room.permanent_url} roomName={room.permanent_url}
+                              playerAmount={room.players_data.length}/>
+                ))}
             </>
         );
     }
