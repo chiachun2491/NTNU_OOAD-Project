@@ -74,15 +74,15 @@ class GameRoom(models.Model):
         self.save()
 
         # Send message to room group
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            self.room_group_name(),
-            {
-                # TODO: change event type
-                'type': 'chat_message',
-                'message': f'{user} join game'
-            }
-        )
+        # channel_layer = get_channel_layer()
+        # async_to_sync(channel_layer.group_send)(
+        #     self.room_group_name(),
+        #     {
+        #         # TODO: change event type
+        #         'type': 'chat_message',
+        #         'message': f'{user} join game'
+        #     }
+        # )
 
         return can_speak
 
@@ -93,15 +93,15 @@ class GameRoom(models.Model):
             self.save()
 
         # Send message to room group
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            self.room_group_name(),
-            {
-                # TODO: change event type
-                'type': 'chat_message',
-                'message': f'{username} leave game'
-            }
-        )
+        # channel_layer = get_channel_layer()
+        # async_to_sync(channel_layer.group_send)(
+        #     self.room_group_name(),
+        #     {
+        #         # TODO: change event type
+        #         'type': 'chat_message',
+        #         'message': f'{username} leave game'
+        #     }
+        # )
 
     def change_status(self, status):
         self.status = status
