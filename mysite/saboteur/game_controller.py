@@ -85,10 +85,16 @@ class Game_Controller():
 
     """
         a state machine control game state and do game control
-        :parms card_id: the player play card's id (int)
-        :parms postion: the player play card's position (int)
-        :parms act_type: the player play action's type (int)
-        :returns return_msg: message type and message pass to web server (dict)
+        :parms card_id: the player play card's id (Int)
+        :parms postion: the player play card's position (Int)
+        :parms act_type: the player play action's type (Int)
+        :returns return_msg: message type and message pass to web server (if have msg Dict or None)
+            message define (type, msg):
+                ILLEGAL_PLAY: String of illegal message
+                PEEK: Int of end road card_no
+                RANK: List of Dict of ranked player and point
+                    {"rank": rank, "player_id": player.id, "point": player.point}
+                INFO: String of some game information
     """
     def state_control(self, card_id: int=-1, position: int=-1, act_type: int=-1) -> dict:
         return_msg = None
@@ -97,8 +103,7 @@ class Game_Controller():
             logging.info(f"round {self.round} start")
             self.round_reset()
             self.game_state = Game_State.play
-            logging.info(pformat(self.to_json()))
-            # self.view_player(self.player_list) # debug
+            return_msg = {"msg_type": "INFO", "msg": f"round {self.round} start"}
             self.visualization() # debug
 
         elif self.game_state == Game_State.play:
@@ -135,6 +140,7 @@ class Game_Controller():
                     flag -= 1
                     logging.info(f"round {self.round} end")
                     self.game_state = Game_State.game_point
+                    return_msg = {"msg_type": "INFO", "msg": f"round {self.round} GOOD dwarfs win"}
             
             if len(self.card_pool) > 0:
                 self.deal_card([now_play])
@@ -145,6 +151,7 @@ class Game_Controller():
                 self.winner_list = [winner for winner in self.player_list if winner.role==False]
                 logging.info(f"round {self.round} end")
                 self.game_state = Game_State.game_point
+                return_msg = {"msg_type": "INFO", "msg": f"round {self.round} BAD dwarfs win"}
 
         elif self.game_state == Game_State.game_point:
             self.calc_point(self.winner_list, self.winner)
