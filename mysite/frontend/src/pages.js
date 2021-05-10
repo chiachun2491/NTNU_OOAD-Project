@@ -5,6 +5,7 @@ import RoomItem from "./components/Room";
 import Game from "./components/Game";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
+import Lobby from "./components/Lobby";
 
 
 /**
@@ -20,15 +21,7 @@ function Games() {
         <>
             <Switch>
                 <Route path={`${path}/:roomName`} exact component={Game}/>
-                <Route path={path} exact>
-                    <>
-                        <CustomButton>新增房間</CustomButton>
-                        <RoomItem roomName={'PbFTXG'} playerAmount={3}/>
-                        <RoomItem roomName={'GrTniQ'} playerAmount={2}/>
-                        <RoomItem roomName={'ib2wbs'} playerAmount={2}/>
-                        <RoomItem roomName={'Y60qTZ'} playerAmount={1}/>
-                    </>
-                </Route>
+                <Route path={path} exact component={Lobby}/>
             </Switch>
         </>
     );

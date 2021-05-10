@@ -1,5 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework import status, authentication, permissions
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .serializers import GameRoomSerializer
 from .models import GameRoom
 
 
@@ -24,3 +29,19 @@ def room_view(request, room_name):
         'room': game_room,
     }
     return render(request, 'game/room.html', context)
+
+
+class GameRoomCreate(CreateAPIView):
+    queryset = GameRoom.objects.all()
+    serializer_class = GameRoomSerializer
+
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class GameRoomDetail(RetrieveAPIView):
+    queryset = GameRoom.objects.all()
+    serializer_class = GameRoomSerializer
+    lookup_field = 'permanent_url'
+    lookup_url_kwarg = 'room_name'
+
+    permission_classes = [permissions.IsAuthenticated]
