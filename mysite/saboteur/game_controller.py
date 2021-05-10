@@ -89,7 +89,7 @@ class Game_Controller():
         :parms postion: the player play card's position
         :parms act_type: the player play action's type
     """
-    def state_control(self, card_id: int, position: int, act_type: int=-1):
+    def state_control(self, card_id: int=-1, position: int=-1, act_type: int=-1):
         if self.game_state == Game_State.reset:
             self.round += 1
             logging.info(f"round {self.round} start")
@@ -106,12 +106,11 @@ class Game_Controller():
             
             card, pos, action_type = now_play.play_card(card_id, position, act_type)
             legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
-            while not legal:
+            if not legal:
                 # return illegal card to player
                 self.deal_card([now_play], card)
                 logging.debug(f"{illegal_msg}\n")
-                card, pos, action_type = now_play.play_card(card_id, position, act_type)
-                legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
+                return
 
             self.set_board(card, pos, action_type)
 
