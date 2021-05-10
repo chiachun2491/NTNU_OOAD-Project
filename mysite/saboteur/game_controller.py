@@ -85,11 +85,13 @@ class Game_Controller():
 
     """
         a state machine control game state and do game control
-        :parms card_id: the player play card's id
-        :parms postion: the player play card's position
-        :parms act_type: the player play action's type
+        :parms card_id: the player play card's id (int)
+        :parms postion: the player play card's position (int)
+        :parms act_type: the player play action's type (int)
+        :returns return_msg: message type and message pass to web server (dict)
     """
-    def state_control(self, card_id: int=-1, position: int=-1, act_type: int=-1):
+    def state_control(self, card_id: int=-1, position: int=-1, act_type: int=-1) -> dict:
+        return_msg = None
         if self.game_state == Game_State.reset:
             self.round += 1
             logging.info(f"round {self.round} start")
@@ -102,7 +104,7 @@ class Game_Controller():
         elif self.game_state == Game_State.play:
             now_play = self.player_list[self.turn % self.num_player]
             
-            logging.debug(f"player {self.turn % self.num_player}'s turn:")
+            logging.info(f"player {self.turn % self.num_player}'s turn:")
             
             card, pos, action_type = now_play.play_card(card_id, position, act_type)
             legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
@@ -110,9 +112,10 @@ class Game_Controller():
                 # return illegal card to player
                 self.deal_card([now_play], card)
                 logging.debug(f"{illegal_msg}\n")
-                return
+                return_msg = {"msg_type": "ILLEGAL_PLAY", "msg": illegal_msg}
+                return return_msg
 
-            self.set_board(card, pos, action_type)
+            return_msg = self.set_board(card, pos, action_type)
 
             flag = 0
             for player in self.player_list:
@@ -154,10 +157,12 @@ class Game_Controller():
                 self.game_state = Game_State.set_point
 
         elif self.game_state == Game_State.set_point:
-            self.calc_rank()
+            return_msg = self.calc_rank()
             self.round += 1
 
             # self.visualization() # debug
+        
+        return return_msg
 
     """
         reset board at new round start        
@@ -363,7 +368,6 @@ class Game_Controller():
             legality = self.player_list[pos].action_state[action_type] ^ card.is_break
             illegal_msg = "" if legality else "the player's tool are already broken/repaired"
 
-        # TODO: pass illegal_msg to web server
         return legality, illegal_msg
 
     """
@@ -372,6 +376,7 @@ class Game_Controller():
         :parms pos: the position of the card determine on board or player (Int)
                     (see Player.play_card for more position definition)
         :parms action_type: the choice of repair which tool of the multi-repair action card (Int)
+        :returns: message type and message pass to web server (dict)
     """
     def set_board(self, card: Card, pos: int, action_type: int):
         if pos == -1: # fold any card
@@ -385,7 +390,7 @@ class Game_Controller():
                 self.board[r][c] = Road(-1)
             elif isinstance(card, Map):
                 logging.debug(self.board[r][c])
-                # TODO: pass msg to player
+                return {"msg_type": "PEEK", "msg": self.board[r][c].card_no} # pass msg to player
         else: # play action card to player
             pos -= 45
             self.set_player_state([self.player_list[pos]], card, action_type)
@@ -444,12 +449,17 @@ class Game_Controller():
 
     """
         calculate each player points and rank
+        :returns return_msg: message type and message pass to web server (dict)
     """
     def calc_rank(self):
         self.player_list.sort(key= lambda player: player.point, reverse=True)
+        msg_ls = []
         for rank, player in enumerate(self.player_list):
             logging.debug(f"rank {rank+1}: {player.id}\tpoint: {player.point}")
-        # TODO: pass result to web werver
+            msg_ls += [{"rank": rank+1, "player_id": player.id, "point": player.point}]
+
+        return_msg = {"msg_type": "RANK", "msg": msg_ls} # pass result to web werver
+        return return_msg
 
     # for debug
     def visualization(self):
