@@ -26,7 +26,7 @@ class Game_State(IntEnum):
 """
 class Game_Controller():
     def __init__(self, round, num_player, player_list, game_state, turn, card_pool,\
-                fold_deck, board, gold_stack, winner, winner_list, gold_pos):
+                fold_deck, board, gold_stack, winner, winner_list, gold_pos, now_play):
         super().__init__()
         self.round = round
         self.num_player = num_player
@@ -40,6 +40,7 @@ class Game_Controller():
         self.winner = winner
         self.winner_list = winner_list
         self.gold_pos = gold_pos
+        self.now_play = now_play
 
     """
         Constructor created from id list
@@ -73,7 +74,8 @@ class Game_Controller():
             "gold_stack": self.gold_stack,
             "winner": self.winner,
             "winner_list": self.winner_list,
-            "gold_pos": self.gold_pos
+            "gold_pos": self.gold_pos,
+            "now_play": self.now_play
         }
         return json.dumps(repr_, default=serialize)
 
@@ -108,6 +110,7 @@ class Game_Controller():
 
         elif self.game_state == Game_State.play:
             now_play = self.player_list[self.turn % self.num_player]
+            self.now_play = now_play.id
             
             logging.info(f"player {self.turn % self.num_player}'s turn:")
             
