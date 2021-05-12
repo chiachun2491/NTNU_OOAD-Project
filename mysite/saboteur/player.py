@@ -36,6 +36,9 @@ class Player():
         }
         return json.dumps(repr_, default=serialize)
 
+    def __eq__(self, id: str):
+        return self.id == id
+
     """
         paly a road card on to board or an action card to some player or fold card
         :parms card_id: the player play card's id (Int)
@@ -48,8 +51,14 @@ class Player():
             the choice of repair which tool of the multi-repair action card (Int)
         :returns card: the card that player play (Card)
     """
-    def play_card(self, card_id: int, pos: int, action_type: int=-1) -> (Card, int):
+    def play_card(self, card_id: int, pos: int, rotate: int=0, action_type: int=-1) -> "tuple[Card, int, int]":
         idx = self.hand_cards.index(Card(card_id))
         card = self.hand_cards.pop(idx)
+        if hasattr(card, 'rotate'):
+            card.rotate = rotate
         logging.debug(f"{card} pos: {pos} action_type: {action_type}")
         return card, pos, action_type
+
+if __name__=="__main__":
+    pl = [Player("asdf")]
+    print(pl.index("asdf")) # indexing player

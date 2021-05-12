@@ -96,7 +96,7 @@ class Game_Controller():
                     {"rank": rank, "player_id": player.id, "point": player.point}
                 INFO: String of some game information
     """
-    def state_control(self, card_id: int=-1, position: int=-1, act_type: int=-1) -> dict:
+    def state_control(self, card_id: int=-1, position: int=-1, rotate: int =0, act_type: int=-1) -> dict:
         return_msg = None
         if self.game_state == Game_State.reset:
             self.round += 1
@@ -111,7 +111,7 @@ class Game_Controller():
             
             logging.info(f"player {self.turn % self.num_player}'s turn:")
             
-            card, pos, action_type = now_play.play_card(card_id, position, act_type)
+            card, pos, action_type = now_play.play_card(card_id, position, rotate, act_type)
             legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
             if not legal:
                 # return illegal card to player
@@ -327,7 +327,7 @@ class Game_Controller():
         :return legality: the `player` play the `card` at the `pos` is legal or not (Bool)
         :return illegal_msg: the illegal message will show to player if illegal (Str)
     """
-    def check_legality(self, player: Player, card: Card, pos: int, action_type: int) -> (bool, str):
+    def check_legality(self, player: Player, card: Card, pos: int, action_type: int) -> "tuple[bool, str]":
         legality = True
         illegal_msg = ""
 
