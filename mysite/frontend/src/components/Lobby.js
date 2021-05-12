@@ -1,8 +1,6 @@
 import React, {Component} from "react";
-import Game from "./Game";
-import CustomButton from "./CustomButton";
 import RoomItem from "./Room";
-import {Button} from "react-bootstrap";
+import {Button, Badge} from "react-bootstrap";
 import axiosInstance from "../Api";
 
 
@@ -58,8 +56,11 @@ class Lobby extends Component {
     }
 
     render() {
+        const username = localStorage.getItem('username');
         return (
             <>
+                <h5 className={'text-center my-3'}>Hi, {username}!</h5>
+                <div className={'text-muted small text-center'}>可以選擇加入下面任一房間或是點選 <span>新增房間</span> 來開啟新遊戲！</div>
                 <Button variant={'brown'} className={'my-3'} block={true}
                         onClick={this.createNewRoomClicked}>新增房間</Button>
 
