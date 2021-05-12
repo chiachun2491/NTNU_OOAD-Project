@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {Badge} from "react-bootstrap";
 import GameOrganzie from "./GameOrganzie";
 import GamePlaying from "./GamePlaying";
 import GameEnd from "./GameEnd";
@@ -39,7 +40,7 @@ class Game extends Component {
                 this.setState({roomData: response.data});
                 this.connectSocket(roomName);
             }).catch(err => {
-                console.error(err);
+            console.error(err);
         });
 
     };
@@ -125,9 +126,9 @@ class Game extends Component {
 
         return (
             <>
-                <div className="text-center">
-                    <span className="nametag roomnumber">Room: {this.state.roomName}</span>
-                </div>
+                <h5 className="text-center my-2">
+                    <Badge variant={'brown'}>房間: {this.state.roomName}</Badge>
+                </h5>
                 {gameComponent}
             </>
         );
