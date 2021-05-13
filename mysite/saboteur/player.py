@@ -36,7 +36,10 @@ class Player():
         }
         return json.dumps(repr_, default=serialize)
 
-    def play_card(self, card_id: int, pos: int, action_type: int = -1) -> (Card, int):
+    def __eq__(self, id: str):
+        return self.id == id
+
+    def play_card(self, card_id: int, pos: int, rotate: int = 0, action_type: int = -1) -> tuple[Card, int, int]:
         """play a road card on to board or an action card to some player or fold card
 
         :parms
@@ -46,13 +49,18 @@ class Player():
                     -1:         game_controller.fold_deck
                     0 ~ 44:     game_controller.board
                     45 ~ 54:    game_controller.player_list[0 ~ 9]
-            action_type: the choice of repair which tool of the multi-repair action card (Int)
+            action_type:
+                the choice of repair which tool of the multi-repair action card (Int)
         :returns
             card: the card that player play (Card)
             pos: the position of the card (Int)
-            action_type: the choice of repair which tool of the multi-repair action card (Int)
-        """
+            action_type:
+                the choice of repair which tool of the multi-repair action card (Int)
+            """
+
         idx = self.hand_cards.index(Card(card_id))
         card = self.hand_cards.pop(idx)
+        if hasattr(card, 'rotate'):
+            card.rotate = rotate
         logging.debug(f"{card} pos: {pos} action_type: {action_type}")
         return card, pos, action_type

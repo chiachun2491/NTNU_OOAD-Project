@@ -29,8 +29,10 @@ class GameState(IntEnum):
 
 class GameController():
     """Game_Controller"""
+
     def __init__(self, round, num_player, player_list, game_state, turn, card_pool,
-                 fold_deck, board, gold_stack, winner, winner_list, gold_pos):
+                 fold_deck, board, gold_stack, winner, winner_list, gold_pos, now_play):
+
         super().__init__()
         self.round = round
         self.num_player = num_player
@@ -44,6 +46,7 @@ class GameController():
         self.winner = winner
         self.winner_list = winner_list
         self.gold_pos = gold_pos
+        self.now_play = now_play
 
     @classmethod
     def from_scratch(cls, player_id_list):
@@ -78,7 +81,8 @@ class GameController():
             "gold_stack": self.gold_stack,
             "winner": self.winner,
             "winner_list": self.winner_list,
-            "gold_pos": self.gold_pos
+            "gold_pos": self.gold_pos,
+            "now_play": self.now_play
         }
         return json.dumps(repr_, default=serialize)
 
@@ -86,38 +90,47 @@ class GameController():
         """output json format representation with Dict"""
         return json.loads(self.__repr__())
 
-    def state_control(self, card_id: int, position: int, act_type: int = -1):
+    def state_control(self, card_id: int = -1, position: int = -1, rotate: int = 0, act_type: int = -1) -> dict:
         """a state machine control game state and do game control
 
         :parms
-            card_id: the player play card's id
-            postion: the player play card's position
-            act_type: the player play action's type
+            card_id: the player play card's id (Int)
+            postion: the player play card's position (Int)
+            act_type: the player play action's type (Int)
+        :returns
+            return_msg: message type and message pass to web server (if have msg Dict or None)
+                message define (type, msg):
+                    ILLEGAL_PLAY: String of illegal message
+                    PEEK: Int of end road card_no
+                    RANK: List of Dict of ranked player and point
+                        {"rank": rank, "player_id": player.id, "point": player.point}
+                    INFO: String of some game information
         """
+        return_msg = None
         if self.game_state == GameState.reset:
             self.round += 1
             logging.info(f"round {self.round} start")
             self.round_reset()
             self.game_state = GameState.play
-            logging.info(pformat(self.to_json()))
-            # self.view_player(self.player_list) # debug
+            return_msg = {"msg_type": "INFO", "msg": f"round {self.round} start"}
             self.visualization()  # debug
 
         elif self.game_state == GameState.play:
             now_play = self.player_list[self.turn % self.num_player]
+            self.now_play = now_play.id
 
-            logging.debug(f"player {self.turn % self.num_player}'s turn:")
+            logging.info(f"player {self.turn % self.num_player}'s turn:")
 
-            card, pos, action_type = now_play.play_card(card_id, position, act_type)
+            card, pos, action_type = now_play.play_card(card_id, position, rotate, act_type)
             legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
-            while not legal:
+            if not legal:
                 # return illegal card to player
                 self.deal_card([now_play], card)
                 logging.debug(f"{illegal_msg}\n")
-                card, pos, action_type = now_play.play_card(card_id, position, act_type)
-                legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
+                return_msg = {"msg_type": "ILLEGAL_PLAY", "msg": illegal_msg}
+                return return_msg
 
-            self.set_board(card, pos, action_type)
+            return_msg = self.set_board(card, pos, action_type)
 
             flag = 0
             for player in self.player_list:
@@ -136,7 +149,9 @@ class GameController():
                     self.winner = now_play
                     flag -= 1
                     logging.info(f"round {self.round} end")
+
                     self.game_state = GameState.game_point
+                    return_msg = {"msg_type": "INFO", "msg": f"round {self.round} GOOD dwarfs win"}
 
             if len(self.card_pool) > 0:
                 self.deal_card([now_play])
@@ -146,7 +161,9 @@ class GameController():
                 logging.info("BAD dwarfs win")
                 self.winner_list = [winner for winner in self.player_list if winner.role is False]
                 logging.info(f"round {self.round} end")
+
                 self.game_state = GameState.game_point
+                return_msg = {"msg_type": "INFO", "msg": f"round {self.round} BAD dwarfs win"}
 
         elif self.game_state == GameState.game_point:
             self.calc_point(self.winner_list, self.winner)
@@ -159,10 +176,12 @@ class GameController():
                 self.game_state = GameState.set_point
 
         elif self.game_state == GameState.set_point:
-            self.calc_rank()
+            return_msg = self.calc_rank()
             self.round += 1
 
             # self.visualization() # debug
+
+        return return_msg
 
     def board_reset(self):
         """reset board at new round start
@@ -376,7 +395,6 @@ class GameController():
             legality = self.player_list[pos].action_state[action_type] ^ card.is_break
             illegal_msg = "" if legality else "the player's tool are already broken/repaired"
 
-        # TODO: pass illegal_msg to web server
         return legality, illegal_msg
 
     def set_board(self, card: Card, pos: int, action_type: int):
@@ -387,6 +405,8 @@ class GameController():
             pos: the position of the card determine on board or player (Int)
                 (see Player.play_card for more position definition)
             action_type: the choice of repair which tool of the multi-repair action card (Int)
+        :returns:
+            message type and message pass to web server (dict)
         """
         if pos == -1:  # fold any card
             self.fold_deck += [card]
@@ -399,7 +419,8 @@ class GameController():
                 self.board[r][c] = Road(-1)
             elif isinstance(card, Map):
                 logging.debug(self.board[r][c])
-                # TODO: pass msg to player
+
+                return {"msg_type": "PEEK", "msg": self.board[r][c].card_no}  # pass msg to player
         else:  # play action card to player
             pos -= 45
             self.set_player_state([self.player_list[pos]], card, action_type)
@@ -459,11 +480,19 @@ class GameController():
                         idx += 1
 
     def calc_rank(self):
-        """calculate each player points and rank"""
+        """calculate each player points and rank
+
+        :returns
+            return_msg: message type and message pass to web server (dict)
+        """
         self.player_list.sort(key=lambda player: player.point, reverse=True)
+        msg_ls = []
         for rank, player in enumerate(self.player_list):
             logging.debug(f"rank {rank + 1}: {player.id}\tpoint: {player.point}")
-        # TODO: pass result to web server
+            msg_ls += [{"rank": rank + 1, "player_id": player.id, "point": player.point}]
+
+        return_msg = {"msg_type": "RANK", "msg": msg_ls}  # pass result to web werver
+        return return_msg
 
     # for debug
     def visualization(self):

@@ -189,5 +189,6 @@
     "gold_stack": [],
     "winner": null,
     "winner_list": [],
-    "gold_pos": 0
+    "gold_pos": 0,
+    "now_play": ""
 }
