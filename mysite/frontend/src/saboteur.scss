@@ -47,6 +47,12 @@ $dark-brown: #403013;
   background-color: $brown;
 }
 
+.badge-outline-brown {
+  color: $brown;
+  background-color: white;
+  border: 1px solid $brown;
+}
+
 .btn-round {
   border-radius: 20px;
 }

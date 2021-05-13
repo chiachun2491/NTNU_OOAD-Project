@@ -116,18 +116,24 @@ class Game extends Component {
 
     render() {
         let gameComponent = <div/>;
+        let roundBadge;
         if (this.state.roomData.status === RoomStatus.ORGANIZE) {
             gameComponent = <GameOrganzie ws={this.state.ws} roomData={this.state.roomData}/>;
         } else if (this.state.roomData.status === RoomStatus.PLAYING) {
             gameComponent = <GamePlaying ws={this.state.ws} roomData={this.state.roomData}/>;
+            roundBadge = <Badge variant={'outline-brown'} className={'ml-2'}>
+                回合： {this.state.roomData.game_data.round} / 3
+            </Badge>
         } else if (this.state.roomData.status === RoomStatus.END) {
             gameComponent = <GameEnd ws={this.state.ws} roomData={this.state.roomData}/>;
         }
 
+
+
         return (
             <>
                 <h5 className="text-center my-2">
-                    <Badge variant={'brown'}>房間: {this.state.roomName}</Badge>
+                    <Badge variant={'brown'}>房間: {this.state.roomName}</Badge>{roundBadge}
                 </h5>
                 {gameComponent}
             </>
