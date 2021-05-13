@@ -66,165 +66,151 @@ import card_road18 from '../images/card/card_road18.png';
 //         62 ~ 64:    rocks
 //         65 ~ 70:     map
 
-
-class GameCard extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            src: null,
-            rotate: false,
-        };
+function GameCard(props) {
+    let src;
+    switch (props.card_no) {
+        case 0:
+            src = card_road0;
+            break;
+        case 1:
+            src = card_road17;
+            break;
+        case 2:
+        case 3:
+            src = card_road18;
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            src = card_road1;
+            break;
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+            src = card_road2;
+            break;
+        case 13:
+        case 14:
+        case 15:
+        case 16:
+        case 17:
+            src = card_road3;
+            break;
+        case 18:
+        case 19:
+        case 20:
+        case 21:
+            src = card_road4;
+            break;
+        case 22:
+        case 23:
+        case 24:
+        case 25:
+        case 26:
+            src = card_road5;
+            break;
+        case 27:
+            src = card_road6;
+            break;
+        case 28:
+            src = card_road7;
+            break;
+        case 29:
+            src = card_road8;
+            break;
+        case 30:
+            src = card_road9;
+            break;
+        case 31:
+            src = card_road10;
+            break;
+        case 32:
+            src = card_road11;
+            break;
+        case 33:
+        case 34:
+        case 35:
+        case 36:
+        case 37:
+            src = card_road12;
+            break;
+        case 38:
+        case 39:
+        case 40:
+            src = card_road13;
+            break;
+        case 41:
+            src = card_road14;
+            break;
+        case 42:
+            src = card_road15;
+            break;
+        case 43:
+            src = card_road16;
+            break;
+        case 44:
+        case 45:
+        case 46:
+            src = card_ban2;
+            break;
+        case 47:
+        case 48:
+            src = card_disban2;
+            break;
+        case 49:
+        case 50:
+        case 51:
+            src = card_ban1;
+            break;
+        case 52:
+        case 53:
+            src = card_disban1;
+            break;
+        case 54:
+        case 55:
+        case 56:
+            src = card_ban3;
+            break;
+        case 57:
+        case 58:
+            src = card_disban3;
+            break;
+        case 59:
+            src = card_disban4;
+            break;
+        case 60:
+            src = card_disban5;
+            break;
+        case 61:
+            src = card_disban6;
+            break;
+        case 62:
+        case 63:
+        case 64:
+            src = card_destroy;
+            break;
+        case 65:
+        case 66:
+        case 67:
+        case 68:
+        case 69:
+        case 70:
+            src = card_map;
+            break;
+        default:
+            src = 'https://dummyimage.com/250x400/DCDFE8/DCDFE8.png';
     }
-
-    componentDidMount() {
-        switch (this.props.card_no) {
-            case 0:
-                this.setState({src: card_road0});
-                break;
-            case 1:
-                this.setState({src: card_road17});
-                break;
-            case 2:
-            case 3:
-                this.setState({src: card_road18});
-                break;
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-                this.setState({src: card_road1});
-                break;
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-            case 12:
-                this.setState({src: card_road2});
-                break;
-            case 13:
-            case 14:
-            case 15:
-            case 16:
-            case 17:
-                this.setState({src: card_road3});
-                break;
-            case 18:
-            case 19:
-            case 20:
-            case 21:
-                this.setState({src: card_road4});
-                break;
-            case 22:
-            case 23:
-            case 24:
-            case 25:
-            case 26:
-                this.setState({src: card_road5});
-                break;
-            case 27:
-                this.setState({src: card_road6});
-                break;
-            case 28:
-                this.setState({src: card_road7});
-                break;
-            case 29:
-                this.setState({src: card_road8});
-                break;
-            case 30:
-                this.setState({src: card_road9});
-                break;
-            case 31:
-                this.setState({src: card_road10});
-                break;
-            case 32:
-                this.setState({src: card_road11});
-                break;
-            case 33:
-            case 34:
-            case 35:
-            case 36:
-            case 37:
-                this.setState({src: card_road12});
-                break;
-            case 38:
-            case 39:
-            case 40:
-                this.setState({src: card_road13});
-                break;
-            case 41:
-                this.setState({src: card_road14});
-                break;
-            case 42:
-                this.setState({src: card_road15});
-                break;
-            case 43:
-                this.setState({src: card_road16});
-                break;
-            case 44:
-            case 45:
-            case 46:
-                this.setState({src: card_ban2});
-                break;
-            case 47:
-            case 48:
-                this.setState({src: card_disban2});
-                break;
-            case 49:
-            case 50:
-            case 51:
-                this.setState({src: card_ban1});
-                break;
-            case 52:
-            case 53:
-                this.setState({src: card_disban1});
-                break;
-            case 54:
-            case 55:
-            case 56:
-                this.setState({src: card_ban3});
-                break;
-            case 57:
-            case 58:
-                this.setState({src: card_disban3});
-                break;
-            case 59:
-                this.setState({src: card_disban4});
-                break;
-            case 60:
-                this.setState({src: card_disban5});
-                break;
-            case 61:
-                this.setState({src: card_disban6});
-                break;
-            case 62:
-            case 63:
-            case 64:
-                this.setState({src: card_destroy});
-                break;
-            case 65:
-            case 66:
-            case 67:
-            case 68:
-            case 69:
-            case 70:
-                this.setState({src: card_map});
-                break;
-            default:
-                this.setState({src: 'https://dummyimage.com/250x400/DCDFE8/DCDFE8.png'});
-        }
-    };
-
-    render() {
-        const boardCard = this.props.boardCard ? ' boardCard' : ' selfPlayerHandCard';
-        const selected = this.props.isSelected ? ' selected' : '';
-        const rotated = this.props.isRotated ? ' card-rotate' : '';
-        return (
-            <Col className={'p-0' + boardCard + selected + rotated} onClick={this.props.onCardClick}>
-                <Image src={this.state.src} fluid/>
-            </Col>
-        );
-    }
+    const boardCard = props.boardCard ? ' boardCard' : ' selfPlayerHandCard';
+    const selected = props.isSelected ? ' selected' : '';
+    const rotated = props.isRotated ? ' card-rotate' : '';
+    return (
+        <Col className={'p-0' + boardCard + selected + rotated} onClick={props.onCardClick}>
+            <Image src={src} fluid/>
+        </Col>
+    );
 }
 
 export default GameCard;
