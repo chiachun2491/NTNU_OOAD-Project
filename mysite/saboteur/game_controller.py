@@ -112,6 +112,10 @@ class GameController():
             logging.info(f"round {self.round} start")
             self.round_reset()
             self.game_state = GameState.play
+
+            now_play = self.player_list[self.turn % self.num_player]
+            self.now_play = now_play.id
+
             return_msg = {"msg_type": "INFO", "msg": f"round {self.round} start"}
             self.visualization()  # debug
 
@@ -157,6 +161,9 @@ class GameController():
                 self.deal_card([now_play])
 
             self.turn += 1
+            now_play = self.player_list[self.turn % self.num_player]
+            self.now_play = now_play.id
+
             if flag == self.num_player:  # bad dwarf win
                 logging.info("BAD dwarfs win")
                 self.winner_list = [winner for winner in self.player_list if winner.role is False]
