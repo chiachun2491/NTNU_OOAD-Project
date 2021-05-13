@@ -128,8 +128,6 @@ class GameRoom(models.Model):
 
     def init_game_data(self):
         controller = GameController.from_scratch(self._get_player_list())
-        # reset state first
-        controller.state_control(0, 0, 0)
         self.game_data = controller.to_json()
 
     def state_control(self, card_id, position, rotate, action):
