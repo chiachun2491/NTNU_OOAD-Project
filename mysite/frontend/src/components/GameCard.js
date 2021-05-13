@@ -216,9 +216,11 @@ class GameCard extends React.Component {
     };
 
     render() {
-        const boardCard = this.props.boardCard ? 'boardCard' : 'm-1';
+        const boardCard = this.props.boardCard ? ' boardCard' : ' selfPlayerHandCard';
+        const selected = this.props.isSelected ? ' selected' : '';
+        const rotated = this.props.isRotated ? ' card-rotate' : '';
         return (
-            <Col className={'p-0 ' + boardCard}>
+            <Col className={'p-0' + boardCard + selected + rotated} onClick={this.props.onCardClick}>
                 <Image src={this.state.src} fluid/>
             </Col>
         );

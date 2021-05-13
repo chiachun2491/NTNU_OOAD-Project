@@ -57,7 +57,7 @@ $dark-brown: #403013;
   margin: 1px;
 }
 
-.handCard {
+.otherPlayerHandCard {
   width: 15px;
   height: 24px;
   border-radius: 2px;
@@ -65,6 +65,11 @@ $dark-brown: #403013;
   border: 1px;
   border-color: black;
   margin: 0 auto;
+}
+
+.selfPlayerHandCard {
+  margin: 1px;
+  border: 2px white solid;
 }
 
 .nametag {
@@ -83,5 +88,13 @@ $dark-brown: #403013;
 
 .broken {
   color: red;
+}
+
+.selected {
+  border: 2px $brown solid;
+}
+
+.card-rotate {
+  transform: rotate(180deg);
 }
 
