@@ -17,6 +17,8 @@ import cart from "../images/status/cart.png";
 import lamp from "../images/status/lamp.png";
 import pick from "../images/status/pick.png";
 
+const BOARD_BASE = 45;
+
 class GamePlaying extends Component {
     constructor(props) {
         super(props);
@@ -58,6 +60,7 @@ class GamePlaying extends Component {
     }
 
     handlePositionClick(pos, action = -1) {
+        console.log(BOARD_BASE);
         if (this.state.selectHandCardNo !== -1) {
             console.log(this.state.selectHandCardNo, this.state.selectHandCardRotate, pos, action);
             // TODO: send state control to socket
@@ -158,13 +161,17 @@ function OtherGamePlayer(props) {
     return (
         <Col xs={4} lg={12} className={"px-2"}>
             <Button variant={props.nowPlaying ? 'brown' : 'outline-brown'} size={'sm'} block={true}
-                    onClick={() => props.onPositionClick(props.playerID)}>
+                    onClick={() => props.onPositionClick((BOARD_BASE + props.playerID))}>
                 {props.player.id}
             </Button>
             <div className="d-flex justify-content-center my-1">
                 {props.player.action_state.map((ban, i) => (
-                    <ActionStatus key={i} actionType={i}
-                                  onPositionClick={() => props.onPositionClick(props.playerID, i)}/>
+                    <ActionStatus
+                        key={i}
+                        ban={ban}
+                        actionType={i}
+                        onPositionClick={() => props.onPositionClick((BOARD_BASE + props.playerID), i)}
+                    />
                 ))}
             </div>
             <div className="d-flex justify-content-around my-1">
@@ -182,7 +189,7 @@ function SelfGamePlayer(props) {
             <Row className={'my-2'}>
                 <Col xs={8} lg={12} className={'px-2'}>
                     <Button variant={props.nowPlaying ? 'brown' : 'outline-brown'} block={true} size={''}
-                            onClick={() => props.onPositionClick(props.playerID)}>
+                            onClick={() => props.onPositionClick((BOARD_BASE + props.playerID))}>
                         {props.player.id}：{identity}
                     </Button>
                 </Col>
@@ -191,8 +198,9 @@ function SelfGamePlayer(props) {
                         {props.player.action_state.map((ban, i) => (
                             <ActionStatus
                                 key={i}
+                                ban={ban}
                                 actionType={i}
-                                onPositionClick={() => props.onPositionClick(props.playerID, i)}
+                                onPositionClick={() => props.onPositionClick((BOARD_BASE + props.playerID), i)}
                             />
                         ))}
                         <Col xs={'auto'} className={'p-0 mx-1'}>$ : {props.player.point}</Col>
