@@ -17,6 +17,8 @@ import cart from "../images/status/cart.png";
 import lamp from "../images/status/lamp.png";
 import pick from "../images/status/pick.png";
 
+const BOARD_BASE = 45;
+
 class GamePlaying extends Component {
     constructor(props) {
         super(props);
@@ -58,9 +60,23 @@ class GamePlaying extends Component {
     }
 
     handlePositionClick(pos, action = -1) {
+        console.log(BOARD_BASE);
         if (this.state.selectHandCardNo !== -1) {
             console.log(this.state.selectHandCardNo, this.state.selectHandCardRotate, pos, action);
             // TODO: send state control to socket
+            const ws = this.props.ws;
+            try {
+                ws.send(JSON.stringify({
+                    event: 'play_card',
+                    id: this.state.selectHandCardNo,
+                    rotate: this.state.selectHandCardRotate ? 1 : 0,
+                    pos: pos,
+                    act: action,
+                }));
+            } catch (e) {
+                console.log(e);
+            }
+            // reset select card
             this.setState({
                 selectHandCardNo: -1,
                 selectHandCardRotate: false
@@ -72,10 +88,11 @@ class GamePlaying extends Component {
 
     render() {
         const username = localStorage.getItem('username');
+        const gameData = this.props.roomData.game_data;
         let self_id;
-        const list_len = this.props.roomData.game_data.player_list.length;
+        const list_len = gameData.player_list.length;
         for (let i = 0; i < list_len; i++) {
-            if (this.props.roomData.game_data.player_list[i].id === username) {
+            if (gameData.player_list[i].id === username) {
                 self_id = i;
                 break;
             }
@@ -83,14 +100,16 @@ class GamePlaying extends Component {
         let other_players = [];
         for (let i = 1; i < list_len; i++) {
             let playerIndex = (self_id + i) % list_len;
-            let player = this.props.roomData.game_data.player_list[playerIndex];
+            let player = gameData.player_list[playerIndex];
             other_players.push(
                 <OtherGamePlayer
+                    nowPlaying={gameData.now_play === player.id}
                     key={player.id}
                     player={player}
                     onPositionClick={this.handlePositionClick}
                     playerID={playerIndex}
-                />);
+                />
+            );
         }
         return (
             <>
@@ -98,8 +117,8 @@ class GamePlaying extends Component {
                     <Row>
                         <Col xs={12} lg={8}>
                             {/* Deck */}
-                            {this.props.roomData.game_data.board.map((row, i) => {
-                                return <Row key={i} className={'d-flex justify-content-center'}>
+                            {gameData.board.map((row, i) => (
+                                <Row key={i} className={'d-flex justify-content-center'}>
                                     {row.map((card, j) => (
                                         <GameCard
                                             key={j}
@@ -107,10 +126,10 @@ class GamePlaying extends Component {
                                             isRotated={card.rotate !== 0}
                                             boardCard={true}
                                             onCardClick={() => this.handlePositionClick(i * 9 + j)}
-                                        />)
-                                    )}
+                                        />
+                                    ))}
                                 </Row>
-                            })}
+                            ))}
                         </Col>
                         <Col xs={12} lg={4} className={'my-3'}>
                             {/* Rival name & status */}
@@ -118,8 +137,9 @@ class GamePlaying extends Component {
                                 {other_players}
                             </Row>
                             <SelfGamePlayer
-                                player={this.props.roomData.game_data.player_list[self_id]}
+                                player={gameData.player_list[self_id]}
                                 playerID={self_id}
+                                nowPlaying={gameData.now_play === username}
                                 onHandCardClick={this.handleHandCardClick}
                                 selectHandCardNo={this.state.selectHandCardNo}
                                 selectHandCardRotate={this.state.selectHandCardRotate}
@@ -133,123 +153,122 @@ class GamePlaying extends Component {
     }
 }
 
-class OtherGamePlayer extends Component {
-
-    render() {
-        let handcards = [];
-        for (let i = 0; i < this.props.player.hand_cards.length; i++) {
-            handcards.push(<span key={i} className="otherPlayerHandCard"/>);
-        }
-        return (
-            <Col xs={4} lg={12} className={"px-2"}>
-                <Button variant={'brown'} size={'sm'} block={true}
-                        onClick={() => this.props.onPositionClick(this.props.playerID)}>
-                    {this.props.player.id}
-                </Button>
-                <div className="d-flex justify-content-center my-1">
-                    {this.props.player.action_state.map((ban, i) => (
-                        <ActionStatus key={i} actionType={i} onPositionClick={() => this.props.onPositionClick(this.props.playerID, i)}/>
-                    ))}
-                </div>
-                <div className="d-flex justify-content-around my-1">
-                    {handcards}
-                </div>
-            </Col>
-        );
+function OtherGamePlayer(props) {
+    let handcards = [];
+    for (let i = 0; i < props.player.hand_cards.length; i++) {
+        handcards.push(<span key={i} className="otherPlayerHandCard"/>);
     }
+    return (
+        <Col xs={4} lg={12} className={"px-2"}>
+            <Button variant={props.nowPlaying ? 'brown' : 'outline-brown'} size={'sm'} block={true}
+                    onClick={() => props.onPositionClick((BOARD_BASE + props.playerID))}>
+                {props.player.id}
+            </Button>
+            <div className="d-flex justify-content-center my-1">
+                {props.player.action_state.map((ban, i) => (
+                    <ActionStatus
+                        key={i}
+                        ban={ban}
+                        actionType={i}
+                        onPositionClick={() => props.onPositionClick((BOARD_BASE + props.playerID), i)}
+                    />
+                ))}
+            </div>
+            <div className="d-flex justify-content-around my-1">
+                {handcards}
+            </div>
+        </Col>
+    );
 }
 
-
-class SelfGamePlayer extends Component {
-
-
-    render() {
-        const identity = this.props.player.role ? '好矮人' : '壞矮人';
-        return (
-            <>
-                {/* Your name & status */}
-                <Row className={'my-2'}>
-                    <Col xs={8} lg={12} className={'px-2'}>
-                        <Button variant={'brown'} block={true} size={''}
-                                onClick={() => this.props.onPositionClick(this.props.playerID)}>
-                            {this.props.player.id}：{identity}
+function SelfGamePlayer(props) {
+    const identity = props.player.role ? '好矮人' : '壞矮人';
+    return (
+        <>
+            {/* Your name & status */}
+            <Row className={'my-2'}>
+                <Col xs={8} lg={12} className={'px-2'}>
+                    <Button variant={props.nowPlaying ? 'brown' : 'outline-brown'} block={true} size={''}
+                            onClick={() => props.onPositionClick((BOARD_BASE + props.playerID))}>
+                        {props.player.id}：{identity}
+                    </Button>
+                </Col>
+                <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center p-0'}>
+                    <Row>
+                        {props.player.action_state.map((ban, i) => (
+                            <ActionStatus
+                                key={i}
+                                ban={ban}
+                                actionType={i}
+                                onPositionClick={() => props.onPositionClick((BOARD_BASE + props.playerID), i)}
+                            />
+                        ))}
+                        <Col xs={'auto'} className={'p-0 mx-1'}>$ : {props.player.point}</Col>
+                    </Row>
+                </Col>
+            </Row>
+            <Row className={'my-2'}>
+                <Col xs={8} lg={12} className={'px-2'}>
+                    <Row className={'px-2'}>
+                        {props.player.hand_cards.map((card, i) => (
+                            <GameCard
+                                card_no={card.card_no}
+                                isSelected={props.selectHandCardNo === card.card_no}
+                                isRotated={props.selectHandCardNo === card.card_no ? props.selectHandCardRotate : false}
+                                onCardClick={() => props.onHandCardClick(card.card_no)}
+                                key={i}
+                            />
+                        ))}
+                    </Row>
+                </Col>
+                <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center px-2 my-lg-2'}>
+                    <Row>
+                        <Button variant={'brown'} className={'mx-1'} onClick={() => props.onPositionClick(-1)}>
+                            <FontAwesomeIcon icon={faTrashAlt}/>
                         </Button>
-                    </Col>
-                    <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center p-0'}>
-                        <Row>
-                            {this.props.player.action_state.map((ban, i) => (
-                                <ActionStatus key={i} actionType={i}
-                                              onPositionClick={() => this.props.onPositionClick(this.props.playerID, i)}/>
-                            ))}
-                            <Col xs={'auto'} className={'p-0 mx-1'}>$ : {this.props.player.point}</Col>
-                        </Row>
-                    </Col>
-                </Row>
-                <Row className={'my-2'}>
-                    <Col xs={8} lg={12} className={'px-2'}>
-                        <Row className={'px-2'}>
-                            {this.props.player.hand_cards.map((card, i) => (
-                                <GameCard
-                                    card_no={card.card_no}
-                                    isSelected={this.props.selectHandCardNo === card.card_no}
-                                    isRotated={this.props.selectHandCardNo === card.card_no ? this.props.selectHandCardRotate : false}
-                                    onCardClick={() => this.props.onHandCardClick(card.card_no)}
-                                    key={i}
-                                />
-                            ))}
-                        </Row>
-                    </Col>
-                    <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center px-2 my-lg-2'}>
-                        <Row>
-                            <Button variant={'brown'} className={'mx-1'} onClick={() => this.props.onPositionClick(-1)}>
-                                <FontAwesomeIcon icon={faTrashAlt}/>
-                            </Button>
-                            <Button variant={'outline-brown'} className={'mx-1'} href={'/games/'}>
-                                <FontAwesomeIcon icon={faDoorOpen}/>
-                            </Button>
-                        </Row>
-                    </Col>
-                </Row>
-            </>
-        );
-    }
+                        <Button variant={'outline-brown'} className={'mx-1'} href={'/games/'}>
+                            <FontAwesomeIcon icon={faDoorOpen}/>
+                        </Button>
+                    </Row>
+                </Col>
+            </Row>
+        </>
+    );
 }
 
-class ActionStatus extends Component {
-
-    render() {
-        let actionIcon;
-        let actionType = this.props.ban ? (this.props.actionType + 1) * -1 : this.props.actionType + 1;
-        let actionColor = this.props.ban ? 'red' : 'lightgray';
-        switch (actionType) {
-            case 1:
-                actionIcon = faLightbulb;
-                break;
-            case 2:
-                actionIcon = faShoppingCart;
-                break;
-            case 3:
-                actionIcon = faHammer;
-                break;
-            case -1:
-                actionIcon = faLightbulb;
-                break;
-            case -2:
-                actionIcon = faShoppingCart;
-                break;
-            case -3:
-                actionIcon = faHammer;
-                break;
-            default:
-                break;
-        }
-        return (
-            <Col xs={"auto"} className={'p-0 mx-1'} onClick={this.props.onPositionClick}>
-                {/*<Image src={actionIcon} fluid/>*/}
-                <FontAwesomeIcon icon={actionIcon} color={actionColor}/>
-            </Col>
-        );
+function ActionStatus(props) {
+    let actionIcon;
+    let actionType = props.ban ? (props.actionType + 1) * -1 : props.actionType + 1;
+    let actionColor = props.ban ? 'red' : 'lightgray';
+    switch (actionType) {
+        case 1:
+            actionIcon = faLightbulb;
+            break;
+        case 2:
+            actionIcon = faShoppingCart;
+            break;
+        case 3:
+            actionIcon = faHammer;
+            break;
+        case -1:
+            actionIcon = faLightbulb;
+            break;
+        case -2:
+            actionIcon = faShoppingCart;
+            break;
+        case -3:
+            actionIcon = faHammer;
+            break;
+        default:
+            break;
     }
+    return (
+        <Col xs={"auto"} className={'p-0 mx-1'} onClick={props.onPositionClick}>
+            {/*<Image src={actionIcon} fluid/>*/}
+            <FontAwesomeIcon icon={actionIcon} color={actionColor}/>
+        </Col>
+    );
 }
+
 
 export default GamePlaying;

@@ -43,8 +43,11 @@ class GameController():
         self.fold_deck = create_card_list(fold_deck)
         self.board = [[Road(**obj) for obj in row] for row in board]
         self.gold_stack = gold_stack
-        self.winner = winner
-        self.winner_list = winner_list
+        if winner is None:
+            self.winner = winner
+        else:
+            self.winner = Player(**winner)
+        self.winner_list = [Player(**obj) for obj in winner_list]
         self.gold_pos = gold_pos
         self.now_play = now_play
 
@@ -65,7 +68,9 @@ class GameController():
             "num_player": len(player_id_list),
             "player_list": [{"id": str(id)} for id in player_id_list]
         })
-        return cls(**obj)
+        instance = cls(**obj)
+        instance.round_reset()
+        return instance
 
     def __repr__(self):
         """output json format representation with Str"""
@@ -107,15 +112,8 @@ class GameController():
                     INFO: String of some game information
         """
         return_msg = None
-        if self.game_state == GameState.reset:
-            self.round += 1
-            logging.info(f"round {self.round} start")
-            self.round_reset()
-            self.game_state = GameState.play
-            return_msg = {"msg_type": "INFO", "msg": f"round {self.round} start"}
-            self.visualization()  # debug
 
-        elif self.game_state == GameState.play:
+        if self.game_state == GameState.play:
             now_play = self.player_list[self.turn % self.num_player]
             self.now_play = now_play.id
 
@@ -157,6 +155,9 @@ class GameController():
                 self.deal_card([now_play])
 
             self.turn += 1
+            now_play = self.player_list[self.turn % self.num_player]
+            self.now_play = now_play.id
+
             if flag == self.num_player:  # bad dwarf win
                 logging.info("BAD dwarfs win")
                 self.winner_list = [winner for winner in self.player_list if winner.role is False]
@@ -165,17 +166,17 @@ class GameController():
                 self.game_state = GameState.game_point
                 return_msg = {"msg_type": "INFO", "msg": f"round {self.round} BAD dwarfs win"}
 
-        elif self.game_state == GameState.game_point:
+        if self.game_state == GameState.game_point:
             self.calc_point(self.winner_list, self.winner)
             self.view_player(self.player_list)  # debug
             self.winner = None
             self.winner_list = []
-            self.game_state = GameState.reset
+            self.round_reset()
 
             if self.round == 3:
                 self.game_state = GameState.set_point
 
-        elif self.game_state == GameState.set_point:
+        if self.game_state == GameState.set_point:
             return_msg = self.calc_rank()
             self.round += 1
 
@@ -241,6 +242,8 @@ class GameController():
             reset the gold stack, board, players' role and state, card pool,
             then deal card for every player
         """
+        self.round += 1
+        logging.info(f"round {self.round} start")
         if self.round == 1:
             self.gold_stack = []
             self.gold_stack += [1 for _ in range(16)]
@@ -254,6 +257,13 @@ class GameController():
         shuffle(self.card_pool)
         shuffle(self.player_list)
         self.deal_card(self.player_list)
+
+        self.game_state = GameState.play
+        self.turn = 0
+        now_play = self.player_list[self.turn % self.num_player]
+        self.now_play = now_play.id
+
+        return_msg = {"msg_type": "INFO", "msg": f"round {self.round} start"}
 
     def connect_to_start(self, card: Road, row: int, col: int, went: list):
         """check the road is connect to starting road or not with DFS algorithm

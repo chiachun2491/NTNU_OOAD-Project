@@ -8,11 +8,12 @@ import hashlib
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from saboteur import GameController
+
+
 # Create your models here.
 
 
 class GameRoom(models.Model):
-
     class StatusType(models.TextChoices):
         ORGANIZE = 'organize'
         PLAYING = 'playing'
@@ -127,16 +128,13 @@ class GameRoom(models.Model):
 
     def init_game_data(self):
         controller = GameController.from_scratch(self._get_player_list())
-        # reset state first
-        controller.state_control(0,0)
         self.game_data = controller.to_json()
 
-
-    def state_control(self, card_id, card_pos, card_act):
+    def state_control(self, card_id, position, rotate, action):
         print('model state_control called')
         controller = self._get_controller()
         # play card
-        controller.state_control(card_id=card_id, position=card_pos, act_type=card_act)
+        controller.state_control(card_id=card_id, position=position, rotate=rotate, act_type=action)
         # save result
         self.game_data = controller.to_json()
         self.save()
@@ -149,4 +147,3 @@ class PlayerData(models.Model):
 
     def __str__(self):
         return f'{self.room} {self.player}'
-

@@ -20,8 +20,6 @@ class GameOrganzie extends Component {
         const ws = this.props.ws;
 
         try {
-            console.log('button clicked');
-            console.log(ws);
             ws.send(JSON.stringify({event: 'status_change', message: 'playing'}));
         } catch (e) {
             console.log(e);
