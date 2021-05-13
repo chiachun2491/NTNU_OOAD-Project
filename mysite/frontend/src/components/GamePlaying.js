@@ -60,29 +60,31 @@ class GamePlaying extends Component {
     }
 
     handlePositionClick(pos, action = -1) {
-        console.log(BOARD_BASE);
-        if (this.state.selectHandCardNo !== -1) {
-            console.log(this.state.selectHandCardNo, this.state.selectHandCardRotate, pos, action);
-            // TODO: send state control to socket
-            const ws = this.props.ws;
-            try {
-                ws.send(JSON.stringify({
-                    event: 'play_card',
-                    id: this.state.selectHandCardNo,
-                    rotate: this.state.selectHandCardRotate ? 1 : 0,
-                    pos: pos,
-                    act: action,
-                }));
-            } catch (e) {
-                console.log(e);
+        const username = localStorage.getItem('username');
+        if (this.props.roomData.game_data.now_play === username) {
+            if (this.state.selectHandCardNo !== -1) {
+                console.log(this.state.selectHandCardNo, this.state.selectHandCardRotate, pos, action);
+                // TODO: send state control to socket
+                const ws = this.props.ws;
+                try {
+                    ws.send(JSON.stringify({
+                        event: 'play_card',
+                        id: this.state.selectHandCardNo,
+                        rotate: this.state.selectHandCardRotate ? 1 : 0,
+                        pos: pos,
+                        act: action,
+                    }));
+                } catch (e) {
+                    console.log(e);
+                }
+                // reset select card
+                this.setState({
+                    selectHandCardNo: -1,
+                    selectHandCardRotate: false
+                });
+            } else {
+                alert('你必須先選擇一張牌');
             }
-            // reset select card
-            this.setState({
-                selectHandCardNo: -1,
-                selectHandCardRotate: false
-            });
-        } else {
-            alert('你必須先選擇一張牌');
         }
     }
 
