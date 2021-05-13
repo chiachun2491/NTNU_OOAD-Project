@@ -85,10 +85,11 @@ class GamePlaying extends Component {
 
     render() {
         const username = localStorage.getItem('username');
+        const gameData = this.props.roomData.game_data;
         let self_id;
-        const list_len = this.props.roomData.game_data.player_list.length;
+        const list_len = gameData.player_list.length;
         for (let i = 0; i < list_len; i++) {
-            if (this.props.roomData.game_data.player_list[i].id === username) {
+            if (gameData.player_list[i].id === username) {
                 self_id = i;
                 break;
             }
@@ -96,14 +97,16 @@ class GamePlaying extends Component {
         let other_players = [];
         for (let i = 1; i < list_len; i++) {
             let playerIndex = (self_id + i) % list_len;
-            let player = this.props.roomData.game_data.player_list[playerIndex];
+            let player = gameData.player_list[playerIndex];
             other_players.push(
                 <OtherGamePlayer
+                    nowPlaying={gameData.now_play === player.id}
                     key={player.id}
                     player={player}
                     onPositionClick={this.handlePositionClick}
                     playerID={playerIndex}
-                />);
+                />
+            );
         }
         return (
             <>
@@ -111,8 +114,8 @@ class GamePlaying extends Component {
                     <Row>
                         <Col xs={12} lg={8}>
                             {/* Deck */}
-                            {this.props.roomData.game_data.board.map((row, i) => {
-                                return <Row key={i} className={'d-flex justify-content-center'}>
+                            {gameData.board.map((row, i) => (
+                                <Row key={i} className={'d-flex justify-content-center'}>
                                     {row.map((card, j) => (
                                         <GameCard
                                             key={j}
@@ -120,10 +123,10 @@ class GamePlaying extends Component {
                                             isRotated={card.rotate !== 0}
                                             boardCard={true}
                                             onCardClick={() => this.handlePositionClick(i * 9 + j)}
-                                        />)
-                                    )}
+                                        />
+                                    ))}
                                 </Row>
-                            })}
+                            ))}
                         </Col>
                         <Col xs={12} lg={4} className={'my-3'}>
                             {/* Rival name & status */}
@@ -131,8 +134,9 @@ class GamePlaying extends Component {
                                 {other_players}
                             </Row>
                             <SelfGamePlayer
-                                player={this.props.roomData.game_data.player_list[self_id]}
+                                player={gameData.player_list[self_id]}
                                 playerID={self_id}
+                                nowPlaying={gameData.now_play === username}
                                 onHandCardClick={this.handleHandCardClick}
                                 selectHandCardNo={this.state.selectHandCardNo}
                                 selectHandCardRotate={this.state.selectHandCardRotate}
@@ -153,7 +157,7 @@ function OtherGamePlayer(props) {
     }
     return (
         <Col xs={4} lg={12} className={"px-2"}>
-            <Button variant={'brown'} size={'sm'} block={true}
+            <Button variant={props.nowPlaying ? 'brown' : 'outline-brown'} size={'sm'} block={true}
                     onClick={() => props.onPositionClick(props.playerID)}>
                 {props.player.id}
             </Button>
@@ -177,7 +181,7 @@ function SelfGamePlayer(props) {
             {/* Your name & status */}
             <Row className={'my-2'}>
                 <Col xs={8} lg={12} className={'px-2'}>
-                    <Button variant={'brown'} block={true} size={''}
+                    <Button variant={props.nowPlaying ? 'brown' : 'outline-brown'} block={true} size={''}
                             onClick={() => props.onPositionClick(props.playerID)}>
                         {props.player.id}：{identity}
                     </Button>
