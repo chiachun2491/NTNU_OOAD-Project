@@ -22,6 +22,7 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('api/auth/', include('authentication.urls')),
+    path('api/game/', include('game.api_urls')),
     path('chat/', include('chat.urls')),
     path('game/', include('game.urls')),
     path('admin/', admin.site.urls),

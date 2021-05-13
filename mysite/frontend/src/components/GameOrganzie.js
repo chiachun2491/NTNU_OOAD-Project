@@ -4,41 +4,49 @@ import {Card, Button, Row, Col} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faUserCog, faUser, faWindowClose} from "@fortawesome/free-solid-svg-icons";
 
+const gamePlayerLeastAmount = 3;
+
 class GameOrganzie extends Component {
-    state = {
-        players: [],
-    };
+    constructor(props) {
+        super(props);
+        this.gameStartClicked = this.gameStartClicked.bind(this);
+    }
 
     componentDidMount() {
-        // TODO: replace by socket connection
-        this.setState({
-            players: [
-                {
-                    'playerName': 'Jeffery',
-                    'isAdmin': true
-                },
-                {
-                    'playerName': 'Danny',
-                    'isAdmin': false
-                },
-                {
-                    'playerName': 'Dabu',
-                    'isAdmin': false
-                }
-            ]
-        });
 
+    };
+
+    gameStartClicked = () => {
+        const ws = this.props.ws;
+
+        try {
+            console.log('button clicked');
+            console.log(ws);
+            ws.send(JSON.stringify({event: 'status_change', message: 'playing'}));
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     render() {
-        const players = this.state.players;
+        let gameCanStart = false;
+        let gameNeedPlayerMessage = '';
+        if (this.props.roomData.players_data.length < gamePlayerLeastAmount) {
+            gameCanStart = false;
+            gameNeedPlayerMessage = '（還需 ' + (gamePlayerLeastAmount - this.props.roomData.players_data.length) + ' 位玩家加入）'
+        } else {
+            gameCanStart = true;
+            gameNeedPlayerMessage = '';
+        }
+        // TODO: handle kick button action
         return (
             <>
-                {/* room number */}
                 <h3 className={'my-3'}>玩家列表</h3>
-                {players.map(player => (
-                    <GamePlayer playerName={player.playerName} isAdmin={player.isAdmin}/>
+                {this.props.roomData.players_data.map(player => (
+                    <GamePlayer key={player.player} playerName={player.player} isAdmin={true}/>
                 ))}
+
+                <Button variant={'brown'} block={true} className={'my-3'} onClick={this.gameStartClicked} disabled={!gameCanStart}>開始遊戲{gameNeedPlayerMessage}</Button>
             </>
         );
     }

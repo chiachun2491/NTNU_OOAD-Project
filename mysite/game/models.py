@@ -1,5 +1,3 @@
-from enum import Enum
-
 from authentication.models import CustomUser
 from django.db import models
 from django.urls import reverse
@@ -9,9 +7,10 @@ import hashlib
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-
-
+from saboteur import GameController
 # Create your models here.
+
+
 class GameRoom(models.Model):
 
     class StatusType(models.TextChoices):
@@ -68,23 +67,22 @@ class GameRoom(models.Model):
 
         elif self.status == GameRoom.StatusType.PLAYING:
             if user in self.players.all():
-                self.can_speak = True
-
+                can_speak = True
         else:  # END
             pass
 
         self.save()
 
         # Send message to room group
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            self.room_group_name(),
-            {
-                # TODO: change event type
-                'type': 'chat_message',
-                'message': f'{user} join game'
-            }
-        )
+        # channel_layer = get_channel_layer()
+        # async_to_sync(channel_layer.group_send)(
+        #     self.room_group_name(),
+        #     {
+        #         # TODO: change event type
+        #         'type': 'chat_message',
+        #         'message': f'{user} join game'
+        #     }
+        # )
 
         return can_speak
 
@@ -95,31 +93,53 @@ class GameRoom(models.Model):
             self.save()
 
         # Send message to room group
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            self.room_group_name(),
-            {
-                # TODO: change event type
-                'type': 'chat_message',
-                'message': f'{username} leave game'
-            }
-        )
+        # channel_layer = get_channel_layer()
+        # async_to_sync(channel_layer.group_send)(
+        #     self.room_group_name(),
+        #     {
+        #         # TODO: change event type
+        #         'type': 'chat_message',
+        #         'message': f'{username} leave game'
+        #     }
+        # )
 
-    def change_state(self, status):
+    def change_status(self, status):
+        self.status = status
         if status == GameRoom.StatusType.PLAYING:
-            self.status = status
+            # create new n-player GameController
 
-            # TODO: create new n-player GameController
+            self.init_game_data()
 
             self.save()
 
             # TODO: sent update message
 
         elif status == GameRoom.StatusType.END:
-            self.status = status
             self.save()
 
             # TODO sent update message
+
+    def _get_player_list(self):
+        return [player.username for player in self.players.all()]
+
+    def _get_controller(self):
+        return GameController(**self.game_data)
+
+    def init_game_data(self):
+        controller = GameController.from_scratch(self._get_player_list())
+        # reset state first
+        controller.state_control(0,0)
+        self.game_data = controller.to_json()
+
+
+    def state_control(self, card_id, card_pos, card_act):
+        print('model state_control called')
+        controller = self._get_controller()
+        # play card
+        controller.state_control(card_id=card_id, position=card_pos, act_type=card_act)
+        # save result
+        self.game_data = controller.to_json()
+        self.save()
 
 
 class PlayerData(models.Model):

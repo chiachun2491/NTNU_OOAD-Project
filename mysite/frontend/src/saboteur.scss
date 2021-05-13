@@ -42,32 +42,22 @@ $dark-brown: #403013;
   }
 }
 
+.badge-brown {
+  color: white;
+  background-color: $brown;
+}
+
 .btn-round {
   border-radius: 20px;
 }
 
-.gamecard {
-  /* width: 30px; */
-  height: 45px;
-  border-radius: 2px;
-  background-color: lightgray;
-  border: 1px;
-  margin: 2px;
+.boardCard {
+  flex: 0 0 10.5%;
+  max-width: 10.5%;
+  margin: 1px;
 }
 
-.roadcard {
-  background-color: gray;
-}
-
-.startcard {
-  background-color: aquamarine;
-}
-
-.goalcard {
-  background-color: $dark-brown;
-}
-
-.handcard {
+.otherPlayerHandCard {
   width: 15px;
   height: 24px;
   border-radius: 2px;
@@ -75,6 +65,11 @@ $dark-brown: #403013;
   border: 1px;
   border-color: black;
   margin: 0 auto;
+}
+
+.selfPlayerHandCard {
+  margin: 1px;
+  border: 2px white solid;
 }
 
 .nametag {
@@ -95,8 +90,11 @@ $dark-brown: #403013;
   color: red;
 }
 
-.mycard {
-  background-color: bisque;
-  margin: 2px;
-  height: 80px;
+.selected {
+  border: 2px $brown solid;
 }
+
+.card-rotate {
+  transform: rotate(180deg);
+}
+

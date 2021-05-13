@@ -9,20 +9,21 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const axiosInstance = axios.create({
-        baseURL: APIbaseURL,
-        timeout: 5000,
-        headers: {
-            'Authorization': "JWT " + localStorage.getItem('access_token'),
-            'Content-Type': 'application/json',
-            'accept': 'application/json'
-        }
-    });
+    baseURL: APIbaseURL,
+    timeout: 5000,
+    headers: {
+        'Authorization': "JWT " + localStorage.getItem('access_token'),
+        'Content-Type': 'application/json',
+        'accept': 'application/json'
+    }
+});
 
 axiosInstance.interceptors.response.use(
     response => response,
     error => {
         const originalRequest = error.config;
 
+        console.log(error);
         // Prevent infinite loops
         if (error.response.status === 401 && originalRequest.url === APIbaseURL + 'auth/token/refresh/') {
             window.location.href = '/account/login/';
@@ -43,7 +44,7 @@ axiosInstance.interceptors.response.use(
 
                 if (tokenParts.exp > now) {
                     return axiosInstance
-                        .post('/token/refresh/', {refresh: refreshToken})
+                        .post('/auth/token/refresh/', {refresh: refreshToken})
                         .then((response) => {
 
                             localStorage.setItem('access_token', response.data.access);
