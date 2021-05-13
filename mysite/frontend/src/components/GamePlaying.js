@@ -61,6 +61,19 @@ class GamePlaying extends Component {
         if (this.state.selectHandCardNo !== -1) {
             console.log(this.state.selectHandCardNo, this.state.selectHandCardRotate, pos, action);
             // TODO: send state control to socket
+            const ws = this.props.ws;
+            try {
+                ws.send(JSON.stringify({
+                    event: 'play_card',
+                    id: this.state.selectHandCardNo,
+                    rotate: this.state.selectHandCardRotate ? 1 : 0,
+                    pos: pos,
+                    act: action,
+                }));
+            } catch (e) {
+                console.log(e);
+            }
+            // reset select card
             this.setState({
                 selectHandCardNo: -1,
                 selectHandCardRotate: false
@@ -148,7 +161,8 @@ class OtherGamePlayer extends Component {
                 </Button>
                 <div className="d-flex justify-content-center my-1">
                     {this.props.player.action_state.map((ban, i) => (
-                        <ActionStatus key={i} actionType={i} onPositionClick={() => this.props.onPositionClick(this.props.playerID, i)}/>
+                        <ActionStatus key={i} actionType={i}
+                                      onPositionClick={() => this.props.onPositionClick(this.props.playerID, i)}/>
                     ))}
                 </div>
                 <div className="d-flex justify-content-around my-1">
@@ -178,8 +192,11 @@ class SelfGamePlayer extends Component {
                     <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center p-0'}>
                         <Row>
                             {this.props.player.action_state.map((ban, i) => (
-                                <ActionStatus key={i} actionType={i}
-                                              onPositionClick={() => this.props.onPositionClick(this.props.playerID, i)}/>
+                                <ActionStatus
+                                    key={i}
+                                    actionType={i}
+                                    onPositionClick={() => this.props.onPositionClick(this.props.playerID, i)}
+                                />
                             ))}
                             <Col xs={'auto'} className={'p-0 mx-1'}>$ : {this.props.player.point}</Col>
                         </Row>
