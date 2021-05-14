@@ -145,8 +145,6 @@ class ActionType(IntEnum):
     miner_lamp = 0
     minecart = 1
     mine_pick = 2
-    rocks = 3
-    map = 4
 
 
 class Action(Card):
@@ -186,10 +184,6 @@ class Action(Card):
             return [ActionType.miner_lamp, ActionType.minecart]
         elif self.card_no == 61:
             return [ActionType.mine_pick, ActionType.miner_lamp]
-        elif 62 <= self.card_no and self.card_no <= 64:
-            return ActionType.rocks
-        elif 65 <= self.card_no and self.card_no <= 70:
-            return ActionType.map
 
     def get_break(self):
         if 44 <= self.card_no and self.card_no <= 46 \
@@ -199,25 +193,19 @@ class Action(Card):
         return False
 
 
-class Rocks(Action):
+class Rocks(Card):
     """the card can destroy normal road"""
-    def __init__(self, card_no=-1, action_type=ActionType.rocks, is_break=False):
-        super().__init__(card_no=card_no, action_type=action_type, is_break=is_break)
+    def __init__(self, card_no=-1):
+        super().__init__(card_no=card_no)
 
     def __repr__(self):
         return super().__repr__()
 
-    def destroy_road(self, ):
-        pass
 
-
-class Map(Action):
+class Map(Card):
     """the card can peek gold(end road)"""
-    def __init__(self, card_no=-1, action_type=ActionType.map, is_break=False):
-        super().__init__(card_no=card_no, action_type=action_type, is_break=is_break)
+    def __init__(self, card_no=-1):
+        super().__init__(card_no=card_no)
 
     def __repr__(self):
         return super().__repr__()
-
-    def peek_gold(self, ):
-        pass
