@@ -10,6 +10,62 @@ import json
 from enum import IntEnum
 
 
+class Card_Activate():
+    """abstract class of strategy pattern"""
+
+    def activate(self, card, gc, pos: int, action_type: int):
+        """abstract method of strategy pattern"""
+        pass
+
+
+class Dig(Card_Activate):
+    """class of strategy pattern for Road"""
+
+    def activate(self, card, gc, pos: int, action_type: int):
+        """method of strategy pattern for Road"""
+
+        r = pos // 9
+        c = pos % 9
+        gc.board[r][c] = card
+        return 
+
+
+class Influence(Card_Activate):
+    """class of strategy pattern for Action"""
+    
+    def activate(self, card, gc, pos: int, action_type: int):
+        """method of strategy pattern for Action"""
+
+        pos -= 45
+        gc.set_player_state([gc.player_list[pos]], card, action_type)
+        return 
+
+
+class Destroy(Card_Activate):
+    """class of strategy pattern for Rocks"""
+    
+    def activate(self, card, gc, pos: int, action_type: int):
+        """method of strategy pattern for Rocks"""
+
+        r = pos // 9
+        c = pos % 9
+        gc.board[r][c] = Road(-1)
+        return 
+
+
+class Peek(Card_Activate):
+    """class of strategy pattern for Map"""
+    
+    def activate(self, card, gc, pos: int, action_type: int):
+        """method of strategy pattern for Map"""
+        
+        r = pos // 9
+        c = pos % 9
+        msg = "is gold" if gc.board[r][c].card_no == 71 else "not gold"
+        return_msg = {"msg_type": "PEEK", "msg": msg}  # pass msg to player
+        return return_msg
+
+
 class Card():
     """card: the abstract class of all cards
 
@@ -48,8 +104,9 @@ class Card():
     """
 
     # -1 as empty card place
-    def __init__(self, card_no=-1):
+    def __init__(self, card_no=-1, active_func=None):
         self.card_no = card_no
+        self.active_func = active_func
 
     def __repr__(self):
         """output json format representation with Str"""
@@ -61,6 +118,28 @@ class Card():
     def __eq__(self, other):
         return self.card_no == other.card_no
 
+    def activate(self, card, gc, pos: int, action_type: int) -> dict:
+        """delegates some work to the strategy object instead of
+        implementing multiple versions of the algorithm on its own.
+        (except fold card which doing the same thing for every type of card)
+
+        :parms
+            card: the card which call this function (Card)
+            gc: the game controller object (GameController)
+            pos: the position of `card` will activate (Int)
+            action_type: the choice of repair which tool of the multi-repair action card (Int)
+        :returns
+            return_msg: message type and message pass to web server (if have msg Dict or None)
+                format same as `GameController.state_control()` defined
+        """
+
+        return_msg = None
+        if pos == -1:
+            gc.fold_deck += [card]
+        else:
+            return_msg = self.active_func.activate(card, gc, pos, action_type)
+        return return_msg
+
 
 class RoadType(IntEnum):
     """road type for road card"""
@@ -71,12 +150,12 @@ class RoadType(IntEnum):
 
 class Road(Card):
 
-    def __init__(self, card_no=-1, rotate: int = 0, road_type: RoadType = RoadType.normal, connected: list = None):
+    def __init__(self, card_no=-1, rotate: int = 0, road_type: RoadType = RoadType.normal, active_func: Card_Activate=Dig()):
         """road card
 
         connected: list of connection (middle, top, right, down, left) 0 for not connect (List)
         """
-        super().__init__(card_no=card_no)
+        super().__init__(card_no=card_no, active_func=active_func)
         self.rotate = rotate
         self.road_type = road_type
         self.connected = self.get_connection()
@@ -150,8 +229,8 @@ class ActionType(IntEnum):
 class Action(Card):
     """action card"""
 
-    def __init__(self, card_no=-1, action_type=None, is_break=None):
-        super().__init__(card_no=card_no)
+    def __init__(self, card_no=-1, action_type=None, is_break=None, active_func: Card_Activate=Influence()):
+        super().__init__(card_no=card_no, active_func=active_func)
         if action_type is None:
             self.action_type = self.get_action()
         else:
@@ -195,8 +274,8 @@ class Action(Card):
 
 class Rocks(Card):
     """the card can destroy normal road"""
-    def __init__(self, card_no=-1):
-        super().__init__(card_no=card_no)
+    def __init__(self, card_no=-1, active_func: Card_Activate=Destroy()):
+        super().__init__(card_no=card_no, active_func=active_func)
 
     def __repr__(self):
         return super().__repr__()
@@ -204,8 +283,8 @@ class Rocks(Card):
 
 class Map(Card):
     """the card can peek gold(end road)"""
-    def __init__(self, card_no=-1):
-        super().__init__(card_no=card_no)
+    def __init__(self, card_no=-1, active_func: Card_Activate=Peek()):
+        super().__init__(card_no=card_no, active_func=active_func)
 
     def __repr__(self):
         return super().__repr__()

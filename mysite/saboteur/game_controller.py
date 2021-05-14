@@ -128,7 +128,7 @@ class GameController():
                 return_msg = {"msg_type": "ILLEGAL_PLAY", "msg": illegal_msg}
                 return return_msg
 
-            return_msg = self.set_board(card, pos, action_type)
+            return_msg = card.activate(card, self, pos, action_type)
 
             flag = 0
             for player in self.player_list:
@@ -422,36 +422,6 @@ class GameController():
             illegal_msg = "" if legality else "the player's tool are already broken/repaired"
 
         return legality, illegal_msg
-
-    def set_board(self, card: Card, pos: int, action_type: int):
-        """set board when the player behavior is legality
-
-        :parms
-            card: the card need to be set on board or player (Card)
-            pos: the position of the card determine on board or player (Int)
-                (see Player.play_card for more position definition)
-            action_type: the choice of repair which tool of the multi-repair action card (Int)
-        :returns:
-            message type and message pass to web server (dict)
-        """
-        if pos == -1:  # fold any card
-            self.fold_deck += [card]
-        elif pos <= 44:  # play road card on board
-            r = pos // 9
-            c = pos % 9
-            if isinstance(card, Road):
-                self.board[r][c] = card
-            elif isinstance(card, Rocks):
-                self.board[r][c] = Road(-1)
-            elif isinstance(card, Map):
-                logging.debug(self.board[r][c])
-
-                msg = "is gold" if self.board[r][c].card_no == 1 else "not gold"
-                return_msg = {"msg_type": "PEEK", "msg": msg}  # pass msg to player
-                return return_msg
-        else:  # play action card to player
-            pos -= 45
-            self.set_player_state([self.player_list[pos]], card, action_type)
 
     def deal_card(self, player_list: list, card: Card = None):
         """deal card for player(s)
