@@ -446,7 +446,9 @@ class GameController():
             elif isinstance(card, Map):
                 logging.debug(self.board[r][c])
 
-                return {"msg_type": "PEEK", "msg": self.board[r][c].card_no}  # pass msg to player
+                msg = "is gold" if self.board[r][c].card_no == 1 else "not gold"
+                return_msg = {"msg_type": "PEEK", "msg": msg}  # pass msg to player
+                return return_msg
         else:  # play action card to player
             pos -= 45
             self.set_player_state([self.player_list[pos]], card, action_type)
