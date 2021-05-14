@@ -7,7 +7,7 @@ import hashlib
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from saboteur import GameController
+from saboteur import GameController, GameState
 
 
 # Create your models here.
@@ -108,17 +108,18 @@ class GameRoom(models.Model):
         self.status = status
         if status == GameRoom.StatusType.PLAYING:
             # create new n-player GameController
-
             self.init_game_data()
-
             self.save()
-
-            # TODO: sent update message
 
         elif status == GameRoom.StatusType.END:
-            self.save()
+            controller = self._get_controller()
 
-            # TODO sent update message
+            for player in controller.player_list:
+                playerData = PlayerData.objects.get(room=self, player__username=player.id)
+                playerData.point = player.point
+                playerData.save()
+
+            self.save()
 
     def _get_player_list(self):
         return [player.username for player in self.players.all()]
@@ -133,11 +134,18 @@ class GameRoom(models.Model):
     def state_control(self, card_id, position, rotate, action):
         print('model state_control called')
         controller = self._get_controller()
-        # play card
-        controller.state_control(card_id=card_id, position=position, rotate=rotate, act_type=action)
+        # play card and get feedback
+        return_msg = controller.state_control(card_id=card_id, position=position, rotate=rotate, act_type=action)
+
         # save result
         self.game_data = controller.to_json()
         self.save()
+
+        # determine end game or not
+        if controller.game_state == GameState.end_game:
+            self.change_status(GameRoom.StatusType.END)
+
+        return return_msg
 
 
 class PlayerData(models.Model):

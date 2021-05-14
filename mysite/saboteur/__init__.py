@@ -1,1 +1,1 @@
-from .game_controller import GameController
+from .game_controller import GameController, GameState

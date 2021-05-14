@@ -24,7 +24,7 @@ class GameState(IntEnum):
     reset = 0
     play = 1
     game_point = 2
-    set_point = 3
+    end_game = 3
 
 
 class GameController():
@@ -174,11 +174,14 @@ class GameController():
             self.round_reset()
 
             if self.round == 3:
-                self.game_state = GameState.set_point
+                self.game_state = GameState.end_game
 
-        if self.game_state == GameState.set_point:
-            return_msg = self.calc_rank()
-            self.round += 1
+        # if self.game_state == GameState.end_game:
+        #     # return_msg = self.calc_rank()
+        #     self.round += 1
+        #     return_msg = {
+        #         'msg_type': 'END'
+        #     }
 
             # self.visualization() # debug
 
