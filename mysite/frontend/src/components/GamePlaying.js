@@ -211,7 +211,7 @@ function SelfGamePlayer(props) {
             </Row>
             <Row className={'my-2'}>
                 <Col xs={8} lg={12} className={'px-2'}>
-                    <Row className={'px-2'}>
+                    <Row className={'d-flex justify-content-around px-2'}>
                         {props.player.hand_cards.map((card, i) => (
                             <GameCard
                                 card_no={card.card_no}
