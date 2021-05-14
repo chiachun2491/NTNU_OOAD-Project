@@ -337,16 +337,17 @@ class GameController():
         is_connect = 0
 
         # check above, under, left and right road side's are rock or not
-        if row - 1 >= 0:
-            beside = self.board[row - 1][col]
-            if beside.card_no != -1 and \
-                    (card.connected[1] ^ self.board[row - 1][col].connected[3]):
-                is_connect += 1
-        if row + 1 <= 4:
-            beside = self.board[row + 1][col]
-            if beside.card_no != -1 and \
-                    (card.connected[3] ^ self.board[row + 1][col].connected[1]):
-                is_connect += 1
+        if row != 1 and col != 8 or row != 3 and col != 8:  # if pos = 17 and 35 ignore above and under connect to rock
+            if row - 1 >= 0:
+                beside = self.board[row - 1][col]
+                if beside.card_no != -1 and \
+                        (card.connected[1] ^ self.board[row - 1][col].connected[3]):
+                    is_connect += 1
+            if row + 1 <= 4:
+                beside = self.board[row + 1][col]
+                if beside.card_no != -1 and \
+                        (card.connected[3] ^ self.board[row + 1][col].connected[1]):
+                    is_connect += 1
         if col - 1 >= 0:
             beside = self.board[row][col - 1]
             if beside.card_no != -1 and \
