@@ -39,7 +39,7 @@ class Player():
     def __eq__(self, other):
         return self.id == other.id
 
-    def play_card(self, card_id: int, pos: int, rotate: int = 0, action_type: int = -1) -> (Card, int, int):
+    def play_card(self, card_id: int, pos: int, rotate: int = 0, action_type: int = -1) -> "tuple[Card, int, int]":
         """play a road card on to board or an action card to some player or fold card
 
         :parms

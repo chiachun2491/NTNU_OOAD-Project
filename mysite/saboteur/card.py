@@ -16,9 +16,9 @@ class Card():
     card number define:
         road: 0 ~ 43
             0:          ╬ [1, 1, 1, 1, 1] start road
-            1:          ╬ [1, 1, 1, 1, 1] end road(gold)
-            2:          ╔ [1, 1, 1, 1, 1] end road(rock)
-            3:          ╔ [1, 1, 1, 1, 1] end road(rock)
+            1:          ╬ [1, 1, 1, 1, 1] end road(gold) 71 (hide)
+            2:          ╔ [1, 1, 1, 1, 1] end road(rock) 72 (hide)
+            3:          ╔ [1, 1, 1, 1, 1] end road(rock) 73 (hide)
             4 ~ 7:      ║ [1, 1, 0, 1, 0]
             8 ~ 12:     ╠ [1, 1, 1, 1, 0]
             13 ~ 17:    ╬ [1, 1, 1, 1, 1]
@@ -99,7 +99,8 @@ class Road(Card):
         """
         connected = [0] * 5
         if self.card_no >= 0 and self.card_no <= 3 or \
-                (self.card_no >= 13 and self.card_no <= 17):
+            self.card_no >= 13 and self.card_no <= 17 or\
+            self.card_no >= 71 and self.card_no <= 73:
             connected = [1] * 5
         elif self.card_no >= 18 and self.card_no <= 21:
             connected = [1, 0, 1, 1, 0]

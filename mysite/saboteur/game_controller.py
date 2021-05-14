@@ -136,12 +136,27 @@ class GameController():
                     flag += 1
 
             if pos == 7 or pos == 17 or \
-                    pos == 25 or pos == 35 or pos == 43:  # good dwarf win
+                pos == 25 or pos == 35 or pos == 43:
+
+                # show end card
+                if pos == 7 or pos == 25 or pos == 43:
+                    pos_ = [pos + 1]
+                elif pos == 17 or pos == 35:
+                    pos_ = [pos - 9, pos + 9]
+                for p in pos_:
+                    pos_row = p // 9
+                    pos_col = p % 9
+                    end_card = self.board[pos_row][pos_col]
+                    went = [[False for _ in range(9)] for _ in range(5)]
+                    if end_card.id > 70 and \
+                        self.connect_to_start(end_card, pos_row, pos_col, went):
+                        self.board[pos_row][pos_col] = Road(end_card.id - 70)
+
                 logging.debug(f"gold position: {self.gold_pos}")
                 gold_row = self.gold_pos // 9
                 gold_col = self.gold_pos % 9
                 went = [[False for _ in range(9)] for _ in range(5)]
-                if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went):
+                if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went): # good dwarf win
                     logging.info("GOOD dwarfs win")
                     self.winner_list = [winner for winner in self.player_list if winner.role]
                     self.winner = now_play
@@ -198,7 +213,7 @@ class GameController():
         self.gold_pos = end_road.index(1) * 18 + 8
         i = 0
         for row in range(0, 5, 2):
-            self.board[row][8] = Road(end_road[i], road_type=RoadType.end)
+            self.board[row][8] = Road(end_road[i] + 70, road_type=RoadType.end)
             i += 1
 
     def set_role(self):
@@ -345,7 +360,7 @@ class GameController():
 
         return is_connect
 
-    def check_legality(self, player: Player, card: Card, pos: int, action_type: int) -> (bool, str):
+    def check_legality(self, player: Player, card: Card, pos: int, action_type: int) -> "tuple[bool, str]":
         """check the player behavior is legality or not
 
         :parms
