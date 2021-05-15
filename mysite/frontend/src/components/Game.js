@@ -90,13 +90,21 @@ class Game extends Component {
         };
 
         ws.onclose = (e) => {
-            console.log(
-                `Socket is closed. Reconnect will be attempted in ${Math.min(
-                    10000 / 1000,
-                    (that.timeout + that.timeout) / 1000
-                )} second.`,
-                e.reason
-            );
+            const close_msg = `Socket is closed. Reconnect will be attempted in ${Math.min(
+                10000 / 1000,
+                (that.timeout + that.timeout) / 1000
+            )} second.`;
+            console.log(close_msg, e.reason);
+            that.setState({
+                alertMessage: {
+                    msg_type: 'ERROR',
+                    msg: close_msg
+                }
+            }, () => {
+                window.setTimeout(() => {
+                    this.setState({alertMessage: null});
+                }, (that.timeout + that.timeout));
+            });
 
             that.timeout = that.timeout + that.timeout; //increment retry interval
             connectInterval = setTimeout(this.checkSocket, Math.min(10000, that.timeout)); //call checkSocket function after timeout

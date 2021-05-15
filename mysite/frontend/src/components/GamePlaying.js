@@ -166,6 +166,9 @@ class GamePlaying extends Component {
                 case 'PEEK':
                     variant = 'secondary';
                     break;
+                case "ERROR":
+                    variant = 'warning';
+                    break;
                 default:
                     variant = 'info';
                     break;

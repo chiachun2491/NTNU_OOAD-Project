@@ -200,6 +200,11 @@ function GameCard(props) {
         case 70:
             src = card_map;
             break;
+        case 71:
+        case 72:
+        case 73:
+            src = 'https://dummyimage.com/250x400/6DA9E7/6DA9E7.png';
+            break;
         default:
             src = 'https://dummyimage.com/250x400/DCDFE8/DCDFE8.png';
     }

@@ -129,7 +129,7 @@ class GameRoom(models.Model):
 
     def init_game_data(self):
         controller = GameController.from_scratch(self._get_player_list())
-        self.game_data = controller.to_json()
+        self.game_data = controller.to_dict()
 
     def state_control(self, card_id, position, rotate, action):
         print('model state_control called')
@@ -138,7 +138,7 @@ class GameRoom(models.Model):
         return_msg = controller.state_control(card_id=card_id, position=position, rotate=rotate, act_type=action)
 
         # save result
-        self.game_data = controller.to_json()
+        self.game_data = controller.to_dict()
         self.save()
 
         # determine end game or not

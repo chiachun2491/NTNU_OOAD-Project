@@ -27,38 +27,38 @@ class Dig(Card_Activate):
         r = pos // 9
         c = pos % 9
         gc.board[r][c] = card
-        return 
+        return
 
 
 class Influence(Card_Activate):
     """class of strategy pattern for Action"""
-    
+
     def activate(self, card, gc, pos: int, action_type: int):
         """method of strategy pattern for Action"""
 
         pos -= 45
         gc.set_player_state([gc.player_list[pos]], card, action_type)
-        return 
+        return
 
 
 class Destroy(Card_Activate):
     """class of strategy pattern for Rocks"""
-    
+
     def activate(self, card, gc, pos: int, action_type: int):
         """method of strategy pattern for Rocks"""
 
         r = pos // 9
         c = pos % 9
         gc.board[r][c] = Road(-1)
-        return 
+        return
 
 
 class Peek(Card_Activate):
     """class of strategy pattern for Map"""
-    
+
     def activate(self, card, gc, pos: int, action_type: int):
         """method of strategy pattern for Map"""
-        
+
         r = pos // 9
         c = pos % 9
         msg = "is gold" if gc.board[r][c].card_no == 71 else "not gold"
@@ -108,17 +108,16 @@ class Card():
         self.card_no = card_no
         self.active_func = active_func
 
-    def __repr__(self):
-        """output json format representation with Str"""
-        repr_ = {
+    def to_dict(self):
+        """output Card object representation with Dict"""
+        return {
             "card_no": self.card_no
         }
-        return json.dumps(repr_)
 
     def __eq__(self, other):
         return self.card_no == other.card_no
 
-    def activate(self, card, gc, pos: int, action_type: int) -> dict:
+    def activate(self, card, gc, pos: int, action_type: int) -> to_dict:
         """delegates some work to the strategy object instead of
         implementing multiple versions of the algorithm on its own.
         (except fold card which doing the same thing for every type of card)
@@ -150,7 +149,8 @@ class RoadType(IntEnum):
 
 class Road(Card):
 
-    def __init__(self, card_no=-1, rotate: int = 0, road_type: RoadType = RoadType.normal, active_func: Card_Activate=Dig()):
+    def __init__(self, card_no=-1, rotate: int = 0, road_type: RoadType = RoadType.normal,
+                 active_func: Card_Activate = Dig()):
         """road card
 
         connected: list of connection (middle, top, right, down, left) 0 for not connect (List)
@@ -160,15 +160,14 @@ class Road(Card):
         self.road_type = road_type
         self.connected = self.get_connection()
 
-    def __repr__(self):
-        """output json format representation with Str"""
-        repr_ = super().__repr__()
-        repr_ = json.loads(repr_)
-        repr_.update({
+    def to_dict(self):
+        """output Road object representation with Dict"""
+        dict_ = super().to_dict()
+        dict_.update({
             "rotate": self.rotate,
             "road_type": int(self.road_type)
         })
-        return json.dumps(repr_)
+        return dict_
 
     def get_connection(self):
         """set the road connection for road connection checking
@@ -178,8 +177,8 @@ class Road(Card):
         """
         connected = [0] * 5
         if self.card_no >= 0 and self.card_no <= 3 or \
-            self.card_no >= 13 and self.card_no <= 17 or\
-            self.card_no >= 71 and self.card_no <= 73:
+                self.card_no >= 13 and self.card_no <= 17 or \
+                self.card_no >= 71 and self.card_no <= 73:
             connected = [1] * 5
         elif self.card_no >= 18 and self.card_no <= 21:
             connected = [1, 0, 1, 1, 0]
@@ -229,7 +228,7 @@ class ActionType(IntEnum):
 class Action(Card):
     """action card"""
 
-    def __init__(self, card_no=-1, action_type=None, is_break=None, active_func: Card_Activate=Influence()):
+    def __init__(self, card_no=-1, action_type=None, is_break=None, active_func: Card_Activate = Influence()):
         super().__init__(card_no=card_no, active_func=active_func)
         if action_type is None:
             self.action_type = self.get_action()
@@ -240,15 +239,14 @@ class Action(Card):
         else:
             self.is_break = is_break
 
-    def __repr__(self):
-        """output json format representation with Str"""
-        repr_ = super().__repr__()
-        repr_ = json.loads(repr_)
-        repr_.update({
+    def to_dict(self):
+        """output Action object representation with Dict"""
+        dict_ = super().to_dict()
+        dict_.update({
             "action_type": self.action_type,
             "is_break": self.is_break
         })
-        return json.dumps(repr_)
+        return dict_
 
     def get_action(self):
         if 44 <= self.card_no and self.card_no <= 48:
@@ -274,17 +272,13 @@ class Action(Card):
 
 class Rocks(Card):
     """the card can destroy normal road"""
-    def __init__(self, card_no=-1, active_func: Card_Activate=Destroy()):
-        super().__init__(card_no=card_no, active_func=active_func)
 
-    def __repr__(self):
-        return super().__repr__()
+    def __init__(self, card_no=-1, active_func: Card_Activate = Destroy()):
+        super().__init__(card_no=card_no, active_func=active_func)
 
 
 class Map(Card):
     """the card can peek gold(end road)"""
-    def __init__(self, card_no=-1, active_func: Card_Activate=Peek()):
-        super().__init__(card_no=card_no, active_func=active_func)
 
-    def __repr__(self):
-        return super().__repr__()
+    def __init__(self, card_no=-1, active_func: Card_Activate = Peek()):
+        super().__init__(card_no=card_no, active_func=active_func)
