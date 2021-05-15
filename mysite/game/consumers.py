@@ -50,10 +50,16 @@ class GameRoomConsumer(WebsocketConsumer):
                     int(text_data_json['rotate']),
                     int(text_data_json['act'])
                 )
-                self.send(text_data=json.dumps({
-                    'event': 'alert_message',
-                    'message': return_msg
-                }))
+
+                if return_msg is not None:
+                    event = {'type': 'alert_message', 'message': return_msg}
+                    if return_msg.msg_type == 'INFO':
+                        # Send message to room group
+                        async_to_sync(self.channel_layer.group_send)(
+                            self.room_group_name, event
+                        )
+                    else:
+                        self.alert_message(event)
             else:
                 # Send message to room group
                 async_to_sync(self.channel_layer.group_send)(
@@ -74,6 +80,14 @@ class GameRoomConsumer(WebsocketConsumer):
             'event': 'chat_message',
             'message': message,
             'status': self.room.status,
+        }))
+
+    def alert_message(self, event):
+        return_msg = event['message']
+
+        self.send(text_data=json.dumps({
+            'event': 'alert_message',
+            'message': return_msg
         }))
 
     def _get_room(self) -> GameRoom:
