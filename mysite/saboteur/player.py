@@ -25,21 +25,21 @@ class Player():
         self.role = role
         self.action_state = action_state
 
-    def __repr__(self):
-        """output json format representation with Str"""
-        repr_ = {
+    def to_dict(self):
+        """output Player object representation with Dict"""
+        dict_ = {
             "id": self.id,
             "point": self.point,
-            "hand_cards": self.hand_cards,
+            "hand_cards": [card.to_dict() for card in self.hand_cards],
             "role": self.role,
             "action_state": self.action_state
         }
-        return json.dumps(repr_, default=serialize)
+        return dict_
 
     def __eq__(self, other):
         return self.id == other.id
 
-    def play_card(self, card_id: int, pos: int, rotate: int = 0, action_type: int = -1) -> "tuple[Card, int, int]":
+    def play_card(self, card_id: int, pos: int, rotate: int = 0, action_type: int = -1) -> (Card, int, int):
         """play a road card on to board or an action card to some player or fold card
 
         :parms

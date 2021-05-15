@@ -43,10 +43,7 @@ class GameController():
         self.fold_deck = create_card_list(fold_deck)
         self.board = [[Road(**obj) for obj in row] for row in board]
         self.gold_stack = gold_stack
-        if winner is None:
-            self.winner = winner
-        else:
-            self.winner = Player(**winner)
+        self.winner = None if winner is None else Player(**winner)
         self.winner_list = [Player(**obj) for obj in winner_list]
         self.gold_pos = gold_pos
         self.now_play = now_play
@@ -72,30 +69,26 @@ class GameController():
         instance.round_reset()
         return instance
 
-    def __repr__(self):
-        """output json format representation with Str"""
-        repr_ = {
+    def to_dict(self):
+        """output GameController object representation with Dict"""
+        dict_ = {
             "round": self.round,
             "num_player": self.num_player,
-            "player_list": self.player_list,
+            "player_list": [player.to_dict() for player in self.player_list],
             "game_state": int(self.game_state),
             "turn": self.turn,
-            "card_pool": self.card_pool,
-            "fold_deck": self.fold_deck,
-            "board": self.board,
+            "card_pool": [card.to_dict() for card in self.card_pool],
+            "fold_deck": [card.to_dict() for card in self.fold_deck],
+            "board": [[card.to_dict() for card in row] for row in self.board],
             "gold_stack": self.gold_stack,
-            "winner": self.winner,
-            "winner_list": self.winner_list,
+            "winner": None if self.winner is None else self.winner.to_dict(),
+            "winner_list": [winner.to_dict() for winner in self.winner_list],
             "gold_pos": self.gold_pos,
             "now_play": self.now_play
         }
-        return json.dumps(repr_, default=serialize)
+        return dict_
 
-    def to_json(self):
-        """output json format representation with Dict"""
-        return json.loads(self.__repr__())
-
-    def state_control(self, card_id: int = -1, position: int = -1, rotate: int = 0, act_type: int = -1) -> dict:
+    def state_control(self, card_id: int = -1, position: int = -1, rotate: int = 0, act_type: int = -1) -> to_dict:
         """a state machine control game state and do game control
 
         :parms
@@ -136,7 +129,7 @@ class GameController():
                     flag += 1
 
             if pos == 7 or pos == 17 or \
-                pos == 25 or pos == 35 or pos == 43:
+                    pos == 25 or pos == 35 or pos == 43:
 
                 # show end card
                 if pos == 7 or pos == 25 or pos == 43:
@@ -149,14 +142,14 @@ class GameController():
                     end_card = self.board[pos_row][pos_col]
                     went = [[False for _ in range(9)] for _ in range(5)]
                     if end_card.id > 70 and \
-                        self.connect_to_start(end_card, pos_row, pos_col, went):
+                            self.connect_to_start(end_card, pos_row, pos_col, went):
                         self.board[pos_row][pos_col] = Road(end_card.id - 70)
 
                 logging.debug(f"gold position: {self.gold_pos}")
                 gold_row = self.gold_pos // 9
                 gold_col = self.gold_pos % 9
                 went = [[False for _ in range(9)] for _ in range(5)]
-                if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went): # good dwarf win
+                if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went):  # good dwarf win
                     logging.info("GOOD dwarfs win")
                     self.winner_list = [winner for winner in self.player_list if winner.role]
                     self.winner = now_play
@@ -198,7 +191,7 @@ class GameController():
         #         'msg_type': 'END'
         #     }
 
-            # self.visualization() # debug
+        # self.visualization() # debug
 
         return return_msg
 
