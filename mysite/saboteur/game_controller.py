@@ -128,7 +128,7 @@ class GameController():
                 return_msg = {"msg_type": "ILLEGAL_PLAY", "msg": illegal_msg}
                 return return_msg
 
-            return_msg = self.set_board(card, pos, action_type)
+            return_msg = card.activate(card, self, pos, action_type)
 
             flag = 0
             for player in self.player_list:
@@ -136,12 +136,27 @@ class GameController():
                     flag += 1
 
             if pos == 7 or pos == 17 or \
-                    pos == 25 or pos == 35 or pos == 43:  # good dwarf win
+                pos == 25 or pos == 35 or pos == 43:
+
+                # show end card
+                if pos == 7 or pos == 25 or pos == 43:
+                    pos_ = [pos + 1]
+                elif pos == 17 or pos == 35:
+                    pos_ = [pos - 9, pos + 9]
+                for p in pos_:
+                    pos_row = p // 9
+                    pos_col = p % 9
+                    end_card = self.board[pos_row][pos_col]
+                    went = [[False for _ in range(9)] for _ in range(5)]
+                    if end_card.id > 70 and \
+                        self.connect_to_start(end_card, pos_row, pos_col, went):
+                        self.board[pos_row][pos_col] = Road(end_card.id - 70)
+
                 logging.debug(f"gold position: {self.gold_pos}")
                 gold_row = self.gold_pos // 9
                 gold_col = self.gold_pos % 9
                 went = [[False for _ in range(9)] for _ in range(5)]
-                if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went):
+                if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went): # good dwarf win
                     logging.info("GOOD dwarfs win")
                     self.winner_list = [winner for winner in self.player_list if winner.role]
                     self.winner = now_play
@@ -201,7 +216,7 @@ class GameController():
         self.gold_pos = end_road.index(1) * 18 + 8
         i = 0
         for row in range(0, 5, 2):
-            self.board[row][8] = Road(end_road[i], road_type=RoadType.end)
+            self.board[row][8] = Road(end_road[i] + 70, road_type=RoadType.end)
             i += 1
 
     def set_role(self):
@@ -325,16 +340,17 @@ class GameController():
         is_connect = 0
 
         # check above, under, left and right road side's are rock or not
-        if row - 1 >= 0:
-            beside = self.board[row - 1][col]
-            if beside.card_no != -1 and \
-                    (card.connected[1] ^ self.board[row - 1][col].connected[3]):
-                is_connect += 1
-        if row + 1 <= 4:
-            beside = self.board[row + 1][col]
-            if beside.card_no != -1 and \
-                    (card.connected[3] ^ self.board[row + 1][col].connected[1]):
-                is_connect += 1
+        if row != 1 and col != 8 or row != 3 and col != 8:  # if pos = 17 and 35 ignore above and under connect to rock
+            if row - 1 >= 0:
+                beside = self.board[row - 1][col]
+                if beside.card_no != -1 and \
+                        (card.connected[1] ^ self.board[row - 1][col].connected[3]):
+                    is_connect += 1
+            if row + 1 <= 4:
+                beside = self.board[row + 1][col]
+                if beside.card_no != -1 and \
+                        (card.connected[3] ^ self.board[row + 1][col].connected[1]):
+                    is_connect += 1
         if col - 1 >= 0:
             beside = self.board[row][col - 1]
             if beside.card_no != -1 and \
@@ -348,7 +364,7 @@ class GameController():
 
         return is_connect
 
-    def check_legality(self, player: Player, card: Card, pos: int, action_type: int) -> (bool, str):
+    def check_legality(self, player: Player, card: Card, pos: int, action_type: int) -> "tuple[bool, str]":
         """check the player behavior is legality or not
 
         :parms
@@ -409,34 +425,6 @@ class GameController():
             illegal_msg = "" if legality else "the player's tool are already broken/repaired"
 
         return legality, illegal_msg
-
-    def set_board(self, card: Card, pos: int, action_type: int):
-        """set board when the player behavior is legality
-
-        :parms
-            card: the card need to be set on board or player (Card)
-            pos: the position of the card determine on board or player (Int)
-                (see Player.play_card for more position definition)
-            action_type: the choice of repair which tool of the multi-repair action card (Int)
-        :returns:
-            message type and message pass to web server (dict)
-        """
-        if pos == -1:  # fold any card
-            self.fold_deck += [card]
-        elif pos <= 44:  # play road card on board
-            r = pos // 9
-            c = pos % 9
-            if isinstance(card, Road):
-                self.board[r][c] = card
-            elif isinstance(card, Rocks):
-                self.board[r][c] = Road(-1)
-            elif isinstance(card, Map):
-                logging.debug(self.board[r][c])
-
-                return {"msg_type": "PEEK", "msg": self.board[r][c].card_no}  # pass msg to player
-        else:  # play action card to player
-            pos -= 45
-            self.set_player_state([self.player_list[pos]], card, action_type)
 
     def deal_card(self, player_list: list, card: Card = None):
         """deal card for player(s)

@@ -39,7 +39,7 @@ class Player():
     def __eq__(self, other):
         return self.id == other.id
 
-    def play_card(self, card_id: int, pos: int, rotate: int = 0, action_type: int = -1) -> (Card, int, int):
+    def play_card(self, card_id: int, pos: int, rotate: int = 0, action_type: int = -1) -> "tuple[Card, int, int]":
         """play a road card on to board or an action card to some player or fold card
 
         :parms
@@ -60,9 +60,10 @@ class Player():
 
         idx = self.hand_cards.index(Card(card_id))
         card = self.hand_cards.pop(idx)
-        if hasattr(card, 'rotate'):
+        if isinstance(card, Road):
             card.rotate = rotate
-        if hasattr(card, 'action_type') and action_type == -1:
+            card.connected = card.get_connection()
+        if isinstance(card, Action) and action_type == -1:
             action_type = card.action_type
         logging.debug(f"{card} pos: {pos} action_type: {action_type}")
         return card, pos, action_type
