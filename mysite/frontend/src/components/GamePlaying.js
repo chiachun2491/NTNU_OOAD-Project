@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import {Container, Row, Col, Button, Image} from 'react-bootstrap';
+import {Container, Row, Col, Button, Image, Alert} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faHammer,
@@ -26,11 +26,13 @@ class GamePlaying extends Component {
         this.state = {
             selectHandCardNo: -1,
             selectHandCardRotate: false,
+            alertMessage: null,
         };
 
         this.handleHandCardClick = this.handleHandCardClick.bind(this);
         this.cardCanRotate = this.cardCanRotate.bind(this);
         this.handlePositionClick = this.handlePositionClick.bind(this);
+        this.cardIsMulti = this.cardIsMulti.bind(this);
     }
 
 
@@ -59,36 +61,66 @@ class GamePlaying extends Component {
         return cardNo >= 4 && cardNo <= 43;
     }
 
+    cardIsMulti(cardNo) {
+        return cardNo >= 59 && cardNo <= 61;
+    }
+
     handlePositionClick(pos, action = -1) {
-        console.log(BOARD_BASE);
-        if (this.state.selectHandCardNo !== -1) {
-            console.log(this.state.selectHandCardNo, this.state.selectHandCardRotate, pos, action);
-            // TODO: send state control to socket
-            const ws = this.props.ws;
-            try {
-                ws.send(JSON.stringify({
-                    event: 'play_card',
-                    id: this.state.selectHandCardNo,
-                    rotate: this.state.selectHandCardRotate ? 1 : 0,
-                    pos: pos,
-                    act: action,
-                }));
-            } catch (e) {
-                console.log(e);
+        const username = localStorage.getItem('username');
+        if (this.props.roomData.game_data.now_play === username) {
+            if (this.state.selectHandCardNo !== -1) {
+                console.log(this.state.selectHandCardNo, this.state.selectHandCardRotate, pos, action);
+                if (this.cardIsMulti(this.state.selectHandCardNo) && (action === -1) && (pos >= BOARD_BASE)) {
+                    this.setState({
+                        alertMessage: {
+                            msg_type: 'ILLEGAL_PLAY',
+                            msg: 'Multi Action Card must select one tool to repair'
+                        }
+                    }, () => {
+                        window.setTimeout(() => {
+                            this.setState({alertMessage: null});
+                        }, 2000);
+                    });
+                } else {
+                    // TODO: send state control to socket
+                    const ws = this.props.ws;
+                    try {
+                        ws.send(JSON.stringify({
+                            event: 'play_card',
+                            id: this.state.selectHandCardNo,
+                            rotate: this.state.selectHandCardRotate ? 1 : 0,
+                            pos: pos,
+                            act: action,
+                        }));
+                    } catch (e) {
+                        console.log(e);
+                    }
+                    // reset select card
+                    this.setState({
+                        selectHandCardNo: -1,
+                        selectHandCardRotate: false
+                    });
+                }
+            } else {
+                this.setState({
+                    alertMessage: {
+                        msg_type: 'ILLEGAL_PLAY',
+                        msg: 'Must select one hand card first'
+                    }
+                }, () => {
+                    window.setTimeout(() => {
+                        this.setState({alertMessage: null});
+                    }, 2000);
+                });
             }
-            // reset select card
-            this.setState({
-                selectHandCardNo: -1,
-                selectHandCardRotate: false
-            });
-        } else {
-            alert('你必須先選擇一張牌');
         }
     }
 
     render() {
         const username = localStorage.getItem('username');
         const gameData = this.props.roomData.game_data;
+
+        // set self_id
         let self_id;
         const list_len = gameData.player_list.length;
         for (let i = 0; i < list_len; i++) {
@@ -97,6 +129,8 @@ class GamePlaying extends Component {
                 break;
             }
         }
+
+        // set other players components
         let other_players = [];
         for (let i = 1; i < list_len; i++) {
             let playerIndex = (self_id + i) % list_len;
@@ -111,8 +145,35 @@ class GamePlaying extends Component {
                 />
             );
         }
+
+        // set alert message
+        let alertMessage, msg = '';
+        if (this.props.alertMessage !== null) {
+            alertMessage = this.props.alertMessage;
+        } else if (this.state.alertMessage !== null) {
+            alertMessage = this.state.alertMessage;
+        }
+        let variant;
+        if (alertMessage) {
+            msg = alertMessage.msg;
+            switch (alertMessage.msg_type) {
+                case 'ILLEGAL_PLAY':
+                    variant = 'danger';
+                    break;
+                case 'INFO':
+                    variant = 'info';
+                    break;
+                case 'PEEK':
+                    variant = 'secondary';
+                    break;
+                default:
+                    variant = 'info';
+                    break;
+            }
+        }
         return (
             <>
+                <Alert show={msg !== ''} className={'my-2'} variant={variant}>{msg}</Alert>
                 <Container>
                     <Row>
                         <Col xs={12} lg={8}>
@@ -209,7 +270,7 @@ function SelfGamePlayer(props) {
             </Row>
             <Row className={'my-2'}>
                 <Col xs={8} lg={12} className={'px-2'}>
-                    <Row className={'px-2'}>
+                    <Row className={'d-flex justify-content-around px-2'}>
                         {props.player.hand_cards.map((card, i) => (
                             <GameCard
                                 card_no={card.card_no}

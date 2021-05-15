@@ -21,8 +21,6 @@ class GameRoomConsumer(WebsocketConsumer):
         )
 
         self.accept()
-        # send room data first
-        self.send(text_data=self._get_room_json())
         # set user can send message or not
         self.can_speak = self.room.join_room(self.scope['user'])
 
@@ -46,13 +44,16 @@ class GameRoomConsumer(WebsocketConsumer):
                 self.room.change_status(text_data_json['message'])
 
             elif event == 'play_card':
-                self.room.state_control(
+                return_msg = self.room.state_control(
                     int(text_data_json['id']),
                     int(text_data_json['pos']),
                     int(text_data_json['rotate']),
                     int(text_data_json['act'])
                 )
-
+                self.send(text_data=json.dumps({
+                    'event': 'alert_message',
+                    'message': return_msg
+                }))
             else:
                 # Send message to room group
                 async_to_sync(self.channel_layer.group_send)(
@@ -83,11 +84,14 @@ class GameRoomConsumer(WebsocketConsumer):
 
         return game_room
 
-    def _get_room_json(self):
+    def _get_room_dict(self):
         serializer = GameRoomSerializer(self.room)
 
-        return json.dumps(serializer.data)
+        return serializer.data
 
     def update_room(self, event):
         self.room = self._get_room()
-        self.send(text_data=self._get_room_json())
+        self.send(text_data=json.dumps({
+            'event': 'room_data_updated',
+            'room_data': self._get_room_dict()
+        }))

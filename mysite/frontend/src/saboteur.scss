@@ -47,6 +47,12 @@ $dark-brown: #403013;
   background-color: $brown;
 }
 
+.badge-outline-brown {
+  color: $brown;
+  background-color: white;
+  border: 1px solid $brown;
+}
+
 .btn-round {
   border-radius: 20px;
 }
@@ -70,6 +76,8 @@ $dark-brown: #403013;
 .selfPlayerHandCard {
   margin: 1px;
   border: 2px white solid;
+  flex: 0 0 15.5%;
+  max-width: 15.5%;
 }
 
 .nametag {

@@ -31,7 +31,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'channels',
-    'chat.apps.ChatConfig',
     'game.apps.GameConfig',
     'authentication.apps.AuthenticationConfig',
     'django.contrib.admin',
@@ -40,8 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bootstrap4',
-    # 'django_extensions',
 
     # django rest framework
     'rest_framework',

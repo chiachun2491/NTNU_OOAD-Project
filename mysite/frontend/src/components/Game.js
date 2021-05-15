@@ -26,7 +26,8 @@ class Game extends Component {
         this.state = {
             ws: null,
             roomName: '',
-            roomData: {}
+            roomData: {},
+            alertMessage: null,
         };
     }
 
@@ -69,8 +70,23 @@ class Game extends Component {
         ws.onmessage = event => {
             // listen to data sent from the websocket server
             const message = JSON.parse(event.data);
-            this.setState({roomData: message});
-            console.log(message);
+            switch (message.event) {
+                case 'room_data_updated':
+                    this.setState({roomData: message.room_data});
+                    // this.setState({badgeMessage: {}});
+                    break;
+                case 'alert_message':
+                    console.log(message.message);
+                    this.setState({alertMessage: message.message}, () => {
+                        window.setTimeout(() => {
+                            this.setState({alertMessage: null});
+                        }, 2000);
+                    });
+                    break;
+                default:
+                    console.log(message);
+                    break;
+            }
         };
 
         ws.onclose = (e) => {
@@ -116,18 +132,24 @@ class Game extends Component {
 
     render() {
         let gameComponent = <div/>;
+        let roundBadge;
         if (this.state.roomData.status === RoomStatus.ORGANIZE) {
             gameComponent = <GameOrganzie ws={this.state.ws} roomData={this.state.roomData}/>;
         } else if (this.state.roomData.status === RoomStatus.PLAYING) {
-            gameComponent = <GamePlaying ws={this.state.ws} roomData={this.state.roomData}/>;
+            gameComponent =
+                <GamePlaying ws={this.state.ws} roomData={this.state.roomData} alertMessage={this.state.alertMessage}/>;
+            roundBadge = <Badge variant={'outline-brown'} className={'ml-2'}>
+                回合： {this.state.roomData.game_data.round} / 3
+            </Badge>
         } else if (this.state.roomData.status === RoomStatus.END) {
             gameComponent = <GameEnd ws={this.state.ws} roomData={this.state.roomData}/>;
         }
 
+
         return (
             <>
                 <h5 className="text-center my-2">
-                    <Badge variant={'brown'}>房間: {this.state.roomName}</Badge>
+                    <Badge variant={'brown'}>房間: {this.state.roomName}</Badge>{roundBadge}
                 </h5>
                 {gameComponent}
             </>
