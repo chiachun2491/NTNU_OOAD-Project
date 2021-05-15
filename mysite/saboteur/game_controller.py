@@ -15,7 +15,7 @@ from .player import Player
 from .card import *
 from .util import *
 
-logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
+# logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
 BASE_URL = Path(__file__).resolve().parent
 
 

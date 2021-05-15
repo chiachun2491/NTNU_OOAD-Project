@@ -6,3 +6,4 @@ djangorestframework-simplejwt
 channels-redis
 psycopg2-binary
 # psycopg2 # if binary version occur error
+whitenoise

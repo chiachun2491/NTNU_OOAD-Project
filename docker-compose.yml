@@ -2,19 +2,20 @@ version: '3'
 services:
 
   # docker run --name some-redis  -p 6379:6379  -d redis redis-server --appendonly yes
-#  nginx:
-#    container_name: ooad-nginx
-#    build: ./nginx
-#    restart: always
-#    volumes:
-#      - django_data:/docker_django
-#      - ./log:/var/log/nginx
+  nginx:
+    container_name: ooad-nginx
+    build: ./nginx
+    restart: always
+    volumes:
+      - ./log:/var/log/nginx
 #    networks:
 #      - proxy
-#    depends_on:
-#      - app
-#    env_file:
-#      - nginx.env
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+    env_file:
+      - nginx.env
 
   redis:
     container_name: ooad-redis
@@ -31,7 +32,7 @@ services:
   app:
     container_name: ooad-django
     build: ./mysite
-    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "daphne -b 0.0.0.0 -p 8000 mysite.asgi:application"
     restart: always
     ports:
       - "8000:8000"
