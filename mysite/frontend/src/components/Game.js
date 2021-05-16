@@ -5,6 +5,7 @@ import GamePlaying from "./GamePlaying";
 import GameEnd from "./GameEnd";
 import axiosInstance from "../Api";
 
+const wsProtocol = window.location.origin.includes("https") ? "wss://" : "ws://";
 let wsBaseURL;
 
 if (process.env.NODE_ENV === 'production') {
@@ -52,7 +53,7 @@ class Game extends Component {
     connectSocket(roomName) {
         // TODO: socket connect
         const token = localStorage.getItem('access_token');
-        let ws = new WebSocket('ws://' + wsBaseURL + '/ws/game/' + roomName + '/?token=' + token);
+        let ws = new WebSocket(wsProtocol + wsBaseURL + '/ws/game/' + roomName + '/?token=' + token);
         let that = this;
         let connectInterval;
 
