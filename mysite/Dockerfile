@@ -2,9 +2,8 @@ FROM node:15.14-buster AS node
 RUN mkdir -p /mysite
 COPY . /mysite/
 WORKDIR /mysite/frontend
-RUN npm install
-RUN npm rebuild node-sass
-RUN npm run build
+RUN yarn install
+RUN yarn build
 
 FROM python:3.7
 ENV PYTHONUNBUFFERED 1
@@ -14,7 +13,6 @@ WORKDIR /mysite
 
 ARG POSTGRES_PASSWORD
 ARG SECRET_KEY
-RUN echo $POSTGRES_PASSWORD
 ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 ENV SECRET_KEY=$SECRET_KEY
 
