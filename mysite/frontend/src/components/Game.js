@@ -137,15 +137,18 @@ class Game extends Component {
 
     render() {
         let gameComponent = <div/>;
-        let roundBadge;
+        let roundBadge, cardPoolBadge;
         if (this.state.roomData.status === RoomStatus.ORGANIZE) {
             gameComponent = <GameOrganzie ws={this.state.ws} roomData={this.state.roomData}/>;
         } else if (this.state.roomData.status === RoomStatus.PLAYING) {
             gameComponent =
                 <GamePlaying ws={this.state.ws} roomData={this.state.roomData} alertMessage={this.state.alertMessage}/>;
-            roundBadge = <Badge variant={'outline-brown'} className={'ml-2'}>
+            roundBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
                 回合： {this.state.roomData.game_data.round} / 3
-            </Badge>
+            </Badge>;
+            cardPoolBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
+                卡池剩餘：{this.state.roomData.game_data.card_pool.length}
+            </Badge>;
         } else if (this.state.roomData.status === RoomStatus.END) {
             gameComponent = <GameEnd ws={this.state.ws} roomData={this.state.roomData}/>;
         }
@@ -153,8 +156,10 @@ class Game extends Component {
 
         return (
             <>
-                <h5 className="text-center my-2">
-                    <Badge variant={'brown'}>房間: {this.state.roomName}</Badge>{roundBadge}
+                <h5 className="text-center m-0">
+                    <Badge variant={'brown'} className={'my-2'}>房間: {this.state.roomName}</Badge>
+                    {roundBadge}
+                    {cardPoolBadge}
                 </h5>
                 {gameComponent}
             </>
