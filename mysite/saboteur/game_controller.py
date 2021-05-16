@@ -455,7 +455,12 @@ class GameController():
             gold_list = sorted(self.gold_stack[:num_winner], reverse=True)
             self.gold_stack = self.gold_stack[num_winner:]
             winner_list.reverse()  # Counterclockwise
-            idx = winner_list.index(winner)
+            try:
+                idx = winner_list.index(winner)
+            except: # winner not in list (bad dwarf connect the gold)
+                idx = (self.player_list.index(winner) + 1) % self.num_player
+                winner = self.player_list[idx]
+                idx = winner_list.index(winner)
             while len(gold_list) > 0:
                 winner_list[idx % num_winner].point += gold_list.pop(0)
                 idx += 1
