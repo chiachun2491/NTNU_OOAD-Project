@@ -48,10 +48,17 @@ class Game extends Component {
     };
 
     timeout = 250;
-    refresh_token = true;
 
     connectSocket(roomName) {
         // TODO: socket connect
+        // check token valid first
+        axiosInstance.get('/auth/hello/')
+            .then((response) => {
+                console.log('obtain/refresh token successfully', response);
+            }).catch((err) => {
+            console.log(err);
+        });
+
         const token = localStorage.getItem('access_token');
         let ws = new WebSocket(wsProtocol + wsBaseURL + '/ws/game/' + roomName + '/?token=' + token);
         let that = this;
@@ -113,23 +120,12 @@ class Game extends Component {
 
         // websocket onerror event listener
         ws.onerror = err => {
-
             console.error(
                 "Socket encountered error: ",
                 err.message,
                 "Closing socket"
             );
             console.error(err);
-
-            if (that.refresh_token) {
-                axiosInstance.get('/auth/hello/')
-                    .then((response) => {
-                        console.log('obtain/refresh token successfully', response);
-                    }).catch((err) => {
-                    console.log(err);
-                    that.refresh_token = false;  // disable loop refresh
-                });
-            }
             ws.close();
         };
     }
