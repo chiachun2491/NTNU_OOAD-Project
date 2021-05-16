@@ -22,8 +22,8 @@ jobs:
         uses: actions/setup-node@v2.1.5
         with:
           node-version: '15.x'
-      - run: npm install
-      - run: npm run build
+      - run: yarn install
+      - run: CI=false yarn build
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@v2.1.5
         env:
