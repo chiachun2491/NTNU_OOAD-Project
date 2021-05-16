@@ -250,11 +250,11 @@ class Action(Card):
 
     def get_action(self):
         if 44 <= self.card_no and self.card_no <= 48:
-            return ActionType.miner_lamp
+            return [ActionType.miner_lamp]
         elif 49 <= self.card_no and self.card_no <= 53:
-            return ActionType.minecart
+            return [ActionType.minecart]
         elif 54 <= self.card_no and self.card_no <= 58:
-            return ActionType.mine_pick
+            return [ActionType.mine_pick]
         elif self.card_no == 59:
             return [ActionType.mine_pick, ActionType.minecart]
         elif self.card_no == 60:

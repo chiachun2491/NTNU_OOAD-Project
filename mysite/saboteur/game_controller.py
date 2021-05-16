@@ -179,7 +179,7 @@ class GameController():
             self.winner_list = []
             self.round_reset()
 
-            if self.round == 3:
+            if self.round > 3:
                 self.game_state = GameState.end_game
 
         # if self.game_state == GameState.end_game:
@@ -287,7 +287,7 @@ class GameController():
         :returns:
             the road is connect or not (Bool)
         """
-        # card = self.board[row][col]
+        is_connect = [False for _ in range(4)]
         went[row][col] = True
 
         if row == 2 and col == 0:
@@ -299,24 +299,24 @@ class GameController():
         if col - 1 >= 0 and card.connected[4] and not went[row][col - 1]:  # left
             beside = self.board[row][col - 1]
             if beside.card_no != -1 and beside.connected[2] and beside.connected[0]:
-                return self.connect_to_start(self.board[row][col - 1], row, col - 1, went)
+                is_connect[0] = self.connect_to_start(self.board[row][col - 1], row, col - 1, went)
 
         if row - 1 >= 0 and card.connected[1] and not went[row - 1][col]:  # top
             beside = self.board[row - 1][col]
             if beside.card_no != -1 and beside.connected[3] and beside.connected[0]:
-                return self.connect_to_start(self.board[row - 1][col], row - 1, col, went)
+                is_connect[1] = self.connect_to_start(self.board[row - 1][col], row - 1, col, went)
 
         if row + 1 <= 4 and card.connected[3] and not went[row + 1][col]:  # down
             beside = self.board[row + 1][col]
             if beside.card_no != -1 and beside.connected[1] and beside.connected[0]:
-                return self.connect_to_start(self.board[row + 1][col], row + 1, col, went)
+                is_connect[2] = self.connect_to_start(self.board[row + 1][col], row + 1, col, went)
 
         if col + 1 <= 8 and card.connected[2] and not went[row][col + 1]:  # right
             beside = self.board[row][col + 1]
             if beside.card_no != -1 and beside.connected[4] and beside.connected[0]:
-                return self.connect_to_start(self.board[row][col + 1], row, col + 1, went)
+                is_connect[3] = self.connect_to_start(self.board[row][col + 1], row, col + 1, went)
 
-        return False
+        return sum(is_connect)
 
     def connect_to_rock(self, card: Road, row: int, col: int) -> int:
         """check the road is connect to road beside or not
@@ -411,10 +411,19 @@ class GameController():
                 legality = False
                 illegal_msg = "except rocks and map action, can't play on card board"
 
-        else:  # play action card to player
-            pos -= 45
-            legality = self.player_list[pos].action_state[action_type] ^ card.is_break
-            illegal_msg = "" if legality else "the player's tool are already broken/repaired"
+        else:  # pos >= 45
+            if isinstance(card, Action):
+                # action_type = -1 if use multi repair card
+                if action_type != -1 and action_type not in card.action_type:
+                    legality = False
+                    illegal_msg = "the card can't repair selected tool"
+                else:
+                    pos -= 45
+                    legality = self.player_list[pos].action_state[action_type] ^ card.is_break
+                    illegal_msg = "" if legality else "the player's tool are already broken/repaired"
+            else:
+                legality = False
+                illegal_msg = "the card can't play to player"
 
         return legality, illegal_msg
 
@@ -455,7 +464,12 @@ class GameController():
             gold_list = sorted(self.gold_stack[:num_winner], reverse=True)
             self.gold_stack = self.gold_stack[num_winner:]
             winner_list.reverse()  # Counterclockwise
-            idx = winner_list.index(winner)
+            try:
+                idx = winner_list.index(winner)
+            except: # winner not in list (bad dwarf connect the gold)
+                idx = (self.player_list.index(winner) + 1) % self.num_player
+                winner = self.player_list[idx]
+                idx = winner_list.index(winner)
             while len(gold_list) > 0:
                 winner_list[idx % num_winner].point += gold_list.pop(0)
                 idx += 1
@@ -500,7 +514,7 @@ class GameController():
             for c in player.hand_cards:
                 hand_cards += [c.card_no]
             logging.debug(
-                f"{i} point: {player.point}\trole: {player.role}\thand cards: {hand_cards} {len(hand_cards)}\tstate: {player.action_state}")
+                f"{player.id} point: {player.point}\trole: {player.role}\thand cards: {hand_cards} {len(hand_cards)}\tstate: {player.action_state}")
             if len(set(hand_cards)) != len(hand_cards):
                 logging.debug("fuck")
 
@@ -520,7 +534,7 @@ if __name__ == '__main__':
     while True:
         gc.view_player(gc.player_list)
         gc.visualization()
-        logging.info(f"player {gc.turn % gc.num_player}'s turn:")
+        logging.info(f"player {gc.now_play}'s turn:")
         a, b, c, d = input("id pos rotate action_type\n").split()
         gc.state_control(int(a), int(b), int(c), int(d))  # play multi-repair action card
         
