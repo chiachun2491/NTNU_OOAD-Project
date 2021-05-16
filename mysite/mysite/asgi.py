@@ -10,8 +10,7 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 import os
 import django
 
-# TODO: need to change to production
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings.local_settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings.production')
 django.setup()
 
 from django.core.asgi import get_asgi_application

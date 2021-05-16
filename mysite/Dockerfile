@@ -1,15 +1,24 @@
-FROM nikolaik/python-nodejs:python3.7-nodejs15
-ENV PYTHONUNBUFFERED 1
-RUN mkdir /mysite
-WORKDIR /mysite
+FROM node:15.14-buster AS node
+RUN mkdir -p /mysite
 COPY . /mysite/
-RUN pip install -r requirements.txt
-RUN python manage.py makemigrations
-RUN python manage.py migrate
-
 WORKDIR /mysite/frontend
 RUN npm install
 RUN npm rebuild node-sass
 RUN npm run build
 
+FROM python:3.7
+ENV PYTHONUNBUFFERED 1
+RUN mkdir -p /mysite
+COPY --from=node /mysite /mysite
 WORKDIR /mysite
+
+ARG POSTGRES_PASSWORD
+ARG SECRET_KEY
+RUN echo $POSTGRES_PASSWORD
+ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+ENV SECRET_KEY=$SECRET_KEY
+
+RUN pip install -r requirements.txt
+RUN python manage.py collectstatic
+# RUN python manage.py makemigrations
+# RUN python manage.py migrate

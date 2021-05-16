@@ -7,15 +7,18 @@ services:
     build: ./nginx
     restart: always
     volumes:
-      - ./log:/var/log/nginx
-#    networks:
-#      - proxy
+      - ./nginx/log:/var/log/nginx
+      - django-data:/docker_django
+    networks:
+      - proxy
     depends_on:
       - app
-    ports:
-      - "80:80"
-    env_file:
-      - nginx.env
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - VIRTUAL_NETWORK=${VIRTUAL_NETWORK}
+      - VIRTUAL_PORT=${VIRTUAL_PORT}
+      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
 
   redis:
     container_name: ooad-redis
@@ -31,15 +34,23 @@ services:
 
   app:
     container_name: ooad-django
-    build: ./mysite
+    build:
+      context: ./mysite
+      args:
+        - SECRET_KEY=${SECRET_KEY}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     command: bash -c "daphne -b 0.0.0.0 -p 8000 mysite.asgi:application"
     restart: always
     ports:
       - "8000:8000"
     volumes:
       - django-data:/mysite
-    env_file:
-      - django_secrets.env
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - proxy
+      - default
     depends_on:
       - db
       - redis
@@ -50,12 +61,17 @@ services:
     ports:
       - "5432:5432"
     image: postgres
-    env_file:
-      - django_secrets.env
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data/
+
 volumes:
   redis-data:
   pgdata:
   django-data:
 
+networks:
+  proxy:
+    external:
+      name: self-nginx-proxy
