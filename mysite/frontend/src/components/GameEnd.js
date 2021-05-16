@@ -8,27 +8,10 @@ import axiosInstance from "../Api";
 class GameEnd extends Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            players_data: [],
-            maxPoint: 0,
-        };
-
         this.createNewRoomClicked = this.createNewRoomClicked.bind(this);
     }
 
     componentDidMount() {
-        let players = this.props.roomData.players_data;
-        if (players.length > 1) {
-            players.sort(function (a, b) {
-                return b.point - a.point;
-            });
-        }
-        let max = Math.max(...players.map(p => p.point));
-        this.setState((state, props) => ({
-            players_data: players,
-            maxPoint: max
-        }));
     };
 
     createNewRoomClicked() {
@@ -42,13 +25,19 @@ class GameEnd extends Component {
     }
 
     render() {
-        console.log(this.state);
+        let players = this.props.roomData.players_data;
+        if (players.length > 1) {
+            players.sort(function (a, b) {
+                return b.point - a.point;
+            });
+        }
+        let max = Math.max(...players.map(p => p.point));
         return (
             <>
                 <h3 className={'my-3'}>玩家列表</h3>
-                {this.props.roomData.players_data.map(player => {
+                {players.map(player => {
                     let isWinner = false;
-                    if (player.point === this.state.maxPoint) {
+                    if (player.point === max) {
                         isWinner = true;
                     }
                     return <GamePlayer key={player.player} playerName={player.player} isWinner={isWinner}
