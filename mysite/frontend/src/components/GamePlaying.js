@@ -35,7 +35,6 @@ class GamePlaying extends Component {
         this.cardIsMulti = this.cardIsMulti.bind(this);
     }
 
-
     componentDidMount() {
     };
 
@@ -147,7 +146,7 @@ class GamePlaying extends Component {
         }
 
         // set alert message
-        let alertMessage, msg = '';
+        let alertMessage, msg = '　';
         if (this.props.alertMessage !== null) {
             alertMessage = this.props.alertMessage;
         } else if (this.state.alertMessage !== null) {
@@ -176,7 +175,7 @@ class GamePlaying extends Component {
         }
         return (
             <>
-                <Alert show={msg !== ''} className={'my-2'} variant={variant}>{msg}</Alert>
+                <Alert show={msg !== '　'} className={'my-2'} variant={variant}>{msg}</Alert>
                 <Container>
                     <Row>
                         <Col xs={12} lg={8}>
