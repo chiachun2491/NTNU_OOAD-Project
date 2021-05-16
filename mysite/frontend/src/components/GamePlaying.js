@@ -328,7 +328,7 @@ function ActionStatus(props) {
             break;
     }
     return (
-        <Col xs={"auto"} className={'p-0 mx-1'} onClick={props.onPositionClick}>
+        <Col xs={"auto"} className={'p-0 mx-1 cursor-pointer'} onClick={props.onPositionClick}>
             {/*<Image src={actionIcon} fluid/>*/}
             <FontAwesomeIcon icon={actionIcon} color={actionColor}/>
         </Col>

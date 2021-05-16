@@ -214,7 +214,7 @@ function GameCard(props) {
     const selected = props.isSelected ? ' selected' : '';
     const rotated = props.isRotated ? ' card-rotate' : '';
     return (
-        <Col className={'p-0' + boardCard + selected + rotated} onClick={props.onCardClick}>
+        <Col className={'p-0 cursor-pointer' + boardCard + selected + rotated} onClick={props.onCardClick}>
             <Image src={src} fluid/>
         </Col>
     );
