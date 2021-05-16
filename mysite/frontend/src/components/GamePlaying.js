@@ -35,7 +35,6 @@ class GamePlaying extends Component {
         this.cardIsMulti = this.cardIsMulti.bind(this);
     }
 
-
     componentDidMount() {
     };
 
@@ -66,6 +65,8 @@ class GamePlaying extends Component {
     }
 
     handlePositionClick(pos, action = -1) {
+        // defocus
+        document.activeElement.blur();
         const username = localStorage.getItem('username');
         if (this.props.roomData.game_data.now_play === username) {
             if (this.state.selectHandCardNo !== -1) {
@@ -147,7 +148,7 @@ class GamePlaying extends Component {
         }
 
         // set alert message
-        let alertMessage, msg = '';
+        let alertMessage, msg = '　';
         if (this.props.alertMessage !== null) {
             alertMessage = this.props.alertMessage;
         } else if (this.state.alertMessage !== null) {
@@ -176,7 +177,7 @@ class GamePlaying extends Component {
         }
         return (
             <>
-                <Alert show={msg !== ''} className={'my-2'} variant={variant}>{msg}</Alert>
+                <Alert show={msg !== '　'} className={'my-2'} variant={variant}>{msg}</Alert>
                 <Container>
                     <Row>
                         <Col xs={12} lg={8}>
@@ -327,7 +328,7 @@ function ActionStatus(props) {
             break;
     }
     return (
-        <Col xs={"auto"} className={'p-0 mx-1'} onClick={props.onPositionClick}>
+        <Col xs={"auto"} className={'p-0 mx-1 cursor-pointer'} onClick={props.onPositionClick}>
             {/*<Image src={actionIcon} fluid/>*/}
             <FontAwesomeIcon icon={actionIcon} color={actionColor}/>
         </Col>

@@ -31,6 +31,8 @@ import card_road15 from '../images/card/card_road15.png';
 import card_road16 from '../images/card/card_road16.png';
 import card_road17 from '../images/card/card_road17.png';
 import card_road18 from '../images/card/card_road18.png';
+import card_behind from '../images/card/card_behind.png';
+import card_nocard from '../images/card/card_nocard.png';
 
 
 // card number define:
@@ -203,16 +205,16 @@ function GameCard(props) {
         case 71:
         case 72:
         case 73:
-            src = 'https://dummyimage.com/250x400/6DA9E7/6DA9E7.png';
+            src = card_behind;
             break;
         default:
-            src = 'https://dummyimage.com/250x400/DCDFE8/DCDFE8.png';
+            src = card_nocard;
     }
     const boardCard = props.boardCard ? ' boardCard' : ' selfPlayerHandCard';
     const selected = props.isSelected ? ' selected' : '';
     const rotated = props.isRotated ? ' card-rotate' : '';
     return (
-        <Col className={'p-0' + boardCard + selected + rotated} onClick={props.onCardClick}>
+        <Col className={'p-0 cursor-pointer' + boardCard + selected + rotated} onClick={props.onCardClick}>
             <Image src={src} fluid/>
         </Col>
     );
