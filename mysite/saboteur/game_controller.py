@@ -110,8 +110,6 @@ class GameController():
             now_play = self.player_list[self.turn % self.num_player]
             self.now_play = now_play.id
 
-            logging.info(f"player {self.turn % self.num_player}'s turn:")
-
             card, pos, action_type = now_play.play_card(card_id, position, rotate, act_type)
             legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
             if not legal:
@@ -141,9 +139,9 @@ class GameController():
                     pos_col = p % 9
                     end_card = self.board[pos_row][pos_col]
                     went = [[False for _ in range(9)] for _ in range(5)]
-                    if end_card.id > 70 and \
+                    if end_card.card_no > 70 and \
                             self.connect_to_start(end_card, pos_row, pos_col, went):
-                        self.board[pos_row][pos_col] = Road(end_card.id - 70)
+                        self.board[pos_row][pos_col] = Road(end_card.card_no - 70)
 
                 logging.debug(f"gold position: {self.gold_pos}")
                 gold_row = self.gold_pos // 9
@@ -253,6 +251,7 @@ class GameController():
             reset the gold stack, board, players' role and state, card pool,
             then deal card for every player
         """
+        self.game_state = GameState.reset
         self.round += 1
         logging.info(f"round {self.round} start")
         if self.round == 1:
@@ -497,18 +496,32 @@ class GameController():
     # for debug
     def view_player(self, player_list):
         for i, player in enumerate(player_list):
+            hand_cards = []
+            for c in player.hand_cards:
+                hand_cards += [c.card_no]
             logging.debug(
-                f"{i} point: {player.point}\trole: {player.role}\thand cards: {player.hand_cards} {len(player.hand_cards)}\tstate: {player.action_state}")
+                f"{i} point: {player.point}\trole: {player.role}\thand cards: {hand_cards} {len(hand_cards)}\tstate: {player.action_state}")
+            if len(set(hand_cards)) != len(hand_cards):
+                logging.debug("fuck")
+
 
 
 if __name__ == '__main__':
     # from json
-    # with open("test2.json") as fp:
-    #     obj = json.load(fp)
-    # gc = Game_Controller(**obj)
+    with open("test.json") as fp:
+        obj = json.load(fp)
+    gc = GameController(**obj)
+    # gc.round_reset()
 
     # from id list
-    gc = GameController.from_scratch(["asdf", "qwer", "zxcv"])
-    logging.info(pformat(gc.to_json()))
-    gc.state_control(0, 0)  # play road/action card
-    gc.state_control(0, 0, 0)  # play multi-repair action card
+    # gc = GameController.from_scratch(["asdf", "qwer", "zxcv"])
+    # logging.info(pformat(gc.to_dict()))
+
+    while True:
+        gc.view_player(gc.player_list)
+        gc.visualization()
+        logging.info(f"player {gc.turn % gc.num_player}'s turn:")
+        a, b, c, d = input("id pos rotate action_type\n").split()
+        gc.state_control(int(a), int(b), int(c), int(d))  # play multi-repair action card
+        
+
