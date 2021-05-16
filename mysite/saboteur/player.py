@@ -64,6 +64,6 @@ class Player():
             card.rotate = rotate
             card.connected = card.get_connection()
         if isinstance(card, Action) and action_type == -1:
-            action_type = card.action_type
+            action_type = card.action_type[0]
         logging.debug(f"{card} pos: {pos} action_type: {action_type}")
         return card, pos, action_type

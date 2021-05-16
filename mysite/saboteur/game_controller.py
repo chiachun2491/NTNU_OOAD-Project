@@ -179,7 +179,7 @@ class GameController():
             self.winner_list = []
             self.round_reset()
 
-            if self.round == 3:
+            if self.round > 3:
                 self.game_state = GameState.end_game
 
         # if self.game_state == GameState.end_game:
@@ -412,7 +412,8 @@ class GameController():
                 illegal_msg = "except rocks and map action, can't play on card board"
 
         else:  # play action card to player
-            if action_type not in card.action_type:
+            # action_type = -1 if use multi repair card
+            if action_type != -1 and action_type not in card.action_type:
                 legality = False
                 illegal_msg = "the card can't repair selected tool"
             else:
