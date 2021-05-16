@@ -8,14 +8,16 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 """
 
 import os
+import django
 
-from channels.auth import AuthMiddlewareStack
-from channels.routing import ProtocolTypeRouter, URLRouter
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings.production')
+django.setup()
+
 from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter, URLRouter
 import game.routing
 from .channels_middleware import JwtAuthMiddlewareStack
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 
 application = ProtocolTypeRouter({
     'http': get_asgi_application(),

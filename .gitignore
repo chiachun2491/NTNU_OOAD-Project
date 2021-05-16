@@ -127,3 +127,4 @@ dmypy.json
 /django_secrets.env
 
 .idea/
+nginx.env
