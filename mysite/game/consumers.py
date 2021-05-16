@@ -53,7 +53,7 @@ class GameRoomConsumer(WebsocketConsumer):
 
                 if return_msg is not None:
                     event = {'type': 'alert_message', 'message': return_msg}
-                    if return_msg.msg_type == 'INFO':
+                    if return_msg['msg_type'] == 'INFO':
                         # Send message to room group
                         async_to_sync(self.channel_layer.group_send)(
                             self.room_group_name, event
