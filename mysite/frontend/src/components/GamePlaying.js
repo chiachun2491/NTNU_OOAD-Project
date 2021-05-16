@@ -65,6 +65,8 @@ class GamePlaying extends Component {
     }
 
     handlePositionClick(pos, action = -1) {
+        // defocus
+        document.activeElement.blur();
         const username = localStorage.getItem('username');
         if (this.props.roomData.game_data.now_play === username) {
             if (this.state.selectHandCardNo !== -1) {
