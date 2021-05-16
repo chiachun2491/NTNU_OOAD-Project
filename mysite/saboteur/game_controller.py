@@ -411,15 +411,19 @@ class GameController():
                 legality = False
                 illegal_msg = "except rocks and map action, can't play on card board"
 
-        else:  # play action card to player
-            # action_type = -1 if use multi repair card
-            if action_type != -1 and action_type not in card.action_type:
-                legality = False
-                illegal_msg = "the card can't repair selected tool"
+        else:  # pos >= 45
+            if isinstance(card, Action):
+                # action_type = -1 if use multi repair card
+                if action_type != -1 and action_type not in card.action_type:
+                    legality = False
+                    illegal_msg = "the card can't repair selected tool"
+                else:
+                    pos -= 45
+                    legality = self.player_list[pos].action_state[action_type] ^ card.is_break
+                    illegal_msg = "" if legality else "the player's tool are already broken/repaired"
             else:
-                pos -= 45
-                legality = self.player_list[pos].action_state[action_type] ^ card.is_break
-                illegal_msg = "" if legality else "the player's tool are already broken/repaired"
+                legality = False
+                illegal_msg = "the card can't play to player"
 
         return legality, illegal_msg
 
