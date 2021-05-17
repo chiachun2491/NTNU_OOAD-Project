@@ -31,7 +31,7 @@ class GameController():
     """Game_Controller"""
 
     def __init__(self, round, num_player, player_list, game_state, turn, card_pool,
-                 fold_deck, board, gold_stack, winner, winner_list, gold_pos, now_play):
+                 fold_deck, board, gold_stack, winner, winner_list, gold_pos, now_play, return_msg):
 
         super().__init__()
         self.round = round
@@ -47,6 +47,7 @@ class GameController():
         self.winner_list = [Player(**obj) for obj in winner_list]
         self.gold_pos = gold_pos
         self.now_play = now_play
+        self.return_msg = return_msg
 
     @classmethod
     def from_scratch(cls, player_id_list):
@@ -84,7 +85,8 @@ class GameController():
             "winner": None if self.winner is None else self.winner.to_dict(),
             "winner_list": [winner.to_dict() for winner in self.winner_list],
             "gold_pos": self.gold_pos,
-            "now_play": self.now_play
+            "now_play": self.now_play,
+            "return_msg": self.return_msg
         }
         return dict_
 
@@ -100,11 +102,8 @@ class GameController():
                 message define (type, msg):
                     ILLEGAL_PLAY: String of illegal message
                     PEEK: Int of end road card_no
-                    RANK: List of Dict of ranked player and point
-                        {"rank": rank, "player_id": player.id, "point": player.point}
                     INFO: String of some game information
         """
-        return_msg = None
 
         if self.game_state == GameState.play:
             now_play = self.player_list[self.turn % self.num_player]
@@ -117,7 +116,9 @@ class GameController():
                 self.deal_card([now_play], card)
                 logging.debug(f"{illegal_msg}\n")
                 return_msg = {"msg_type": "ILLEGAL_PLAY", "msg": illegal_msg}
-                return return_msg
+                personalize_msg = return_msg
+                self.return_msg[self.turn % self.num_player] = personalize_msg
+                return
 
             return_msg = card.activate(card, self, pos, action_type)
 
@@ -141,7 +142,7 @@ class GameController():
                     went = [[False for _ in range(9)] for _ in range(5)]
                     if end_card.card_no > 70 and \
                             self.connect_to_start(end_card, pos_row, pos_col, went):
-                        self.board[pos_row][pos_col] = Road(end_card.card_no - 70)
+                        self.board[pos_row][pos_col].card_no -= 70
 
                 logging.debug(f"gold position: {self.gold_pos}")
                 gold_row = self.gold_pos // 9
@@ -159,6 +160,12 @@ class GameController():
 
             if len(self.card_pool) > 0:
                 self.deal_card([now_play])
+
+            if return_msg["msg_type"] != "INFO":
+                personalize_msg = return_msg
+                return_msg[self.turn % self.num_player] = personalize_msg
+            else:
+                self.return_msg = [return_msg.copy() for _ in range(self.num_player)]
 
             self.turn += 1
             now_play = self.player_list[self.turn % self.num_player]
@@ -191,7 +198,7 @@ class GameController():
 
         # self.visualization() # debug
 
-        return return_msg
+        return
 
     def board_reset(self):
         """reset board at new round start
@@ -273,7 +280,8 @@ class GameController():
         now_play = self.player_list[self.turn % self.num_player]
         self.now_play = now_play.id
 
-        return_msg = {"msg_type": "INFO", "msg": f"round {self.round} start"}
+        for i in range(self.num_player):
+            self.return_msg[i]["msg"] += f", round {self.round} start"
 
     def connect_to_start(self, card: Road, row: int, col: int, went: list):
         """check the road is connect to starting road or not with DFS algorithm
