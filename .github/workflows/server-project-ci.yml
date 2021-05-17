@@ -14,7 +14,7 @@ defaults:
     working-directory: ./mysite/frontend
 
 jobs:
-  yarn-build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -34,6 +34,7 @@ jobs:
             TARGET: ${{ secrets.REMOTE_TARGET }}
             EXCLUDE: "/mysite/frontend/node_modules/"
   docker-compose:
+    needs: build-and-deploy
     runs-on: ubuntu-latest
     steps:
       - name: docker-compose build and up
