@@ -40,6 +40,8 @@ class Influence(Card_Activate):
         Influenced = gc.player_list[pos]
         gc.set_player_state([Influenced], card, action_type)
         is_break = "break" if card.is_break else "repair"
+        tools = ["miner lamp", "minecart", "mine pick"]
+        action_type = tools[action_type]
         return_msg = {"msg_type": "INFO",  "msg": f"{gc.now_play} {is_break} {Influenced.id}'s {action_type}"}
         return return_msg
 
@@ -140,6 +142,7 @@ class Card():
         return_msg = None
         if pos == -1:
             gc.fold_deck += [card]
+            return_msg = {"msg_type": "INFO", "msg": f"{gc.now_play} throw a card away"}
         else:
             return_msg = self.active_func.activate(card, gc, pos, action_type)
         return return_msg

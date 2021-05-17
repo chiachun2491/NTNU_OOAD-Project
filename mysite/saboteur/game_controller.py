@@ -161,9 +161,16 @@ class GameController():
             if len(self.card_pool) > 0:
                 self.deal_card([now_play])
 
-            if return_msg["msg_type"] != "INFO":
+            if return_msg["msg_type"] == "PEEK":
                 personalize_msg = return_msg
-                return_msg[self.turn % self.num_player] = personalize_msg
+                idx = self.turn % self.num_player
+                r = pos // 9
+                c = pos % 9
+                for i in range(self.num_player):
+                    if i == idx:
+                        self.return_msg[i] = personalize_msg
+                    else:
+                        self.return_msg[i] = {"msg_type": "INFO", "msg": f"{self.now_play} peek ({r+1}, {c+1})"}
             else:
                 self.return_msg = [return_msg.copy() for _ in range(self.num_player)]
 
