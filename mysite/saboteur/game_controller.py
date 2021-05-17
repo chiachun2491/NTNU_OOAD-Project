@@ -189,15 +189,6 @@ class GameController():
             if self.round > 3:
                 self.game_state = GameState.end_game
 
-        # if self.game_state == GameState.end_game:
-        #     # return_msg = self.calc_rank()
-        #     self.round += 1
-        #     return_msg = {
-        #         'msg_type': 'END'
-        #     }
-
-        # self.visualization() # debug
-
         return
 
     def board_reset(self):
@@ -493,21 +484,6 @@ class GameController():
                         if point - self.gold_stack[idx] >= 0:
                             point -= self.gold_stack.pop(idx)
                         idx += 1
-
-    def calc_rank(self):
-        """calculate each player points and rank
-
-        :returns
-            return_msg: message type and message pass to web server (dict)
-        """
-        self.player_list.sort(key=lambda player: player.point, reverse=True)
-        msg_ls = []
-        for rank, player in enumerate(self.player_list):
-            logging.debug(f"rank {rank + 1}: {player.id}\tpoint: {player.point}")
-            msg_ls += [{"rank": rank + 1, "player_id": player.id, "point": player.point}]
-
-        return_msg = {"msg_type": "RANK", "msg": msg_ls}  # pass result to web werver
-        return return_msg
 
     # for debug
     def visualization(self):
