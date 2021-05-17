@@ -1,16 +1,13 @@
 version: '3'
 services:
 
-  # docker run --name some-redis  -p 6379:6379  -d redis redis-server --appendonly yes
   nginx:
     container_name: ooad-nginx
     build: ./nginx
     restart: always
     volumes:
       - ./nginx/log:/var/log/nginx
-      - django-data:/docker_django
-    networks:
-      - proxy
+      - ./mysite:/docker_django
     depends_on:
       - app
     environment:
@@ -44,13 +41,10 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - django-data:/mysite
+      - ./mysite:/mysite
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    networks:
-      - proxy
-      - default
     depends_on:
       - db
       - redis
@@ -69,9 +63,4 @@ services:
 volumes:
   redis-data:
   pgdata:
-  django-data:
 
-networks:
-  proxy:
-    external:
-      name: self-nginx-proxy

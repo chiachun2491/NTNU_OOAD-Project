@@ -31,8 +31,8 @@ import card_road15 from '../images/card/card_road15.png';
 import card_road16 from '../images/card/card_road16.png';
 import card_road17 from '../images/card/card_road17.png';
 import card_road18 from '../images/card/card_road18.png';
-import card_behind from '../images/card/card_behind.png';
-import card_nocard from '../images/card/card_nocard.png';
+import card_back from '../images/card/card_back.png';
+import card_empty from '../images/card/card_empty.png';
 
 
 // card number define:
@@ -205,10 +205,10 @@ function GameCard(props) {
         case 71:
         case 72:
         case 73:
-            src = card_behind;
+            src = card_back;
             break;
         default:
-            src = card_nocard;
+            src = card_empty;
     }
     const boardCard = props.boardCard ? ' boardCard' : ' selfPlayerHandCard';
     const selected = props.isSelected ? ' selected' : '';

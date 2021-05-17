@@ -1,0 +1,35 @@
+version: '3'
+services:
+
+  nginx:
+    container_name: ooad-nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.prod
+    restart: always
+    volumes:
+      - ./nginx/log:/var/log/nginx
+    networks:
+      - proxy
+    depends_on:
+      - app
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - VIRTUAL_NETWORK=${VIRTUAL_NETWORK}
+      - VIRTUAL_PORT=${VIRTUAL_PORT}
+      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+
+  app:
+    container_name: ooad-django
+    build:
+      context: ./mysite
+      dockerfile: Dockerfile.ci
+    networks:
+      - proxy
+      - default
+
+networks:
+  proxy:
+    external:
+      name: self-nginx-proxy
