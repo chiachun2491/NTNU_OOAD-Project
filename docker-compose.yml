@@ -31,12 +31,12 @@ services:
 
   app:
     container_name: ooad-django
-    build:
-      context: ./mysite
-      args:
-        - SECRET_KEY=${SECRET_KEY}
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    command: bash -c "daphne -b 0.0.0.0 -p 8000 mysite.asgi:application"
+    build: ./mysite
+    command: >
+      bash -c "python manage.py collectstatic &&
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      daphne -b 0.0.0.0 -p 8000 mysite.asgi:application"
     restart: always
     ports:
       - "8000:8000"

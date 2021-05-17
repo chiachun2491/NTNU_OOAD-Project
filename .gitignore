@@ -128,3 +128,6 @@ dmypy.json
 
 .idea/
 nginx.env
+
+# django collectstatic
+staticfiles/
