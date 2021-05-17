@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Node.js CI
+name: Server Project CI
 
 on:
   push:
@@ -14,7 +14,7 @@ defaults:
     working-directory: ./mysite/frontend
 
 jobs:
-  build:
+  yarn-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -32,4 +32,19 @@ jobs:
             REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
             REMOTE_USER: ${{ secrets.REMOTE_USER }}
             TARGET: ${{ secrets.REMOTE_TARGET }}
-            EXCLUDE: "/node_modules/"
+            EXCLUDE: "/mysite/frontend/node_modules/"
+  docker-compose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: docker-compose build and up
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.REMOTE_PORT }}
+          script: |
+            cd ${{ secrets.REMOTE_TARGET }}
+            docker-compose -f docker-compose.yml -f docker-compose.ci.yml build
+            docker-compose -f docker-compose.yml -f docker-compose.ci.yml up -d
+            
