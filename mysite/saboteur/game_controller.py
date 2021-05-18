@@ -62,9 +62,11 @@ class GameController():
         with open(Path(BASE_URL).joinpath('reset.json')) as fp:
             obj = json.load(fp)
 
+        num_player = len(player_id_list)
         obj.update({
-            "num_player": len(player_id_list),
-            "player_list": [{"id": str(id)} for id in player_id_list]
+            "num_player": num_player,
+            "player_list": [{"id": str(id)} for id in player_id_list],
+            "return_msg": [{"msg_type": "INFO", "msg": ""} for _ in range(num_player)]
         })
         instance = cls(**obj)
         instance.round_reset()
@@ -279,7 +281,10 @@ class GameController():
         self.now_play = now_play.id
 
         for i in range(self.num_player):
-            self.return_msg[i]["msg"] += f", round {self.round} start"
+            if round == 1:
+                self.return_msg[i]["msg"] += f"round {self.round} start"
+            else:
+                self.return_msg[i]["msg"] += f", round {self.round} start"
 
     def connect_to_start(self, card: Road, row: int, col: int, went: list):
         """check the road is connect to starting road or not with DFS algorithm

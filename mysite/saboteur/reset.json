@@ -145,6 +145,5 @@
     "winner": null,
     "winner_list": [],
     "gold_pos": 0,
-    "now_play": "",
-    "return_msg": []
+    "now_play": ""
 }
