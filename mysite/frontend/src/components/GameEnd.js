@@ -3,6 +3,7 @@ import {faUser, faCrown} from "@fortawesome/free-solid-svg-icons";
 import {Button, Card, Col, Row} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import axiosInstance from "../Api";
+import { Helmet } from 'react-helmet'
 
 
 class GameEnd extends Component {
@@ -32,8 +33,12 @@ class GameEnd extends Component {
             });
         }
         let max = Math.max(...players.map(p => p.point));
+        const TITLE = "遊戲結束"
         return (
             <>
+                <Helmet>
+                    <title>{ TITLE }</title>
+                </Helmet>
                 <h3 className={'my-3'}>玩家列表</h3>
                 {players.map(player => {
                     let isWinner = false;

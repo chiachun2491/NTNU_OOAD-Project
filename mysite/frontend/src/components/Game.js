@@ -4,6 +4,7 @@ import GameOrganzie from "./GameOrganzie";
 import GamePlaying from "./GamePlaying";
 import GameEnd from "./GameEnd";
 import axiosInstance from "../Api";
+import { Helmet } from 'react-helmet'
 
 const wsProtocol = window.location.origin.includes("https") ? "wss://" : "ws://";
 let wsBaseURL;
@@ -154,8 +155,12 @@ class Game extends Component {
         }
 
 
+        const TITLE = "房間: " + this.state.roomName
         return (
             <>
+                <Helmet>
+                    <title>{ TITLE }</title>
+                </Helmet>
                 <h5 className="text-center m-0">
                     <Badge variant={'brown'} className={'my-2'}>房間: {this.state.roomName}</Badge>
                     {roundBadge}

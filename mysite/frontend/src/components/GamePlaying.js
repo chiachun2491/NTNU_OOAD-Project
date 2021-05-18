@@ -16,6 +16,7 @@ import pick_red from "../images/status/pick_red.png";
 import cart from "../images/status/cart.png";
 import lamp from "../images/status/lamp.png";
 import pick from "../images/status/pick.png";
+import { Helmet } from 'react-helmet'
 
 const BOARD_BASE = 45;
 
@@ -175,8 +176,12 @@ class GamePlaying extends Component {
                     break;
             }
         }
+        const TITLE = "遊戲中..."
         return (
             <>
+                <Helmet>
+                    <title>{ TITLE }</title>
+                </Helmet>
                 <Alert show={msg !== '　'} className={'my-2'} variant={variant}>{msg}</Alert>
                 <Container>
                     <Row>
