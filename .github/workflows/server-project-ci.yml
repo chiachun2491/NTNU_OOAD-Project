@@ -6,8 +6,6 @@ name: Server Project CI
 on:
   push:
     branches: [ develop ]
-  pull_request:
-    branches: [ develop ]
     
 defaults:
   run:
