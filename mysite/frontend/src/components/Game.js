@@ -28,7 +28,7 @@ class Game extends Component {
             ws: null,
             roomName: '',
             roomData: {},
-            alertMessage: null,
+            socketErrorMessage: null,
         };
     }
 
@@ -67,6 +67,7 @@ class Game extends Component {
         ws.onopen = () => {
             // on connecting, do nothing but log it to the console
             console.log('connected');
+            this.setState({socketErrorMessage: null});
 
             this.setState({ws: ws});
             that.timeout = 250; // reset timer to 250 on open of websocket connection
@@ -83,14 +84,14 @@ class Game extends Component {
                     this.setState({roomData: message.room_data});
                     // this.setState({badgeMessage: {}});
                     break;
-                case 'alert_message':
-                    console.log(message.message);
-                    this.setState({alertMessage: message.message}, () => {
-                        window.setTimeout(() => {
-                            this.setState({alertMessage: null});
-                        }, 2000);
-                    });
-                    break;
+                // case 'alert_message':
+                //     console.log(message.message);
+                //     this.setState({alertMessage: message.message}, () => {
+                //         window.setTimeout(() => {
+                //             this.setState({alertMessage: null});
+                //         }, 2000);
+                //     });
+                //     break;
                 default:
                     console.log(message);
                     break;
@@ -98,24 +99,12 @@ class Game extends Component {
         };
 
         ws.onclose = (e) => {
-            const close_msg = `Socket is closed. Reconnect will be attempted in ${Math.min(
-                10000 / 1000,
-                (that.timeout + that.timeout) / 1000
-            )} second.`;
-            console.log(close_msg, e.reason);
-            that.setState({
-                alertMessage: {
-                    msg_type: 'ERROR',
-                    msg: close_msg
-                }
-            }, () => {
-                window.setTimeout(() => {
-                    this.setState({alertMessage: null});
-                }, (that.timeout + that.timeout));
-            });
+            const newTimeout = Math.min(10000, (that.timeout + that.timeout));
+            console.error(e.reason);
+            this.countDownMsgSet(newTimeout);
 
-            that.timeout = that.timeout + that.timeout; //increment retry interval
-            connectInterval = setTimeout(this.checkSocket, Math.min(10000, that.timeout)); //call checkSocket function after timeout
+            that.timeout = newTimeout; //increment retry interval
+            connectInterval = setTimeout(this.checkSocket, that.timeout); //call checkSocket function after timeout
         };
 
         // websocket onerror event listener
@@ -130,6 +119,30 @@ class Game extends Component {
         };
     }
 
+    countDownMsgSet = (timeout) => {
+        const close_msg = `Socket is closed. Reconnect will be attempted in ${timeout / 1000} second.`;
+        console.log(close_msg);
+        this.setState({
+            socketErrorMessage: {
+                msg_type: 'ERROR',
+                msg: close_msg
+            }
+        }, () => {
+            if ((timeout - 1000) < 0) {
+                this.setState({
+                    socketErrorMessage: {
+                        msg_type: 'ERROR',
+                        msg: 'Reconnecting...'
+                    }
+                });
+            } else {
+                window.setTimeout(() => {
+                    this.countDownMsgSet(timeout - 1000);
+                }, (1000));
+            }
+        });
+    };
+
     checkSocket = () => {
         const {ws} = this.state;
         if (!ws || ws.readyState === WebSocket.CLOSED) this.connectSocket(this.state.roomName); //checkSocket if websocket instance is closed, if so call `connect` function.
@@ -142,7 +155,8 @@ class Game extends Component {
             gameComponent = <GameOrganzie ws={this.state.ws} roomData={this.state.roomData}/>;
         } else if (this.state.roomData.status === RoomStatus.PLAYING) {
             gameComponent =
-                <GamePlaying ws={this.state.ws} roomData={this.state.roomData} alertMessage={this.state.alertMessage}/>;
+                <GamePlaying ws={this.state.ws} roomData={this.state.roomData}
+                             socketErrorMessage={this.state.socketErrorMessage}/>;
             roundBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
                 回合： {this.state.roomData.game_data.round} / 3
             </Badge>;
