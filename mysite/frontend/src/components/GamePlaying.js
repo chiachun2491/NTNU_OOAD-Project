@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import {Container, Row, Col, Button, Image, Alert} from 'react-bootstrap';
+import {Container, Row, Col, Button, Image, Badge} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faHammer,
@@ -150,10 +150,12 @@ class GamePlaying extends Component {
 
         // set alert message
         let alertMessage, msg = '　';
-        if (this.props.alertMessage !== null) {
-            alertMessage = this.props.alertMessage;
+        if (this.props.socketErrorMessage !== null) {
+            alertMessage = this.props.socketErrorMessage;
         } else if (this.state.alertMessage !== null) {
             alertMessage = this.state.alertMessage;
+        } else {
+            alertMessage = gameData.return_msg[self_id];
         }
         let variant;
         if (alertMessage) {
@@ -181,7 +183,7 @@ class GamePlaying extends Component {
                 <Helmet>
                     <title>{`正在遊戲：${this.props.roomName}`}</title>
                 </Helmet>
-                <Alert show={msg !== '　'} className={'my-2'} variant={variant}>{msg}</Alert>
+                <Badge className={'my-2 badge-block'} variant={variant}>{msg}</Badge>
                 <Container>
                     <Row>
                         <Col xs={12} lg={8}>
