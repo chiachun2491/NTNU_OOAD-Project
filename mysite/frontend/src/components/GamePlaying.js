@@ -16,6 +16,7 @@ import pick_red from "../images/status/pick_red.png";
 import cart from "../images/status/cart.png";
 import lamp from "../images/status/lamp.png";
 import pick from "../images/status/pick.png";
+import { Helmet } from 'react-helmet'
 
 const BOARD_BASE = 45;
 
@@ -179,6 +180,9 @@ class GamePlaying extends Component {
         }
         return (
             <>
+                <Helmet>
+                    <title>{`正在遊戲：${this.props.roomName}`}</title>
+                </Helmet>
                 <Badge className={'my-2 badge-block'} variant={variant}>{msg}</Badge>
                 <Container>
                     <Row>

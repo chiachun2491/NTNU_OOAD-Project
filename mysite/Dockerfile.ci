@@ -3,6 +3,6 @@ ENV PYTHONUNBUFFERED 1
 
 ADD requirements.txt /mysite/requirements.txt
 RUN pip install -r /mysite/requirements.txt
-ADD . /mysite
+
 WORKDIR /mysite
 

@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import RoomItem from "./Room";
 import {Button, Badge} from "react-bootstrap";
 import axiosInstance from "../Api";
-
+import { Helmet } from 'react-helmet'
 
 let wsBaseURL;
 
@@ -59,6 +59,9 @@ class Lobby extends Component {
         const username = localStorage.getItem('username');
         return (
             <>
+                <Helmet>
+                    <title>{'遊戲大廳'}</title>
+                </Helmet>
                 <h5 className={'text-center my-3'}>Hi, {username}!</h5>
                 <div className={'text-muted small text-center'}>可以選擇加入下面任一房間或是點選 <span>新增房間</span> 來開啟新遊戲！</div>
                 <Button variant={'brown'} className={'my-3'} block={true}
