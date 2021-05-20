@@ -27,7 +27,7 @@ class Dig(Card_Activate):
         r = pos // 9
         c = pos % 9
         gc.board[r][c] = card
-        return
+        return {"msg_type": "INFO", "msg": f"{gc.now_play} dig ({r+1}, {c+1})"}
 
 
 class Influence(Card_Activate):
@@ -37,8 +37,13 @@ class Influence(Card_Activate):
         """method of strategy pattern for Action"""
 
         pos -= 45
-        gc.set_player_state([gc.player_list[pos]], card, action_type)
-        return
+        Influenced = gc.player_list[pos]
+        gc.set_player_state([Influenced], card, action_type)
+        is_break = "break" if card.is_break else "repair"
+        tools = ["miner lamp", "minecart", "mine pick"]
+        action_type = tools[action_type]
+        return_msg = {"msg_type": "INFO",  "msg": f"{gc.now_play} {is_break} {Influenced.id}'s {action_type}"}
+        return return_msg
 
 
 class Destroy(Card_Activate):
@@ -50,7 +55,8 @@ class Destroy(Card_Activate):
         r = pos // 9
         c = pos % 9
         gc.board[r][c] = Road(-1)
-        return
+        return_msg = {"msg_type": "INFO",  "msg": f"{gc.now_play} destroy ({r+1}, {c+1})"}
+        return return_msg
 
 
 class Peek(Card_Activate):
@@ -61,7 +67,8 @@ class Peek(Card_Activate):
 
         r = pos // 9
         c = pos % 9
-        msg = "is gold" if gc.board[r][c].card_no == 71 else "not gold"
+        msg = f"({r+1}, {c+1}) "
+        msg += "is gold" if gc.board[r][c].card_no == 71 else "not gold"
         return_msg = {"msg_type": "PEEK", "msg": msg}  # pass msg to player
         return return_msg
 
@@ -135,6 +142,7 @@ class Card():
         return_msg = None
         if pos == -1:
             gc.fold_deck += [card]
+            return_msg = {"msg_type": "INFO", "msg": f"{gc.now_play} throw a card away"}
         else:
             return_msg = self.active_func.activate(card, gc, pos, action_type)
         return return_msg

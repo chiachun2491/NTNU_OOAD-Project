@@ -25,7 +25,8 @@ axiosInstance.interceptors.response.use(
 
         console.log(error);
         // Prevent infinite loops
-        if (error.response.status === 401 && originalRequest.url === APIbaseURL + 'auth/token/refresh/') {
+        if (error.response.status === 401 && originalRequest.url === '/auth/token/refresh/') {
+            localStorage.removeItem('username');
             window.location.href = '/account/login/';
             return Promise.reject(error);
         }
