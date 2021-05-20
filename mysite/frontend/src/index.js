@@ -8,13 +8,13 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Helmet } from 'react-helmet'
 
-const TITLE = '矮人礦坑'
+const baseTitle = '矮人礦坑';
 
 ReactDOM.render(
     <React.StrictMode>
         <BrowserRouter>
             <Helmet>
-                <title>{ TITLE }</title>
+                <title>{baseTitle}</title>
             </Helmet>
             <Switch>
                 <App/>

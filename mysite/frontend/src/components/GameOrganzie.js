@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import {Card, Button, Row, Col} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faUserCog, faUser, faWindowClose} from "@fortawesome/free-solid-svg-icons";
+import {Helmet} from "react-helmet";
 
 const gamePlayerLeastAmount = 3;
 
@@ -39,6 +40,9 @@ class GameOrganzie extends Component {
         // TODO: handle kick button action
         return (
             <>
+                <Helmet>
+                    <title>{`正在等待：${this.props.roomName}`}</title>
+                </Helmet>
                 <h3 className={'my-3'}>玩家列表</h3>
                 {this.props.roomData.players_data.map(player => (
                     <GamePlayer key={player.player} playerName={player.player} isAdmin={true}/>

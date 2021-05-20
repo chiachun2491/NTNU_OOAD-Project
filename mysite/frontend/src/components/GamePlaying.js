@@ -176,11 +176,10 @@ class GamePlaying extends Component {
                     break;
             }
         }
-        const TITLE = "遊戲中..."
         return (
             <>
                 <Helmet>
-                    <title>{ TITLE }</title>
+                    <title>{`正在遊戲：${this.props.roomName}`}</title>
                 </Helmet>
                 <Alert show={msg !== '　'} className={'my-2'} variant={variant}>{msg}</Alert>
                 <Container>

@@ -33,11 +33,10 @@ class GameEnd extends Component {
             });
         }
         let max = Math.max(...players.map(p => p.point));
-        const TITLE = "遊戲結束"
         return (
             <>
                 <Helmet>
-                    <title>{ TITLE }</title>
+                    <title>{`遊戲結果：${this.props.roomName}`}</title>
                 </Helmet>
                 <h3 className={'my-3'}>玩家列表</h3>
                 {players.map(player => {
