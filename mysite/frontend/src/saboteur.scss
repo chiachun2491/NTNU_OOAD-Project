@@ -113,3 +113,13 @@ $dark-brown: #403013;
 .badge-block {
   width: 100%;
 }
+
+.text-brown {
+  color: $brown !important;;
+}
+
+.dropdown-item.active, .dropdown-item:active {
+  background-color: $brown;
+  color: white;
+  text-decoration: none;
+}

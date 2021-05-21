@@ -22,3 +22,12 @@ class GameRoomSerializer(ModelSerializer):
         fields = ['players_data', 'status', 'game_data', 'permanent_url']
 
 
+class SelfGameRoomHistorySerializer(GameRoomSerializer):
+    players_length = SerializerMethodField()
+
+    def get_players_length(self, permanent_url):
+        return len(PlayerData.objects.all().filter(room__permanent_url=permanent_url))
+
+    class Meta:
+        model = GameRoom
+        fields = ['players_length', 'status', 'permanent_url']

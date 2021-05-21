@@ -4,7 +4,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import GameRoomSerializer
+from .serializers import GameRoomSerializer, SelfGameRoomHistorySerializer
 from .models import GameRoom
 
 
@@ -52,3 +52,13 @@ class GameRoomList(ListAPIView):
     serializer_class = GameRoomSerializer
 
     permission_classes = [permissions.IsAuthenticated]
+
+
+class SelfGameRoomHistoryList(ListAPIView):
+    serializer_class = SelfGameRoomHistorySerializer
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return GameRoom.objects.filter(playerdata__player=user)

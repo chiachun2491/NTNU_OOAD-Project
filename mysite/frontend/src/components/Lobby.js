@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import RoomItem from "./Room";
 import {Button, Badge} from "react-bootstrap";
 import axiosInstance from "../Api";
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet';
 
 let wsBaseURL;
 

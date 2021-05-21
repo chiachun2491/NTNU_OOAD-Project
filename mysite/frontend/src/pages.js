@@ -6,6 +6,7 @@ import Game from "./components/Game";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Lobby from "./components/Lobby";
+import History from "./components/History";
 
 
 /**
@@ -40,6 +41,7 @@ function Account() {
                 <Route path={`${path}`} exact component={Profile}/>
                 <Route path={`${path}/login`} exact component={Login}/>
                 <Route path={`${path}/signup`} exact component={Signup}/>
+                <Route path={`${path}/history`} exact component={History}/>
             </Switch>
         </>
     );
