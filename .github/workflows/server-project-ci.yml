@@ -23,7 +23,7 @@ jobs:
       - run: yarn install
       - run: CI=false yarn build
       - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@v2.1.5
+        uses: easingthemes/ssh-deploy@v2.1.7
         env:
             SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
             REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
