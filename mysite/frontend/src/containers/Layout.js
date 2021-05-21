@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {Container, Nav, Navbar, Button} from "react-bootstrap";
+import {Container, Nav, Navbar, Button, NavDropdown} from "react-bootstrap";
 import {withRouter} from 'react-router-dom';
 import handleLogout from "../components/Logout";
 
@@ -14,7 +14,12 @@ const Header = (props) => {
             <React.Fragment>
                 <Nav className="mr-auto" activeKey={location.pathname}>
                     <Nav.Link href="/games/">Lobby</Nav.Link>
-                    <Nav.Link href="/account/">Account</Nav.Link>
+                    {/*<Nav.Link href="/account/">Account</Nav.Link>*/}
+                    <NavDropdown title="Account" id={'account-dropdown'}>
+                        <NavDropdown.Item className={'bg-brown'} href="/account/history/">History</NavDropdown.Item>
+                        <NavDropdown.Divider/>
+                        <NavDropdown.Item href="#">修改密碼</NavDropdown.Item>
+                    </NavDropdown>
                 </Nav>
                 <Nav>
                     <Button onClick={handleLogout} variant={'brown'} className={'my-2 my-lg-0'}>登出 {username}</Button>
