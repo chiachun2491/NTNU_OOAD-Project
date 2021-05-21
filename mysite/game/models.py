@@ -20,6 +20,7 @@ class GameRoom(models.Model):
         END = 'end'
 
     HASH_SALT = 'HELLO'
+    lobby_socket_group_name = 'lobby'
 
     created_at = models.DateTimeField(auto_now_add=True)
     players = models.ManyToManyField(CustomUser, through='PlayerData', through_fields=('room', 'player'), blank=True)
@@ -41,13 +42,12 @@ class GameRoom(models.Model):
 
         super().save(*args, **kwargs)  # Call the "real" save() method.
 
-        # Send update notification to room group
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            self.room_group_name(), {
-                'type': 'update_room',
-            }
-        )
+        self._send_update_to_game_room()
+        self._send_update_to_lobby()
+
+    def delete(self, *args, **kwargs):
+        self._send_delete_to_lobby()
+        super().delete(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('game:room', args=[self.permanent_url])
@@ -73,40 +73,22 @@ class GameRoom(models.Model):
             pass
 
         self.save()
-
-        # Send message to room group
-        # channel_layer = get_channel_layer()
-        # async_to_sync(channel_layer.group_send)(
-        #     self.room_group_name(),
-        #     {
-        #         # TODO: change event type
-        #         'type': 'chat_message',
-        #         'message': f'{user} join game'
-        #     }
-        # )
-
         return can_speak
 
     def leave_room(self, username):
         if self.status == GameRoom.StatusType.ORGANIZE:
             user = CustomUser.objects.get(username=username)
             self.players.remove(user)
-            self.save()
-
-        # Send message to room group
-        # channel_layer = get_channel_layer()
-        # async_to_sync(channel_layer.group_send)(
-        #     self.room_group_name(),
-        #     {
-        #         # TODO: change event type
-        #         'type': 'chat_message',
-        #         'message': f'{username} leave game'
-        #     }
-        # )
+            if len(self.players.all()) > 0:
+                self.save()
+            else:
+                self.delete()
 
     def change_status(self, status):
         self.status = status
         if status == GameRoom.StatusType.PLAYING:
+            # send delete alert to lobby
+            self._send_delete_to_lobby()
             # create new n-player GameController
             self.init_game_data()
             self.save()
@@ -126,6 +108,36 @@ class GameRoom(models.Model):
 
     def _get_controller(self):
         return GameController(**self.game_data)
+
+    def _send_update_to_lobby(self):
+        channel_layer = get_channel_layer()
+        # Send update notification to lobby
+        if self.status == self.StatusType.ORGANIZE:
+            async_to_sync(channel_layer.group_send)(
+                self.lobby_socket_group_name, {
+                    'type': 'update_room',
+                    'room_name': self.permanent_url
+                }
+            )
+
+    def _send_delete_to_lobby(self):
+        channel_layer = get_channel_layer()
+        # Send update notification to lobby
+        async_to_sync(channel_layer.group_send)(
+            self.lobby_socket_group_name, {
+                'type': 'delete_room',
+                'room_name': self.permanent_url
+            }
+        )
+
+    def _send_update_to_game_room(self):
+        channel_layer = get_channel_layer()
+        # Send update notification to room group
+        async_to_sync(channel_layer.group_send)(
+            self.room_group_name(), {
+                'type': 'update_room',
+            }
+        )
 
     def init_game_data(self):
         controller = GameController.from_scratch(self._get_player_list())

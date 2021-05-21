@@ -16,7 +16,7 @@ const Header = (props) => {
                     <Nav.Link href="/games/">Lobby</Nav.Link>
                     {/*<Nav.Link href="/account/">Account</Nav.Link>*/}
                     <NavDropdown title="Account" id={'account-dropdown'}>
-                        <NavDropdown.Item className={'bg-brown'} href="/account/history/">History</NavDropdown.Item>
+                        <NavDropdown.Item href="/account/history/">History</NavDropdown.Item>
                         <NavDropdown.Divider/>
                         <NavDropdown.Item href="#">修改密碼</NavDropdown.Item>
                     </NavDropdown>
