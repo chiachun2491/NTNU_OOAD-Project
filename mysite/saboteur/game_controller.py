@@ -112,7 +112,7 @@ class GameController():
             self.now_play = now_play.id
 
             card, pos, action_type = now_play.play_card(card_id, position, rotate, act_type)
-            legal, illegal_msg = self.check_legality(now_play, card, pos, action_type)
+            legal, illegal_msg = card.check_legality(self, now_play, pos, action_type)
             if not legal:
                 # return illegal card to player
                 self.deal_card([now_play], card)
@@ -328,116 +328,6 @@ class GameController():
                 is_connect[3] = self.connect_to_start(self.board[row][col + 1], row, col + 1, went)
 
         return sum(is_connect)
-
-    def connect_to_rock(self, card: Road, row: int, col: int) -> int:
-        """check the road is connect to road beside or not
-
-        :parms
-            card: the present road (Road)
-            row: the present row (Int)
-            col: the present column (Int)
-
-        :returns
-            is_connect: the num of road is connect to rock (Int)
-        """
-        is_connect = 0
-
-        # check above, under, left and right road side's are rock or not
-        if row != 1 and col != 8 or row != 3 and col != 8:  # if pos = 17 and 35 ignore above and under connect to rock
-            if row - 1 >= 0:
-                beside = self.board[row - 1][col]
-                if beside.card_no != -1 and \
-                        (card.connected[1] ^ self.board[row - 1][col].connected[3]):
-                    is_connect += 1
-            if row + 1 <= 4:
-                beside = self.board[row + 1][col]
-                if beside.card_no != -1 and \
-                        (card.connected[3] ^ self.board[row + 1][col].connected[1]):
-                    is_connect += 1
-        if col - 1 >= 0:
-            beside = self.board[row][col - 1]
-            if beside.card_no != -1 and \
-                    (card.connected[4] ^ self.board[row][col - 1].connected[2]):
-                is_connect += 1
-        if row != 0 and col != 7 or row != 2 and col != 7 or row != 4 and col != 7:  # if pos = 7 and 25 and 43 ignore right connect to rock
-            if col + 1 <= 8:
-                beside = self.board[row][col + 1]
-                if beside.card_no != -1 and \
-                        (card.connected[2] ^ self.board[row][col + 1].connected[4]):
-                    is_connect += 1
-
-        return is_connect
-
-    def check_legality(self, player: Player, card: Card, pos: int, action_type: int) -> "tuple[bool, str]":
-        """check the player behavior is legality or not
-
-        :parms
-            player: the player who play card in this turn (Player)
-            card: the card which `player` play (Card)
-            pos: the position that the `card` need to be set (Int)
-            action_type: the choice of repair which tool of the multi-repair action card (Int)
-
-        :return
-            legality: the `player` play the `card` at the `pos` is legal or not (Bool)
-            illegal_msg: the illegal message will show to player if illegal (Str)
-        """
-        legality = True
-        illegal_msg = ""
-
-        if pos == -1:  # fold card
-            pass  # do nothing
-        elif pos <= 44:  # play road card on board
-            r = pos // 9
-            c = pos % 9
-            if isinstance(card, Road):
-                if sum(player.action_state):
-                    legality = False
-                    illegal_msg = "some tool are broken can't build road"
-                elif self.board[r][c].card_no != -1:
-                    legality = False
-                    illegal_msg = "the position have road already"
-                elif self.connect_to_rock(card, r, c):
-                    legality = False
-                    illegal_msg = "road can't connect to rock"
-                else:
-                    # check road is connect to start or not
-                    went = [[False for _ in range(9)] for _ in range(5)]
-                    legality = self.connect_to_start(card, r, c, went)
-                    illegal_msg = "the position does not connect to start road"
-
-            elif isinstance(card, Rocks):
-                if self.board[r][c].road_type == RoadType.start \
-                        or self.board[r][c].road_type == RoadType.end:
-                    legality = False
-                    illegal_msg = "rock card can't destroy start/end road"
-                elif self.board[r][c].card_no == -1:
-                    legality = False
-                    illegal_msg = "rock card can't destroy empty position"
-
-            elif isinstance(card, Map):
-                if self.board[r][c].road_type != RoadType.end:
-                    legality = False
-                    illegal_msg = "map card can't peek non end road"
-
-            else:
-                legality = False
-                illegal_msg = "except rocks and map action, can't play on card board"
-
-        else:  # pos >= 45
-            if isinstance(card, Action):
-                # action_type = -1 if use multi repair card
-                if action_type != -1 and action_type not in card.action_type:
-                    legality = False
-                    illegal_msg = "the card can't repair selected tool"
-                else:
-                    pos -= 45
-                    legality = self.player_list[pos].action_state[action_type] ^ card.is_break
-                    illegal_msg = "" if legality else "the player's tool are already broken/repaired"
-            else:
-                legality = False
-                illegal_msg = "the card can't play to player"
-
-        return legality, illegal_msg
 
     def deal_card(self, player_list: list, card: Card = None):
         """deal card for player(s)
