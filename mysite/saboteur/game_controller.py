@@ -281,7 +281,7 @@ class GameController():
         self.now_play = now_play.id
 
         for i in range(self.num_player):
-            if round == 1:
+            if self.round == 1:
                 self.return_msg[i]["msg"] += f"round {self.round} start"
             else:
                 self.return_msg[i]["msg"] += f", round {self.round} start"
@@ -359,11 +359,12 @@ class GameController():
             if beside.card_no != -1 and \
                     (card.connected[4] ^ self.board[row][col - 1].connected[2]):
                 is_connect += 1
-        if col + 1 <= 8:
-            beside = self.board[row][col + 1]
-            if beside.card_no != -1 and \
-                    (card.connected[2] ^ self.board[row][col + 1].connected[4]):
-                is_connect += 1
+        if row != 0 and col != 7 or row != 2 and col != 7 or row != 4 and col != 7:  # if pos = 7 and 25 and 43 ignore right connect to rock
+            if col + 1 <= 8:
+                beside = self.board[row][col + 1]
+                if beside.card_no != -1 and \
+                        (card.connected[2] ^ self.board[row][col + 1].connected[4]):
+                    is_connect += 1
 
         return is_connect
 
