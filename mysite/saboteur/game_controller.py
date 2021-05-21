@@ -122,7 +122,7 @@ class GameController():
                 self.return_msg[self.turn % self.num_player] = personalize_msg
                 return
 
-            return_msg = card.activate(card, self, pos, action_type)
+            return_msg = card.activate(self, pos, action_type)
 
             flag = 0
             for player in self.player_list:

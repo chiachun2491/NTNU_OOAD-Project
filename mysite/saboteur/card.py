@@ -13,7 +13,7 @@ from enum import IntEnum
 class Card_Activate():
     """abstract class of strategy pattern"""
 
-    def activate(self, card, gc, pos: int, action_type: int):
+    def activate(self, card, gc, pos: int, action_type: int) -> dict:
         """abstract method of strategy pattern"""
         pass
 
@@ -21,7 +21,7 @@ class Card_Activate():
 class Dig(Card_Activate):
     """class of strategy pattern for Road"""
 
-    def activate(self, card, gc, pos: int, action_type: int):
+    def activate(self, card, gc, pos: int, action_type: int) -> dict:
         """method of strategy pattern for Road"""
 
         r = pos // 9
@@ -33,7 +33,7 @@ class Dig(Card_Activate):
 class Influence(Card_Activate):
     """class of strategy pattern for Action"""
 
-    def activate(self, card, gc, pos: int, action_type: int):
+    def activate(self, card, gc, pos: int, action_type: int) -> dict:
         """method of strategy pattern for Action"""
 
         pos -= 45
@@ -49,7 +49,7 @@ class Influence(Card_Activate):
 class Destroy(Card_Activate):
     """class of strategy pattern for Rocks"""
 
-    def activate(self, card, gc, pos: int, action_type: int):
+    def activate(self, card, gc, pos: int, action_type: int) -> dict:
         """method of strategy pattern for Rocks"""
 
         r = pos // 9
@@ -62,7 +62,7 @@ class Destroy(Card_Activate):
 class Peek(Card_Activate):
     """class of strategy pattern for Map"""
 
-    def activate(self, card, gc, pos: int, action_type: int):
+    def activate(self, card, gc, pos: int, action_type: int) -> dict:
         """method of strategy pattern for Map"""
 
         r = pos // 9
@@ -124,13 +124,12 @@ class Card():
     def __eq__(self, other):
         return self.card_no == other.card_no
 
-    def activate(self, card, gc, pos: int, action_type: int) -> to_dict:
+    def activate(self, gc, pos: int, action_type: int) -> dict:
         """delegates some work to the strategy object instead of
         implementing multiple versions of the algorithm on its own.
         (except fold card which doing the same thing for every type of card)
 
         :parms
-            card: the card which call this function (Card)
             gc: the game controller object (GameController)
             pos: the position of `card` will activate (Int)
             action_type: the choice of repair which tool of the multi-repair action card (Int)
@@ -141,10 +140,10 @@ class Card():
 
         return_msg = None
         if pos == -1:
-            gc.fold_deck += [card]
+            gc.fold_deck += [self]
             return_msg = {"msg_type": "INFO", "msg": f"{gc.now_play} throw a card away"}
         else:
-            return_msg = self.active_func.activate(card, gc, pos, action_type)
+            return_msg = self.active_func.activate(self, gc, pos, action_type)
         return return_msg
 
 
