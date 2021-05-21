@@ -30,7 +30,7 @@ jobs:
             REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
             REMOTE_USER: ${{ secrets.REMOTE_USER }}
             TARGET: ${{ secrets.REMOTE_TARGET }}
-            EXCLUDE: "/mysite/frontend/node_modules/"
+            EXCLUDE: "mysite/frontend/node_modules/"
   docker-compose:
     needs: build-and-deploy
     runs-on: ubuntu-latest
