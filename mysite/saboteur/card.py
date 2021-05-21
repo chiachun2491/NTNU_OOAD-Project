@@ -265,7 +265,7 @@ class Card():
     """
 
     # -1 as empty card place
-    def __init__(self, card_no=-1, active_func=None, legality_func=None):
+    def __init__(self, card_no=-1, active_func: Card_Activate=None, legality_func: Card_Legality=None):
         self.card_no = card_no
         self.active_func = active_func
         self.legality_func = legality_func
@@ -302,11 +302,13 @@ class Card():
         return return_msg
 
     def check_legality(self, gc, player, pos, action_type) -> "tuple[bool, str]":
+        legality = True
+        return_msg = ""
         if pos == -1:
             pass # do nothing
         else:
-            return_msg = self.legality_func.check_legality(gc, player, self, pos, action_type)
-        return return_msg
+            legality, return_msg = self.legality_func.check_legality(gc, player, self, pos, action_type)
+        return legality, return_msg
 
 
 class RoadType(IntEnum):
