@@ -3,7 +3,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from channels.exceptions import DenyConnection
 
-from .serializers import GameRoomSerializer
+from .serializers import GameRoomSerializer, LightGameRoomSerializer
 from .models import GameRoom
 
 
@@ -109,3 +109,36 @@ class GameRoomConsumer(WebsocketConsumer):
             'event': 'room_data_updated',
             'room_data': self._get_room_dict()
         }))
+
+
+class LobbyConsumer(WebsocketConsumer):
+    def connect(self):
+        # Join group
+        async_to_sync(self.channel_layer.group_add)(
+            GameRoom.lobby_socket_group_name,
+            self.channel_name
+        )
+
+        self.accept()
+
+    def disconnect(self, close_code):
+        # Leave group
+        async_to_sync(self.channel_layer.group_discard)(
+            GameRoom.lobby_socket_group_name,
+            self.channel_name
+        )
+
+    def delete_room(self, event):
+        self.send(text_data=json.dumps({
+            'event': 'room_data_deleted',
+            'room_name': event['room_name']
+        }))
+
+    def update_room(self, event):
+        room = GameRoom.objects.get(permanent_url=event['room_name'])
+        if room is not None:
+            self.send(text_data=json.dumps({
+                'event': 'room_data_updated',
+                'room_name': event['room_name'],
+                'room_data': LightGameRoomSerializer(room).data
+            }))
