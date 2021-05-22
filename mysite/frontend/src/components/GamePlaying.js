@@ -185,7 +185,7 @@ class GamePlaying extends Component {
                 </Helmet>
                 <Badge className={'my-2 badge-block'} variant={variant}>{msg}</Badge>
                 <Container>
-                    <Row>
+                    <Row className={'d-flex align-items-center'}>
                         <Col xs={12} lg={8}>
                             {/* Deck */}
                             {gameData.board.map((row, i) => (
@@ -202,9 +202,9 @@ class GamePlaying extends Component {
                                 </Row>
                             ))}
                         </Col>
-                        <Col xs={12} lg={4} className={'my-3'}>
+                        <Col xs={12} lg={4}>
                             {/* Rival name & status */}
-                            <Row className="my-2">
+                            <Row>
                                 {other_players}
                             </Row>
                             <SelfGamePlayer
@@ -230,7 +230,7 @@ function OtherGamePlayer(props) {
         handcards.push(<span key={i} className="otherPlayerHandCard"/>);
     }
     return (
-        <Col xs={4} lg={12} className={"px-2"}>
+        <Col xs={4} lg={6} className={"px-2 my-2"}>
             <Button variant={props.nowPlaying ? 'brown' : 'outline-brown'} size={'sm'} block={true}
                     onClick={() => props.onPositionClick((BOARD_BASE + props.playerID))}>
                 {props.player.id}
@@ -265,7 +265,7 @@ function SelfGamePlayer(props) {
                     </Button>
                 </Col>
                 <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center p-0'}>
-                    <Row>
+                    <Row className={'my-lg-1'}>
                         {props.player.action_state.map((ban, i) => (
                             <ActionStatus
                                 key={i}
