@@ -24,6 +24,13 @@ axiosInstance.interceptors.response.use(
         const originalRequest = error.config;
 
         console.error(error);
+        // handle network error first
+        if (error.message === 'Network Error') {
+            if (window.location.pathname !== '/networkError/') {
+                window.location.href = `/networkError/?next=${window.location.pathname}`;
+            }
+            return Promise.reject(error);
+        }
         // Prevent infinite loops
         if (error.response.status === 401 && originalRequest.url === '/auth/token/refresh/') {
             localStorage.removeItem('username');
