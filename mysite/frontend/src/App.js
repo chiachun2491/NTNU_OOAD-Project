@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
 import {Route} from 'react-router-dom';
 import CustomLayout from "./containers/Layout";
-import {Home, Games, Account} from "./pages";
+import {Games, Account} from "./pages";
 import Hello from "./components/Hello";
 import PageNotFound from "./components/PageNotFound";
 import {Switch} from 'react-router-dom';
 import NetworkError from "./components/NetworkError";
+import Home from "./components/Homepage";
 
 class App extends Component {
     render() {
