@@ -4,7 +4,8 @@ import GameOrganzie from "./GameOrganzie";
 import GamePlaying from "./GamePlaying";
 import GameEnd from "./GameEnd";
 import axiosInstance from "../Api";
-import { Helmet } from 'react-helmet'
+import {Helmet} from 'react-helmet'
+import GameRoomError from "./GameRoomError";
 
 const wsProtocol = window.location.origin.includes("https") ? "wss://" : "ws://";
 let wsBaseURL;
@@ -44,6 +45,9 @@ class Game extends Component {
                 this.connectSocket(roomName);
             }).catch(err => {
             console.error(err);
+            if (err.response.status === 404) {
+                window.location.href = '/games/notFound/';
+            }
         });
 
     };
@@ -150,34 +154,42 @@ class Game extends Component {
     };
 
     render() {
-        let gameComponent = <div/>;
-        let roundBadge, cardPoolBadge;
-        if (this.state.roomData.status === RoomStatus.ORGANIZE) {
-            gameComponent = <GameOrganzie ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData}/>;
-        } else if (this.state.roomData.status === RoomStatus.PLAYING) {
-            gameComponent =
-                <GamePlaying ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData}
-                             socketErrorMessage={this.state.socketErrorMessage}/>;
-            roundBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
-                回合： {this.state.roomData.game_data.round} / 3
-            </Badge>;
-            cardPoolBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
-                卡池剩餘：{this.state.roomData.game_data.card_pool.length}
-            </Badge>;
-        } else if (this.state.roomData.status === RoomStatus.END) {
-            gameComponent = <GameEnd ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData}/>;
+        try {
+            let gameComponent = <div/>;
+            let roundBadge, cardPoolBadge;
+            if (this.state.roomData.status === RoomStatus.ORGANIZE) {
+                gameComponent =
+                    <GameOrganzie ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData}/>;
+            } else if (this.state.roomData.status === RoomStatus.PLAYING) {
+                gameComponent =
+                    <GamePlaying ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData}
+                                 socketErrorMessage={this.state.socketErrorMessage}/>;
+                roundBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
+                    回合： {this.state.roomData.game_data.round} / 3
+                </Badge>;
+                cardPoolBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
+                    卡池剩餘：{this.state.roomData.game_data.card_pool.length}
+                </Badge>;
+            } else if (this.state.roomData.status === RoomStatus.END) {
+                gameComponent =
+                    <GameEnd ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData}/>;
+            }
+
+            return (
+                <>
+                    <h5 className="text-center m-0">
+                        <Badge variant={'brown'} className={'my-2'}>房間: {this.state.roomName}</Badge>
+                        {roundBadge}
+                        {cardPoolBadge}
+                    </h5>
+                    {gameComponent}
+                </>
+            );
+        } catch (e) {
+            console.error(e);
+            return GameRoomError;
         }
 
-        return (
-            <>
-                <h5 className="text-center m-0">
-                    <Badge variant={'brown'} className={'my-2'}>房間: {this.state.roomName}</Badge>
-                    {roundBadge}
-                    {cardPoolBadge}
-                </h5>
-                {gameComponent}
-            </>
-        );
     }
 }
 

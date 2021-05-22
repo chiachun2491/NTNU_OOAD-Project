@@ -23,7 +23,14 @@ axiosInstance.interceptors.response.use(
     error => {
         const originalRequest = error.config;
 
-        console.log(error);
+        console.error(error);
+        // handle network error first
+        if (error.message === 'Network Error') {
+            if (window.location.pathname !== '/networkError/') {
+                window.location.href = `/networkError/?next=${window.location.pathname}`;
+            }
+            return Promise.reject(error);
+        }
         // Prevent infinite loops
         if (error.response.status === 401 && originalRequest.url === '/auth/token/refresh/') {
             localStorage.removeItem('username');
@@ -56,14 +63,14 @@ axiosInstance.interceptors.response.use(
                             return axiosInstance(originalRequest);
                         })
                         .catch(err => {
-                            console.log(err)
+                            console.error(err)
                         });
                 } else {
-                    console.log("Refresh token is expired", tokenParts.exp, now);
+                    console.error("Refresh token is expired", tokenParts.exp, now);
                     window.location.href = `/account/login/?next=${window.location.pathname}`;
                 }
             } else {
-                console.log("Refresh token not available.");
+                console.error("Refresh token not available.");
                 window.location.href = `/account/login/?next=${window.location.pathname}`;
             }
         }

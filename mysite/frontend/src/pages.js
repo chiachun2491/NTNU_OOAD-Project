@@ -7,6 +7,7 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Lobby from "./components/Lobby";
 import History from "./components/History";
+import GameRoomNotFound from "./components/GameRoomNotFound";
 
 
 /**
@@ -21,6 +22,7 @@ function Games() {
     return (
         <>
             <Switch>
+                <Route path={`${path}/notFound`} exact component={GameRoomNotFound}/>
                 <Route path={`${path}/:roomName`} exact component={Game}/>
                 <Route path={path} exact component={Lobby}/>
             </Switch>
