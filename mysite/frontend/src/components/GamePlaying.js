@@ -1,13 +1,15 @@
-import React, {Component} from "react";
+import React, {Component, useState} from "react";
 
-import {Container, Row, Col, Button, Image, Badge} from 'react-bootstrap';
+import {Container, Row, Button, Col, Image, Badge, OverlayTrigger, Popover} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faHammer,
     faLightbulb,
     faShoppingCart,
     faTrashAlt,
-    faDoorOpen
+    faDoorOpen,
+    faWeight,
+    faTruckMonster
 } from "@fortawesome/free-solid-svg-icons";
 import GameCard from "../components/GameCard";
 import cart_red from "../images/status/cart_red.png";
@@ -17,6 +19,7 @@ import cart from "../images/status/cart.png";
 import lamp from "../images/status/lamp.png";
 import pick from "../images/status/pick.png";
 import { Helmet } from 'react-helmet'
+import { Next } from "react-bootstrap/esm/PageItem";
 
 const BOARD_BASE = 45;
 
@@ -38,7 +41,6 @@ class GamePlaying extends Component {
 
     componentDidMount() {
     };
-
     // TODO: card state control
 
     handleHandCardClick(cardNo) {
@@ -187,9 +189,11 @@ class GamePlaying extends Component {
                 <Container>
                     <Row>
                         <Col xs={12} lg={8}>
+                        
                             {/* Deck */}
                             {gameData.board.map((row, i) => (
                                 <Row key={i} className={'d-flex justify-content-center'}>
+                                    
                                     {row.map((card, j) => (
                                         <GameCard
                                             key={j}
@@ -199,10 +203,11 @@ class GamePlaying extends Component {
                                             onCardClick={() => this.handlePositionClick(i * 9 + j)}
                                         />
                                     ))}
+                                    
                                 </Row>
                             ))}
                         </Col>
-                        <Col xs={12} lg={4} className={'my-3'}>
+                        <Col xs={12} lg={4} className={'my-3'}>                            
                             {/* Rival name & status */}
                             <Row className="my-2">
                                 {other_players}
@@ -254,6 +259,11 @@ function OtherGamePlayer(props) {
 
 function SelfGamePlayer(props) {
     const identity = props.player.role ? '好矮人' : '壞矮人';
+    const [popover_1, changeP1] = useState(true);
+    const [popover_2, changeP2] = useState(false);
+    const [popover_3, changeP3] = useState(false);
+    const [popover_4, changeP4] = useState(false);
+
     return (
         <>
             {/* Your name & status */}
@@ -265,6 +275,23 @@ function SelfGamePlayer(props) {
                     </Button>
                 </Col>
                 <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center p-0'}>
+                <OverlayTrigger
+                            id= "self_tool"
+                            placement="top-end"
+                            delay={{ show: 250, hide: 500 }}
+                            overlay={
+                                        <Popover>
+                                            <Popover.Title as="h3" style={{color: "black"}}><strong>工具列與玩家金礦</strong></Popover.Title>
+                                            <Popover.Content>
+                                                若任一工具為<strong>紅色</strong>則表示無法出道路牌
+                                            </Popover.Content>
+                                            <Popover.Content>
+                                                <Button onClick = {() => changeP4(false)}>Next</Button>
+                                            </Popover.Content>
+                                        </Popover>
+                            }
+                            show = {popover_4}
+                    >
                     <Row>
                         {props.player.action_state.map((ban, i) => (
                             <ActionStatus
@@ -276,11 +303,40 @@ function SelfGamePlayer(props) {
                         ))}
                         <Col xs={'auto'} className={'p-0 mx-1'}>$ : {props.player.point}</Col>
                     </Row>
+                    </OverlayTrigger>
                 </Col>
             </Row>
-            <Row className={'my-2'}>
-                <Col xs={8} lg={12} className={'px-2'}>
+            
+            <Row className={'my-2'}>          
+                <Col xs={8} lg={12} className={'px-2'} id="HandCardPopover">
+                <OverlayTrigger
+                        placement= "top"
+                        overlay = {
+                            <Popover >
+                            <Popover.Title as="h3" style={{color: "black"}}>
+                                <strong>自己的手牌</strong>
+                            </Popover.Title>
+                            <Popover.Content>
+                                1. 依照規則點選手牌再點選位置即可出牌
+                            </Popover.Content>
+                            <Popover.Content>
+                                2. 道路牌點選兩次可旋轉
+                            </Popover.Content>
+                            <Popover.Content>
+                                3. 選定功能牌後再選擇玩家或工具即可使用
+                            </Popover.Content>
+                            <Popover.Content>
+                                4. 點選地圖牌後再選擇其中一張終點牌即可使用
+                            </Popover.Content>
+                            <Popover.Content>
+                                <Button varient = "outline-primary" onClick={() => {changeP1(false); changeP2(true);}}>Next</Button> <Button varient = "outline-danger" onClick={() => {changeP1(false)}}>Skip</Button>
+                            </Popover.Content>
+                            </Popover>
+                        }
+                        show = {popover_1}
+                        >
                     <Row className={'d-flex justify-content-around px-2'}>
+                        
                         {props.player.hand_cards.map((card, i) => (
                             <GameCard
                                 card_no={card.card_no}
@@ -291,15 +347,50 @@ function SelfGamePlayer(props) {
                             />
                         ))}
                     </Row>
+                    </OverlayTrigger>
                 </Col>
+                
                 <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center px-2 my-lg-2'}>
-                    <Row>
-                        <Button variant={'brown'} className={'mx-1'} onClick={() => props.onPositionClick(-1)}>
-                            <FontAwesomeIcon icon={faTrashAlt}/>
-                        </Button>
+                    <Row>   
+                        <OverlayTrigger
+                        placement="left"
+                        overlay = {
+                            <Popover>
+                            <Popover.Title as="h3" style={{color: "black"}}><strong>棄牌紐</strong></Popover.Title>
+                            <Popover.Content>
+                                選擇想要棄的牌後按此棄牌
+                            </Popover.Content>
+                            <Popover.Content>
+                            <Button varient = "outline-primary" onClick={() => {changeP2(false); changeP3(true);}}>Next</Button>
+                            </Popover.Content>
+                            </Popover>
+                        }
+                        show = {popover_2}
+                        >
+                            <Button id="ThrowCard" variant={'brown'} className={'mx-1'} onClick={() => props.onPositionClick(-1)}>
+                                <FontAwesomeIcon icon={faTrashAlt}/>
+                            </Button>
+                        </OverlayTrigger>
+                        <OverlayTrigger
+                        placement="top-end"
+                        delay={{ show: 250, hide: 400 }}
+                        overlay={
+                                    <Popover>
+                                        <Popover.Title as="h3" style={{color: "black"}}><strong>離開房間</strong></Popover.Title>
+                                        <Popover.Content>
+                                            小心喔! 按到就離開遊戲囉
+                                        </Popover.Content>
+                                        <Popover.Content>
+                                            <Button varient = "outline-primary" onClick={() => {changeP3(false); changeP4(true);}}>Next</Button>
+                                        </Popover.Content>
+                                    </Popover>
+                                }
+                        show = {popover_3}
+                    >
                         <Button variant={'outline-brown'} className={'mx-1'} href={'/games/'}>
                             <FontAwesomeIcon icon={faDoorOpen}/>
                         </Button>
+                    </OverlayTrigger>
                     </Row>
                 </Col>
             </Row>
@@ -340,6 +431,5 @@ function ActionStatus(props) {
         </Col>
     );
 }
-
 
 export default GamePlaying;
