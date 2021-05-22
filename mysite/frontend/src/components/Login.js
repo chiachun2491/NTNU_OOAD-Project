@@ -9,11 +9,20 @@ class Login extends Component {
         this.state = {
             username: "",
             password: "",
-            errors: {}
+            errors: {},
+            redirectURL: null,
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        const queryString = require('query-string');
+        const parsed = queryString.parse(this.props.location.search);
+        if ('next' in parsed) {
+            this.setState({redirectURL: parsed.next});
+        }
     }
 
 
@@ -34,7 +43,11 @@ class Login extends Component {
             localStorage.setItem('access_token', response.data.access);
             localStorage.setItem('refresh_token', response.data.refresh);
             localStorage.setItem('username', this.state.username);
-            window.location.href = '/games/';
+            if (this.state.redirectURL) {
+                window.location.href = this.state.redirectURL;
+            } else {
+                window.location.href = '/games/';
+            }
         }).catch((err) => {
             console.log(err.response);
             this.setState({

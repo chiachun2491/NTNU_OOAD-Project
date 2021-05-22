@@ -27,7 +27,7 @@ axiosInstance.interceptors.response.use(
         // Prevent infinite loops
         if (error.response.status === 401 && originalRequest.url === '/auth/token/refresh/') {
             localStorage.removeItem('username');
-            window.location.href = '/account/login/';
+            window.location.href = `/account/login/?next=${window.location.pathname}`;
             return Promise.reject(error);
         }
 
@@ -60,11 +60,11 @@ axiosInstance.interceptors.response.use(
                         });
                 } else {
                     console.log("Refresh token is expired", tokenParts.exp, now);
-                    window.location.href = '/account/login/';
+                    window.location.href = `/account/login/?next=${window.location.pathname}`;
                 }
             } else {
                 console.log("Refresh token not available.");
-                window.location.href = '/account/login/';
+                window.location.href = `/account/login/?next=${window.location.pathname}`;
             }
         }
 
