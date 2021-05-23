@@ -158,7 +158,7 @@ class GameController():
                     logging.info(f"round {self.round} end")
 
                     self.game_state = GameState.game_point
-                    return_msg = {"msg_type": "INFO", "msg": f"round {self.round} GOOD dwarfs win"}
+                    return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 好矮人獲勝"}
 
             if len(self.card_pool) > 0:
                 self.deal_card([now_play])
@@ -172,7 +172,7 @@ class GameController():
                     if i == idx:
                         self.return_msg[i] = personalize_msg
                     else:
-                        self.return_msg[i] = {"msg_type": "INFO", "msg": f"{self.now_play} peek ({r+1}, {c+1})"}
+                        self.return_msg[i] = {"msg_type": "INFO", "msg": f"{self.now_play} 用地圖牌看 ({r+1}, {c+1})"}
             else:
                 self.return_msg = [return_msg.copy() for _ in range(self.num_player)]
 
@@ -186,7 +186,7 @@ class GameController():
                 logging.info(f"round {self.round} end")
 
                 self.game_state = GameState.game_point
-                return_msg = {"msg_type": "INFO", "msg": f"round {self.round} BAD dwarfs win"}
+                return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 壞矮人獲勝"}
 
         if self.game_state == GameState.game_point:
             self.calc_point(self.winner_list, self.winner)
@@ -282,9 +282,9 @@ class GameController():
 
         for i in range(self.num_player):
             if self.round == 1:
-                self.return_msg[i]["msg"] += f"round {self.round} start"
+                self.return_msg[i]["msg"] += f"第 {self.round} 回合開始"
             else:
-                self.return_msg[i]["msg"] += f", round {self.round} start"
+                self.return_msg[i]["msg"] += f"，第 {self.round} 回合開始"
 
     def connect_to_start(self, card: Road, row: int, col: int, went: list):
         """check the road is connect to starting road or not with DFS algorithm
