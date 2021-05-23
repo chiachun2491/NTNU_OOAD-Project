@@ -13,7 +13,9 @@ const Header = (props) => {
         dynamicNav = (
             <React.Fragment>
                 <Nav className='mr-auto' activeKey={location.pathname}>
-                    <Nav.Link href='/games/'>遊戲大廳</Nav.Link>
+                    <Nav.Link href='/games/'>Lobby</Nav.Link>
+                    <Nav.Link href='/rules/'>Rules</Nav.Link>
+
                     {/*<Nav.Link href="/account/">Account</Nav.Link>*/}
                     <NavDropdown title='帳號管理' id={'account-dropdown'}>
                         <NavDropdown.Item href='/account/history/'>遊玩紀錄</NavDropdown.Item>
