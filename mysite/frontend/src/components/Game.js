@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Badge} from "react-bootstrap";
+import {Badge,  Button} from "react-bootstrap";
 import GameOrganzie from "./GameOrganzie";
 import GamePlaying from "./GamePlaying";
 import GameEnd from "./GameEnd";
@@ -158,10 +158,12 @@ class Game extends Component {
             gameComponent =
                 <GamePlaying ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData}
                              socketErrorMessage={this.state.socketErrorMessage}/>;
-            roundBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
-                回合： {this.state.roomData.game_data.round} / 3
-            </Badge>;
-            cardPoolBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
+            roundBadge = 
+                <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
+                    回合： {this.state.roomData.game_data.round} / 3
+                </Badge>;
+            cardPoolBadge = 
+            <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
                 卡池剩餘：{this.state.roomData.game_data.card_pool.length}
             </Badge>;
         } else if (this.state.roomData.status === RoomStatus.END) {
