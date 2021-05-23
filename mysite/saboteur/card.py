@@ -6,7 +6,6 @@
 # @Link   : https://github.com/DannyLeee
 # @Date   : 2021/4/16 下午11:02:05
 
-import json
 from enum import IntEnum
 
 
@@ -177,7 +176,7 @@ class Action_Legality(Card_Legality):
             legality = False
             illegal_msg = "此卡牌無法放置於桌面上"
         else:
-             # action_type = -1 if use multi repair card
+            # action_type = -1 if use multi repair card
             if action_type != -1 and action_type not in card.action_type:
                 legality = False
                 illegal_msg = "此卡牌無法修理選擇的工具"

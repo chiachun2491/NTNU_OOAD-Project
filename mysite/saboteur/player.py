@@ -6,8 +6,6 @@
 # @Link   : https://github.com/DannyLeee
 # @Date   : 2021/4/16 下午10:49:45
 
-import logging
-
 from .card import *
 from .util import *
 
@@ -65,5 +63,4 @@ class Player():
             card.connected = card.get_connection()
         if isinstance(card, Action) and action_type == -1:
             action_type = card.action_type[0]
-        logging.debug(f"{card} pos: {pos} action_type: {action_type}")
         return card, pos, action_type
