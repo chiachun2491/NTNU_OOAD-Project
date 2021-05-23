@@ -14,6 +14,7 @@ const Header = (props) => {
             <React.Fragment>
                 <Nav className="mr-auto" activeKey={location.pathname}>
                     <Nav.Link href="/games/">Lobby</Nav.Link>
+                    <Nav.Link href="/rules/">Rules</Nav.Link>
                     {/*<Nav.Link href="/account/">Account</Nav.Link>*/}
                     <NavDropdown title="Account" id={'account-dropdown'}>
                         <NavDropdown.Item href="/account/history/">History</NavDropdown.Item>
