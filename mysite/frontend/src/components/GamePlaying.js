@@ -76,7 +76,7 @@ class GamePlaying extends Component {
                     this.setState({
                         alertMessage: {
                             msg_type: 'ILLEGAL_PLAY',
-                            msg: 'Multi Action Card must select one tool to repair'
+                            msg: '高級修理工具必須選擇要修理的工具'
                         }
                     }, () => {
                         window.setTimeout(() => {
@@ -107,7 +107,7 @@ class GamePlaying extends Component {
                 this.setState({
                     alertMessage: {
                         msg_type: 'ILLEGAL_PLAY',
-                        msg: 'Must select one hand card first'
+                        msg: '必須先選擇一張牌'
                     }
                 }, () => {
                     window.setTimeout(() => {
