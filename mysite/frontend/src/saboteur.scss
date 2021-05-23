@@ -1,5 +1,7 @@
 $brown: #6F5523;
 $dark-brown: #403013;
+$road-bg: #89D4E5;
+$action-bg: #B46F50;
 
 .bg-brown {
   background-color: $brown;
@@ -128,4 +130,25 @@ $dark-brown: #403013;
   width: max-content !important;
   max-width: 100%;
   height: auto;
+}
+
+.road-card{
+  .card-header{
+    background-color: $road-bg;
+    border: 1px solid rgba($road-bg, 0.8);
+  }
+  .card, &.card {
+    border: 1px solid rgba($road-bg, 0.8);
+  }
+}
+
+.action-card{
+  .card-header{
+    background-color: $action-bg;
+    border: 1px solid rgba($action-bg, 0.8);
+    color: white;
+  }
+  .card, &.card {
+    border: 1px solid rgba($action-bg, 0.8);
+  }
 }
