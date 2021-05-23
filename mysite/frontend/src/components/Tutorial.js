@@ -1,5 +1,5 @@
 import React, {Component, useState} from "react";
-
+import update from 'react-addons-update';
 import {Container, Row, Button, Col, Image, Badge, OverlayTrigger, Popover, Alert} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
@@ -32,19 +32,18 @@ class Tutorial extends Component {
             selectHandCardNo: -1,
             selectHandCardRotate: false,
             alertMessage: null,
+            card_no:[[-1, -1, -1, -1, -1, -1 , -1, -1 , 73],
+                    [-1, -1, 19, 34, -1, -1 , -1, -1 , -1],
+                    [0,  38, 33, 23, -1, 18 , 40, 26 , 73],
+                    [-1, -1, -1, 8, 39, 13 , -1, -1 , -1],
+                    [-1, -1, -1, 28, -1, -1 , -1, -1 , 73]],
+            rotate: [[false, false, false, false, false, false , false, false , false],
+                    [false, false, false, false, false, false , false, false , false],
+                    [false, false, false, false, false, false , false, false , false],
+                    [false, false, false, false, false, false , false, false , false],
+                    [false, false, false, false, false, false , false, false , false]],
             gameData: {
-                board:{
-                        card_no:[[-1, -1, -1, -1, -1, -1 , -1, -1 , 73],
-                                [-1, -1, 19, 34, -1, -1 , -1, -1 , -1],
-                                [0,  38, 33, 23, -1, 18 , 40, 26 , 73],
-                                [-1, -1, -1, 8, 39, 13 , -1, -1 , -1],
-                                [-1, -1, -1, 28, -1, -1 , -1, -1 , 73]],
-                        rotate: [[false, false, false, false, false, false , false, false , false],
-                                [false, false, false, false, false, false , false, false , false],
-                                [false, false, false, false, false, false , false, false , false],
-                                [false, false, false, false, false, false , false, false , false],
-                                [false, false, false, false, false, false , false, false , false]]
-                }
+                return_msg: ""
             },
             player_1: {
                 id: 0,
@@ -110,24 +109,10 @@ class Tutorial extends Component {
 
     handleStepClick(order) {
         if(order < 8){
-            if(this.state.step[order] == true) {
-                return true;
-            }
+            return (this.state.step[order])
         }
         // Reset tutorial
-        else if(order == 8 && this.state.step[7] == true) {
-            this.setState(() => {
-                this.state.gameData.board.card_no[1][4] = -1;
-                this.state.gameData.board.card_no[2][7] = 26;
-                this.state.gameData.board.rotate[1][4] = false;
-                this.state.player_1.hand_cards= [9, 44, 57, 28, 32];
-                this.state.player_1.action_state = [false, false, false];
-                this.state.player_2.action_state = [false, false, true];
-                this.state.player_3.action_state = [false, false, false];
-                this.state.last_card = 36;
-                this.state.step[0] = true;
-                this.state.step[7] = false;
-            });
+        else if(order === 8 && this.state.step[7] === true) {
             return true;
         }
         return false;
@@ -148,83 +133,153 @@ class Tutorial extends Component {
                 });
             } else {
                 // Road
-                if(pos == 13 && this.state.step[0]){
-                    if(this.state.selectHandCardNo == 9 && this.state.selectHandCardRotate){
-                        this.setState(()=> {
-                            this.state.gameData.board.rotate[1][4]=true;
-                            this.state.gameData.board.card_no[1][4]= 9;
-                            this.state.player_1.hand_cards=[44, 57, 28, 32, 31];
-                            this.state.last_card = 35;
-                            this.state.step[0] = false;
-                            this.state.step[1] = true;
-                        })
+                if(pos === 13 && this.state.step[0]){
+                    if(this.state.selectHandCardNo === 9 && this.state.selectHandCardRotate){
+                        this.setState(update(this.state,{
+                            card_no:{[1]:{[4]:{$set:9}}},
+                            rotate:{[1]:{[4]:{$set: true}}},
+                            player_1:{
+                                hand_cards: {
+                                    [0]:{$set: 44},
+                                    [1]:{$set: 57},
+                                    [2]:{$set: 28},
+                                    [3]:{$set: 32},
+                                    [4]:{$set: 31}
+                                }
+                            },
+                            step:{
+                                [0]:{$set:false},
+                                [1]:{$set: true}
+                            },
+                            last_card:{$set: 35}
+                        }));
                     }
                 }
                 // rock and end
-                else if(pos == 25) {
-                    if(this.state.selectHandCardNo == 62 && this.state.step[5]) {
-                        this.setState(()=> {
-                            this.state.player_1.hand_cards=[28, 32, 31, 42, 14];
-                            this.state.gameData.board.card_no[2][7] = -1;
-                            this.state.last_card = 30;
-                            this.state.step[5] = false;
-                            this.state.step[6] = true;
-                        })
+                else if(pos === 25) {
+                    if(this.state.selectHandCardNo === 62 && this.state.step[5]) {
+                        this.setState(update(this.state,{
+                            card_no:{[2]:{[7]:{$set:-1}}},
+                            player_1:{
+                                hand_cards: {
+                                    [0]:{$set: 28},
+                                    [1]:{$set: 32},
+                                    [2]:{$set: 31},
+                                    [3]:{$set: 42},
+                                    [4]:{$set: 14}
+                                }
+                            },
+                            step:{
+                                [5]:{$set:false},
+                                [6]:{$set: true}
+                            },
+                            last_card:{$set: 30}
+                        }));
                     }
-                    else if(this.state.selectHandCardNo == 14 && this.state.step[6]) {
-                        this.setState(()=> {
-                            this.state.player_1.hand_cards=[28, 32, 31, 42, 61];
-                            this.state.gameData.board.card_no[2][7] = 14;
-                            this.state.last_card = 29;
-                            this.state.step[6] = false;
-                            this.state.step[7] = true;
-                        })
+                    else if(this.state.selectHandCardNo === 14 && this.state.step[6]) {
+                        this.setState(update(this.state,{
+                            card_no:{[2]:{[7]:{$set:14}}},
+                            player_1:{
+                                hand_cards: {
+                                    [0]:{$set: 28},
+                                    [1]:{$set: 32},
+                                    [2]:{$set: 31},
+                                    [3]:{$set: 42},
+                                    [4]:{$set: 61}
+                                }
+                            },
+                            step:{
+                                [6]:{$set:false},
+                                [7]:{$set: true}
+                            },
+                            last_card:{$set: 29}
+                        }));
                     }
                 }
                 // ban
-                else if(pos == BOARD_BASE + 2 && this.state.step[1]){
-                    if(this.state.selectHandCardNo == 44){
-                        this.setState(()=> {
-                            this.state.player_1.hand_cards=[57, 28, 32, 31, 42];
-                            this.state.player_3.action_state[0] = true;
-                            this.state.last_card = 34;
-                            this.state.step[1] = false;
-                            this.state.step[2] = true;
-                        })
+                else if(pos === BOARD_BASE + 2 && this.state.step[1]){
+                    if(this.state.selectHandCardNo === 44){
+                        this.setState(update(this.state,{
+                            player_1:{
+                                hand_cards: {
+                                    [0]:{$set: 57},
+                                    [1]:{$set: 28},
+                                    [2]:{$set: 32},
+                                    [3]:{$set: 31},
+                                    [4]:{$set: 42}
+                                }
+                            },
+                            player_3:{action_state: {[0]:{$set: true}}},
+                            step:{
+                                [1]:{$set:false},
+                                [2]:{$set: true}
+                            },
+                            last_card:{$set: 34}
+                        }));
                     }
                 }
                 // unban
-                else if(pos == BOARD_BASE + 1 && this.state.step[2]) {
-                    if(this.state.selectHandCardNo == 57) {
-                        this.setState(()=> {
-                            this.state.player_1.hand_cards=[28, 32, 31, 42, 43];
-                            this.state.player_2.action_state[2] = false;
-                            this.state.last_card = 33;
-                            this.state.step[2] = false;
-                            this.state.step[3] = true;
-                        })
+                else if(pos === BOARD_BASE + 1 && this.state.step[2]) {
+                    if(this.state.selectHandCardNo === 57) {
+                        this.setState(update(this.state,{
+                            player_1:{
+                                hand_cards: {
+                                    [0]:{$set: 28},
+                                    [1]:{$set: 32},
+                                    [2]:{$set: 31},
+                                    [3]:{$set: 42},
+                                    [4]:{$set: 43}
+                                }
+                            },
+                            player_2:{action_state: {[2]:{$set: false}}},
+                            step:{
+                                [2]:{$set:false},
+                                [3]:{$set: true}
+                            },
+                            last_card:{$set: 33}
+                        }));
                     }
                 }
                 // map
-                else if(pos == 26 && this.state.step[4]) {
-                    if(this.state.selectHandCardNo == 65) {
-                        this.setState(()=> {
-                            this.state.player_1.hand_cards=[28, 32, 31, 42, 62];
-                            this.state.last_card = 31;
-                            this.state.step[4] = false;
-                            this.state.step[5] = true;
-                        })
+                else if(pos === 26 && this.state.step[4]) {
+                    if(this.state.selectHandCardNo === 65) {
+                        this.setState(update(this.state,{
+                            player_1:{
+                                hand_cards: {
+                                    [0]:{$set: 28},
+                                    [1]:{$set: 32},
+                                    [2]:{$set: 31},
+                                    [3]:{$set: 42},
+                                    [4]:{$set: 62}
+                                }
+                            },
+                            step:{
+                                [4]:{$set:false},
+                                [5]:{$set: true}
+                            },
+                            last_card:{$set: 31}
+                        }));
                     }
                 }
                 // abandon
-                else if(pos == -1 && this.state.step[3]) {
-                    if(this.state.selectHandCardNo == 43) {
-                        this.setState(()=> {
-                            this.state.player_1.hand_cards=[28, 32, 31, 42, 65];
-                            this.state.last_card = 32;
-                            this.state.step[3] = false;
-                            this.state.step[4] = true;
-                        })
+                else if(pos === -1 && this.state.step[3]) {
+                    if(this.state.selectHandCardNo === 43) {
+                        this.setState(update(this.state,{
+                            player_1:{
+                                hand_cards: {
+                                    [0]:{$set: 28},
+                                    [1]:{$set: 32},
+                                    [2]:{$set: 31},
+                                    [3]:{$set: 42},
+                                    [4]:{$set: 65}
+                                }
+                            },
+                            step:{
+                                [3]:{$set:false},
+                                [4]:{$set: true}
+                            },
+                            last_card:{$set: 32}
+                        }));
                     }
                 }
                 // reset select card
@@ -301,13 +356,13 @@ class Tutorial extends Component {
                     <Row>
                         <Col xs={12} lg={8}>
                             {/* Deck */}
-                            {this.state.gameData.board.card_no.map((row, i) =>(
+                            {this.state.card_no.map((row, i) =>(
                                 <Row key={i} className={'d-flex justify-content-center'}>
                                     {row.map((card, j) => (
                                         <GameCard
                                         key={j}
                                         card_no={card}
-                                        isRotated={this.state.gameData.board.rotate[i][j]}
+                                        isRotated={this.state.rotate[i][j]}
                                         boardCard={true}
                                         onCardClick={() => this.handlePositionClick(i * 9 + j)}/>
                                     ))}
@@ -399,7 +454,6 @@ function OtherGamePlayer(props) {
 
 function SelfGamePlayer(props) {
     const identity = '好矮人';
-    const [ResetTu, changeTu] = useState(false)
 
     return (
         <>
