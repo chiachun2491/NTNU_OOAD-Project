@@ -1,13 +1,12 @@
-import React, {Component} from "react";
-import {Badge} from "react-bootstrap";
-import GameOrganzie from "./GameOrganzie";
-import GamePlaying from "./GamePlaying";
-import GameEnd from "./GameEnd";
-import axiosInstance from "../Api";
-import {Helmet} from 'react-helmet'
-import GameRoomError from "./GameRoomError";
+import React, { Component } from 'react';
+import { Badge } from 'react-bootstrap';
+import GameOrganzie from './GameOrganzie';
+import GamePlaying from './GamePlaying';
+import GameEnd from './GameEnd';
+import axiosInstance from '../Api';
+import GameRoomError from './GameRoomError';
 
-const wsProtocol = window.location.origin.includes("https") ? "wss://" : "ws://";
+const wsProtocol = window.location.origin.includes('https') ? 'wss://' : 'ws://';
 let wsBaseURL;
 
 if (process.env.NODE_ENV === 'production') {
@@ -19,7 +18,7 @@ if (process.env.NODE_ENV === 'production') {
 const RoomStatus = {
     ORGANIZE: 'organize',
     PLAYING: 'playing',
-    END: 'end'
+    END: 'end',
 };
 
 class Game extends Component {
@@ -36,33 +35,36 @@ class Game extends Component {
 
     componentDidMount() {
         const roomName = this.props.match.params.roomName;
-        this.setState({roomName: roomName});
+        this.setState({ roomName: roomName });
 
-        axiosInstance.get('/game/' + roomName + '/')
-            .then(response => {
+        axiosInstance
+            .get('/game/' + roomName + '/')
+            .then((response) => {
                 console.log(response.data);
-                this.setState({roomData: response.data});
+                this.setState({ roomData: response.data });
                 this.connectSocket(roomName);
-            }).catch(err => {
-            console.error(err);
-            if (err.response.status === 404) {
-                window.location.href = '/games/notFound/';
-            }
-        });
-
-    };
+            })
+            .catch((err) => {
+                console.error(err);
+                if (err.response.status === 404) {
+                    window.location.href = '/games/notFound/';
+                }
+            });
+    }
 
     timeout = 250;
 
     connectSocket(roomName) {
         // TODO: socket connect
         // check token valid first
-        axiosInstance.get('/auth/hello/')
+        axiosInstance
+            .get('/auth/hello/')
             .then((response) => {
                 console.log('obtain/refresh token successfully', response);
-            }).catch((err) => {
-            console.log(err);
-        });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
 
         const token = localStorage.getItem('access_token');
         let ws = new WebSocket(wsProtocol + wsBaseURL + '/ws/game/' + roomName + '/?token=' + token);
@@ -72,21 +74,21 @@ class Game extends Component {
         ws.onopen = () => {
             // on connecting, do nothing but log it to the console
             console.log('connected');
-            this.setState({socketErrorMessage: null});
+            this.setState({ socketErrorMessage: null });
 
-            this.setState({ws: ws});
+            this.setState({ ws: ws });
             that.timeout = 250; // reset timer to 250 on open of websocket connection
             clearTimeout(connectInterval);
 
             // ws.send(JSON.stringify({event: 'status_change', message: 'playing'}));
         };
 
-        ws.onmessage = event => {
+        ws.onmessage = (event) => {
             // listen to data sent from the websocket server
             const message = JSON.parse(event.data);
             switch (message.event) {
                 case 'room_data_updated':
-                    this.setState({roomData: message.room_data});
+                    this.setState({ roomData: message.room_data });
                     // this.setState({badgeMessage: {}});
                     break;
                 // case 'alert_message':
@@ -104,7 +106,7 @@ class Game extends Component {
         };
 
         ws.onclose = (e) => {
-            const newTimeout = Math.min(10000, (that.timeout + that.timeout));
+            const newTimeout = Math.min(10000, that.timeout + that.timeout);
             console.error(e.reason);
             this.countDownMsgSet(newTimeout);
 
@@ -113,12 +115,8 @@ class Game extends Component {
         };
 
         // websocket onerror event listener
-        ws.onerror = err => {
-            console.error(
-                "Socket encountered error: ",
-                err.message,
-                "Closing socket"
-            );
+        ws.onerror = (err) => {
+            console.error('Socket encountered error: ', err.message, 'Closing socket');
             console.error(err);
             ws.close();
         };
@@ -127,58 +125,74 @@ class Game extends Component {
     countDownMsgSet = (timeout) => {
         const close_msg = `Socket is closed. Reconnect will be attempted in ${timeout / 1000} second.`;
         console.log(close_msg);
-        this.setState({
-            socketErrorMessage: {
-                msg_type: 'ERROR',
-                msg: close_msg
+        this.setState(
+            {
+                socketErrorMessage: {
+                    msg_type: 'ERROR',
+                    msg: close_msg,
+                },
+            },
+            () => {
+                if (timeout - 1000 < 0) {
+                    this.setState({
+                        socketErrorMessage: {
+                            msg_type: 'ERROR',
+                            msg: 'Reconnecting...',
+                        },
+                    });
+                } else {
+                    window.setTimeout(() => {
+                        this.countDownMsgSet(timeout - 1000);
+                    }, 1000);
+                }
             }
-        }, () => {
-            if ((timeout - 1000) < 0) {
-                this.setState({
-                    socketErrorMessage: {
-                        msg_type: 'ERROR',
-                        msg: 'Reconnecting...'
-                    }
-                });
-            } else {
-                window.setTimeout(() => {
-                    this.countDownMsgSet(timeout - 1000);
-                }, (1000));
-            }
-        });
+        );
     };
 
     checkSocket = () => {
-        const {ws} = this.state;
+        const { ws } = this.state;
         if (!ws || ws.readyState === WebSocket.CLOSED) this.connectSocket(this.state.roomName); //checkSocket if websocket instance is closed, if so call `connect` function.
     };
 
     render() {
         try {
-            let gameComponent = <div/>;
+            let gameComponent = <div />;
             let roundBadge, cardPoolBadge;
             if (this.state.roomData.status === RoomStatus.ORGANIZE) {
-                gameComponent =
-                    <GameOrganzie ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData}/>;
+                gameComponent = (
+                    <GameOrganzie ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData} />
+                );
             } else if (this.state.roomData.status === RoomStatus.PLAYING) {
-                gameComponent =
-                    <GamePlaying ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData}
-                                 socketErrorMessage={this.state.socketErrorMessage}/>;
-                roundBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
-                    回合： {this.state.roomData.game_data.round} / 3
-                </Badge>;
-                cardPoolBadge = <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
-                    卡池剩餘：{this.state.roomData.game_data.card_pool.length}
-                </Badge>;
+                gameComponent = (
+                    <GamePlaying
+                        ws={this.state.ws}
+                        roomName={this.state.roomName}
+                        roomData={this.state.roomData}
+                        socketErrorMessage={this.state.socketErrorMessage}
+                    />
+                );
+                roundBadge = (
+                    <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
+                        回合： {this.state.roomData.game_data.round} / 3
+                    </Badge>
+                );
+                cardPoolBadge = (
+                    <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
+                        卡池剩餘：{this.state.roomData.game_data.card_pool.length}
+                    </Badge>
+                );
             } else if (this.state.roomData.status === RoomStatus.END) {
-                gameComponent =
-                    <GameEnd ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData}/>;
+                gameComponent = (
+                    <GameEnd ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData} />
+                );
             }
 
             return (
                 <>
-                    <h5 className="text-center m-0">
-                        <Badge variant={'brown'} className={'my-2'}>房間: {this.state.roomName}</Badge>
+                    <h5 className='text-center m-0'>
+                        <Badge variant={'brown'} className={'my-2'}>
+                            房間: {this.state.roomName}
+                        </Badge>
                         {roundBadge}
                         {cardPoolBadge}
                     </h5>
@@ -189,7 +203,6 @@ class Game extends Component {
             console.error(e);
             return GameRoomError;
         }
-
     }
 }
 
