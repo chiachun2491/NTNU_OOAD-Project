@@ -13,10 +13,6 @@ import GameRoomNotFound from "./components/GameRoomNotFound";
 /**
  * These are root pages
  */
-const Home = () => {
-    return <h1 className="py-3">Home</h1>;
-};
-
 function Games() {
     let {path, url} = useRouteMatch();
     return (
@@ -50,4 +46,4 @@ function Account() {
 }
 
 
-export {Home, Games, Profile, Account};
+export {Games, Profile, Account};
