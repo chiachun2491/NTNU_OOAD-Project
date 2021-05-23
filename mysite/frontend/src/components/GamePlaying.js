@@ -1,15 +1,13 @@
-import React, {Component, useState} from "react";
+import React, {Component} from "react";
 
-import {Container, Row, Button, Col, Image, Badge, OverlayTrigger, Popover} from 'react-bootstrap';
+import {Container, Row, Col, Button, Image, Badge} from 'react-bootstrap';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faHammer,
     faLightbulb,
     faShoppingCart,
     faTrashAlt,
-    faDoorOpen,
-    faWeight,
-    faTruckMonster
+    faDoorOpen
 } from "@fortawesome/free-solid-svg-icons";
 import GameCard from "../components/GameCard";
 import cart_red from "../images/status/cart_red.png";
@@ -19,7 +17,6 @@ import cart from "../images/status/cart.png";
 import lamp from "../images/status/lamp.png";
 import pick from "../images/status/pick.png";
 import { Helmet } from 'react-helmet'
-import { Next } from "react-bootstrap/esm/PageItem";
 
 const BOARD_BASE = 45;
 
@@ -41,6 +38,7 @@ class GamePlaying extends Component {
 
     componentDidMount() {
     };
+
     // TODO: card state control
 
     handleHandCardClick(cardNo) {
@@ -189,11 +187,9 @@ class GamePlaying extends Component {
                 <Container>
                     <Row>
                         <Col xs={12} lg={8}>
-                        
                             {/* Deck */}
                             {gameData.board.map((row, i) => (
                                 <Row key={i} className={'d-flex justify-content-center'}>
-                                    
                                     {row.map((card, j) => (
                                         <GameCard
                                             key={j}
@@ -203,11 +199,10 @@ class GamePlaying extends Component {
                                             onCardClick={() => this.handlePositionClick(i * 9 + j)}
                                         />
                                     ))}
-                                    
                                 </Row>
                             ))}
                         </Col>
-                        <Col xs={12} lg={4} className={'my-3'}>                            
+                        <Col xs={12} lg={4} className={'my-3'}>
                             {/* Rival name & status */}
                             <Row className="my-2">
                                 {other_players}
@@ -259,7 +254,6 @@ function OtherGamePlayer(props) {
 
 function SelfGamePlayer(props) {
     const identity = props.player.role ? '好矮人' : '壞矮人';
-
     return (
         <>
             {/* Your name & status */}
@@ -284,11 +278,9 @@ function SelfGamePlayer(props) {
                     </Row>
                 </Col>
             </Row>
-            
-            <Row className={'my-2'}>          
-                <Col xs={8} lg={12} className={'px-2'} id="HandCardPopover">
+            <Row className={'my-2'}>
+                <Col xs={8} lg={12} className={'px-2'}>
                     <Row className={'d-flex justify-content-around px-2'}>
-                        
                         {props.player.hand_cards.map((card, i) => (
                             <GameCard
                                 card_no={card.card_no}
@@ -300,7 +292,6 @@ function SelfGamePlayer(props) {
                         ))}
                     </Row>
                 </Col>
-                
                 <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center px-2 my-lg-2'}>
                     <Row>
                         <Button variant={'brown'} className={'mx-1'} onClick={() => props.onPositionClick(-1)}>
@@ -349,5 +340,6 @@ function ActionStatus(props) {
         </Col>
     );
 }
+
 
 export default GamePlaying;
