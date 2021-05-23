@@ -123,7 +123,7 @@ class Game extends Component {
     }
 
     countDownMsgSet = (timeout) => {
-        const close_msg = `Socket is closed. Reconnect will be attempted in ${timeout / 1000} second.`;
+        const close_msg = `連線已中斷，我們將在 ${timeout / 1000} 秒後重新連線`;
         console.log(close_msg);
         this.setState(
             {
@@ -137,7 +137,7 @@ class Game extends Component {
                     this.setState({
                         socketErrorMessage: {
                             msg_type: 'ERROR',
-                            msg: 'Reconnecting...',
+                            msg: '重新連線中...',
                         },
                     });
                 } else {

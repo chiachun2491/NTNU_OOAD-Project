@@ -2,9 +2,10 @@ from django.urls import path
 
 from . import views
 
-app_name = 'game'
+app_name = 'game_api'
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('room_create/', views.create, name='create'),
-    path('<str:room_name>/', views.room_view, name='room'),
+    path('room_create/', views.GameRoomCreate.as_view(), name='create'),
+    path('room_list/', views.GameRoomList.as_view(), name='list'),
+    path('history/', views.SelfGameRoomHistoryList.as_view(), name='history'),
+    path('<str:room_name>/', views.GameRoomDetail.as_view(), name='room'),
 ]
