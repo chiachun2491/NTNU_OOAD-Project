@@ -13,7 +13,7 @@ const Home = () => {
             <Col xs={'12'} md={'6'} className={'pt-3 pb-5 px-5 p-md-5'}>
                 <h1>矮人礦坑</h1>
                 <p>無需下載，直接使用瀏覽器與你的朋友一起遊玩！</p>
-                <Button variant={'brown'} href={'/games'}><FontAwesomeIcon icon={faGrinStars}/> 開始遊戲</Button>
+                <Button variant={'brown'} href={'/games/'}><FontAwesomeIcon icon={faGrinStars}/> 開始遊戲</Button>
             </Col>
         </Row>
     </>;
