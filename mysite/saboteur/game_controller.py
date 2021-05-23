@@ -6,16 +6,13 @@
 # @Link   : https://github.com/DannyLeee
 # @Date   : 2021/4/16 下午9:38:52
 
-import logging
 from pathlib import Path
-from pprint import pformat
 from random import shuffle
 
 from .player import Player
 from .card import *
 from .util import *
 
-# logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
 BASE_URL = Path(__file__).resolve().parent
 
 
@@ -110,13 +107,11 @@ class GameController():
         if self.game_state == GameState.play:
             now_play = self.player_list[self.turn % self.num_player]
             self.now_play = now_play.id
-
             card, pos, action_type = now_play.play_card(card_id, position, rotate, act_type)
             legal, illegal_msg = card.check_legality(self, now_play, pos, action_type)
             if not legal:
                 # return illegal card to player
                 self.deal_card([now_play], card)
-                logging.debug(f"{illegal_msg}\n")
                 return_msg = {"msg_type": "ILLEGAL_PLAY", "msg": illegal_msg}
                 personalize_msg = return_msg
                 self.return_msg[self.turn % self.num_player] = personalize_msg
@@ -146,19 +141,16 @@ class GameController():
                             self.connect_to_start(end_card, pos_row, pos_col, went):
                         self.board[pos_row][pos_col].card_no -= 70
 
-                logging.debug(f"gold position: {self.gold_pos}")
                 gold_row = self.gold_pos // 9
                 gold_col = self.gold_pos % 9
                 went = [[False for _ in range(9)] for _ in range(5)]
                 if self.connect_to_start(self.board[gold_row][gold_col], gold_row, gold_col, went):  # good dwarf win
-                    logging.info("GOOD dwarfs win")
                     self.winner_list = [winner for winner in self.player_list if winner.role]
                     self.winner = now_play
                     flag -= 1
-                    logging.info(f"round {self.round} end")
 
                     self.game_state = GameState.game_point
-                    return_msg = {"msg_type": "INFO", "msg": f"round {self.round} GOOD dwarfs win"}
+                    return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 好矮人獲勝"}
 
             if len(self.card_pool) > 0:
                 self.deal_card([now_play])
@@ -172,7 +164,7 @@ class GameController():
                     if i == idx:
                         self.return_msg[i] = personalize_msg
                     else:
-                        self.return_msg[i] = {"msg_type": "INFO", "msg": f"{self.now_play} peek ({r+1}, {c+1})"}
+                        self.return_msg[i] = {"msg_type": "INFO", "msg": f"{self.now_play} 用地圖牌看 ({r+1}, {c+1})"}
             else:
                 self.return_msg = [return_msg.copy() for _ in range(self.num_player)]
 
@@ -181,12 +173,9 @@ class GameController():
             self.now_play = now_play.id
 
             if flag == self.num_player:  # bad dwarf win
-                logging.info("BAD dwarfs win")
                 self.winner_list = [winner for winner in self.player_list if winner.role is False]
-                logging.info(f"round {self.round} end")
-
                 self.game_state = GameState.game_point
-                return_msg = {"msg_type": "INFO", "msg": f"round {self.round} BAD dwarfs win"}
+                return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 壞矮人獲勝"}
 
         if self.game_state == GameState.game_point:
             self.calc_point(self.winner_list, self.winner)
@@ -226,7 +215,6 @@ class GameController():
         num_bad_rule = [None, None, None, 1, 1, 2, 2, 3, 3, 3, 4]  # bad dwarve num by rule
         role_list = []
         num_bad = num_bad_rule[self.num_player]
-
         role_list = [False] * num_bad
         role_list += [True] * (self.num_player + 1 - num_bad)
         return role_list
@@ -260,7 +248,6 @@ class GameController():
         """
         self.game_state = GameState.reset
         self.round += 1
-        logging.info(f"round {self.round} start")
         if self.round == 1:
             self.gold_stack = []
             self.gold_stack += [1 for _ in range(16)]
@@ -282,9 +269,9 @@ class GameController():
 
         for i in range(self.num_player):
             if self.round == 1:
-                self.return_msg[i]["msg"] += f"round {self.round} start"
+                self.return_msg[i]["msg"] += f"第 {self.round} 回合開始"
             else:
-                self.return_msg[i]["msg"] += f", round {self.round} start"
+                self.return_msg[i]["msg"] += f"，第 {self.round} 回合開始"
 
     def connect_to_start(self, card: Road, row: int, col: int, went: list):
         """check the road is connect to starting road or not with DFS algorithm
@@ -377,7 +364,6 @@ class GameController():
                 idx += 1
         else:
             point_rule = [None, 4, 3, 3, 2]  # bad dwarf point by rule
-
             for player in range(num_winner):
                 point = point_rule[num_winner]
                 winner_list[player].point += point
@@ -387,42 +373,3 @@ class GameController():
                         if point - self.gold_stack[idx] >= 0:
                             point -= self.gold_stack.pop(idx)
                         idx += 1
-
-    # for debug
-    def visualization(self):
-        for row in range(5):
-            print([self.board[row][col].card_no for col in range(9)])
-        print()
-
-    # for debug
-    def view_player(self, player_list):
-        for i, player in enumerate(player_list):
-            hand_cards = []
-            for c in player.hand_cards:
-                hand_cards += [c.card_no]
-            logging.debug(
-                f"{player.id} point: {player.point}\trole: {player.role}\thand cards: {hand_cards} {len(hand_cards)}\tstate: {player.action_state}")
-            if len(set(hand_cards)) != len(hand_cards):
-                logging.debug("fuck")
-
-
-
-if __name__ == '__main__':
-    # from json
-    with open("test.json") as fp:
-        obj = json.load(fp)
-    gc = GameController(**obj)
-    # gc.round_reset()
-
-    # from id list
-    # gc = GameController.from_scratch(["asdf", "qwer", "zxcv"])
-    # logging.info(pformat(gc.to_dict()))
-
-    while True:
-        gc.view_player(gc.player_list)
-        gc.visualization()
-        logging.info(f"player {gc.now_play}'s turn:")
-        a, b, c, d = input("id pos rotate action_type\n").split()
-        gc.state_control(int(a), int(b), int(c), int(d))  # play multi-repair action card
-        
-

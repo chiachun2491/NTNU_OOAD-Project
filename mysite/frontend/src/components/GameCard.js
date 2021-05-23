@@ -1,5 +1,5 @@
-import React from "react";
-import {Col, Image} from 'react-bootstrap';
+import React from 'react';
+import { Col, Image } from 'react-bootstrap';
 
 import card_ban1 from '../images/card/card_ban1.png';
 import card_ban2 from '../images/card/card_ban2.png';
@@ -33,7 +33,6 @@ import card_road17 from '../images/card/card_road17.png';
 import card_road18 from '../images/card/card_road18.png';
 import card_back from '../images/card/card_back.png';
 import card_empty from '../images/card/card_empty.png';
-
 
 // card number define:
 //     road: 0 ~ 43
@@ -215,7 +214,7 @@ function GameCard(props) {
     const rotated = props.isRotated ? ' card-rotate' : '';
     return (
         <Col className={'p-0 cursor-pointer' + boardCard + selected + rotated} onClick={props.onCardClick}>
-            <Image src={src} fluid/>
+            <Image src={src} fluid />
         </Col>
     );
 }
