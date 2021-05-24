@@ -9,7 +9,9 @@ const Home = () => {
         <>
             <Row className={'d-flex align-items-center'}>
                 <Col xs={'12'} md={'6'} className={'p-3 p-md-5 d-flex justify-content-center'}>
-                    <Image src={demo} alt='Demo' fluid={true} />
+                    <figure>
+                        <Image src={demo} alt='Demo' fluid={true} />
+                    </figure>
                 </Col>
                 <Col xs={'12'} md={'6'} className={'pt-3 pb-5 px-5 p-md-5'}>
                     <h1>矮人礦坑</h1>
