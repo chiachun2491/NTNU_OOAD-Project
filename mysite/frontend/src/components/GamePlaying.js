@@ -343,3 +343,4 @@ function ActionStatus(props) {
 
 
 export default GamePlaying;
+export {ActionStatus, OtherGamePlayer};
