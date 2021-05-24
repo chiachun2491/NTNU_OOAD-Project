@@ -55,33 +55,103 @@ class Tutorial extends GamePlaying {
                 },
             },
             last_card: 36,
-            step: [true, false, false, false, false, false, false, false],
+            step: [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+            step_no : [9, 13, 44, 57, 43, 65, 26, 62, 25, 14, 25],
         };
-
+        
+        this.handleHandCardClick = this.handleHandCardClick.bind(this);
         this.handlePositionClick = this.handlePositionClick.bind(this);
         this.handleStepClick = this.handleStepClick.bind(this);
+        this.handleBadgeClick = this.handleBadgeClick.bind(this);
     }
 
-    handleStepClick(order) {
-        if (order < 8) {
-            return this.state.step[order];
-        }
-        // Reset tutorial
-        else if (order === 8 && this.state.step[7] === true) {
+    handleHandCardClick(cardNo) {
+        if (cardNo !== this.state.selectHandCardNo) {
+            // change select card and reset rotate
+            this.setState({
+                selectHandCardNo: cardNo,
+                selectHandCardRotate: false
+            });
+        } else {
+            if (this.cardCanRotate(cardNo)) {
+                this.setState({
+                    selectHandCardRotate: !this.state.selectHandCardRotate
+                });
+            }
             let newState = this.state;
+            if(cardNo === 9 && this.state.step[0]) {
+                newState.step[0] = false;
+                newState.step[1] = true;
+                this.setState({newState});
+            }
+            else if(cardNo === 44 && this.state.step[2]) {
+                newState.step[2] = false;
+                newState.step[3] = true;
+                this.setState({newState});
+            }
+            else if(cardNo === 57 && this.state.step[4]) {
+                newState.step[4] = false;
+                newState.step[5] = true;
+                this.setState({newState});
+            }
+            else if(cardNo === 43 && this.state.step[6]) {
+                newState.step[6] = false;
+                newState.step[7] = true;
+                this.setState({newState});
+            }
+            else if(cardNo === 65 && this.state.step[8]) {
+                newState.step[8] = false;
+                newState.step[9] = true;
+                this.setState({newState});
+            }
+            else if(cardNo === 62 && this.state.step[10]) {
+                newState.step[10] = false;
+                newState.step[11] = true;
+                this.setState({newState});
+            }
+            else if(cardNo === 14 && this.state.step[12]) {
+                newState.step[12] = false;
+                newState.step[13] = true;
+                this.setState({newState});
+            }
+        }
+    }
+
+    handleStepClick(order, cardNo, order_no) {
+        if(order < 14){
+            return (this.state.step[order] && this.state.step_no[order_no] === cardNo)
+        }
+        else if(order === 14 || order === 15 || order === 16) {
+            return (this.state.step[order])
+        }
+        return false;
+    }
+
+    handleBadgeClick(order) {
+        let newState = this.state;
+        if(order === 1 && this.state.step[14]) {
+            newState.step[14] = false;
+            newState.step[15] = true;
+            this.setState({newState});
+        }
+        else if(order === 2 && this.state.step[15]) {
+            newState.step[15] = false;
+            newState.step[16] = true;
+            this.setState({newState});
+        }
+        else if(order === 3 && this.state.step[16]) {
             newState.card_no[1][4] = -1;
             newState.rotate[1][4] = false;
             newState.card_no[2][7] = 26;
+            newState.card_no[2][8] = 73;
             newState.player_1.hand_cards = [9, 44, 57, 28, 32];
             newState.player_2.action_state[2] = true;
             newState.player_3.action_state[0] = false;
             newState.step[0] = true;
-            newState.step[7] = false;
+            newState.step[16] = false;
             newState.last_card = 36;
             this.setState(newState);
-            return true;
         }
-        return false;
     }
 
     handlePositionClick(pos, action = -1) {
@@ -103,73 +173,75 @@ class Tutorial extends GamePlaying {
             } else {
                 let newState = this.state;
                 // Road
-                if (pos === 13 && this.state.step[0]) {
-                    if (this.state.selectHandCardNo === 9 && this.state.selectHandCardRotate) {
+                if(pos === 13 && this.state.selectHandCardRotate) {
+                    if(this.state.selectHandCardNo == 9 && this.state.step[1]) {
                         newState.card_no[1][4] = 9;
                         newState.rotate[1][4] = true;
                         newState.player_1.hand_cards = [44, 57, 28, 32, 31];
-                        newState.step[0] = false;
-                        newState.step[1] = true;
                         newState.last_card = 35;
+                        newState.step[1] = false;
+                        newState.step[2] = true;
                         this.setState(newState);
                     }
                 }
                 // rock and end
-                else if (pos === 25) {
-                    if (this.state.selectHandCardNo === 62 && this.state.step[5]) {
+                else if(pos === 25) {
+                    if(this.state.selectHandCardNo === 62 && this.state.step[11]) {
                         newState.card_no[2][7] = -1;
                         newState.player_1.hand_cards = [28, 32, 31, 42, 14];
-                        newState.step[5] = false;
-                        newState.step[6] = true;
+                        newState.step[11] = false;
+                        newState.step[12] = true;
                         newState.last_card = 30;
                         this.setState(newState);
-                    } else if (this.state.selectHandCardNo === 14 && this.state.step[6]) {
+                    }
+                    else if(this.state.selectHandCardNo === 14 && this.state.step[13]) {
                         newState.card_no[2][7] = 14;
+                        newState.card_no[2][8] = 1;
                         newState.player_1.hand_cards = [28, 32, 31, 42, 61];
-                        newState.step[6] = false;
-                        newState.step[7] = true;
+                        newState.step[13] = false;
+                        newState.step[14] = true;
                         newState.last_card = 29;
                         this.setState(newState);
                     }
                 }
                 // ban
-                else if (pos === BOARD_BASE + 2 && this.state.step[1]) {
-                    if (this.state.selectHandCardNo === 44) {
+                else if(pos === BOARD_BASE + 2 && this.state.step[3]){
+                    if(this.state.selectHandCardNo === 44){
                         newState.player_1.hand_cards = [57, 28, 32, 31, 42];
-                        newState.step[1] = false;
-                        newState.step[2] = true;
+                        newState.step[3] = false;
+                        newState.step[4] = true;
                         newState.last_card = 34;
                         newState.player_3.action_state[0] = true;
                         this.setState(newState);
                     }
                 }
                 // unban
-                else if (pos === BOARD_BASE + 1 && this.state.step[2]) {
-                    if (this.state.selectHandCardNo === 57) {
+                else if(pos === BOARD_BASE + 1 && this.state.step[5]) {
+                    if(this.state.selectHandCardNo === 57) {
                         newState.player_1.hand_cards = [28, 32, 31, 42, 43];
-                        newState.step[2] = false;
-                        newState.step[3] = true;
+                        newState.step[5] = false;
+                        newState.step[6] = true;
                         newState.last_card = 33;
                         newState.player_2.action_state[2] = false;
                         this.setState(newState);
                     }
                 }
                 // map
-                else if (pos === 26 && this.state.step[4]) {
-                    if (this.state.selectHandCardNo === 65) {
+                else if(pos === 26 && this.state.step[9]) {
+                    if(this.state.selectHandCardNo === 65) {
                         newState.player_1.hand_cards = [28, 32, 31, 42, 62];
-                        newState.step[4] = false;
-                        newState.step[5] = true;
+                        newState.step[9] = false;
+                        newState.step[10] = true;
                         newState.last_card = 31;
                         this.setState(newState);
                     }
                 }
                 // abandon
-                else if (pos === -1 && this.state.step[3]) {
-                    if (this.state.selectHandCardNo === 43) {
-                        newState.player_1.hand_cards = [28, 32, 31, 42, 65];
-                        newState.step[3] = false;
-                        newState.step[4] = true;
+                else if(pos === -1 && this.state.step[7]) {
+                    if(this.state.selectHandCardNo === 43) {
+                        newState.player_1.hand_cards = [28, 32, 31, 42, 65]
+                        newState.step[7] = false;
+                        newState.step[8] = true;
                         newState.last_card = 32;
                         this.setState(newState);
                     }
@@ -230,7 +302,7 @@ class Tutorial extends GamePlaying {
             }
         }
 
-        if (this.state.step[5]) {
+        if (this.state.step[10]) {
             msg = 'is Gold !';
         }
 
@@ -240,12 +312,42 @@ class Tutorial extends GamePlaying {
                     <Badge variant={'brown'} className={'my-2'}>
                         房間: {`新手教學`}
                     </Badge>
+                    <OverlayTrigger
+                        placement="bottom-start"
+                        overlay = {
+                            <Popover>
+                                <Popover.Content>
+                                    <strong>一場遊戲共會持續3回合</strong>
+                                </Popover.Content>
+                                <Badge>
+                                <Button variant="outline-brown" size="sm" onClick={() => this.handleBadgeClick(1)}>下一步</Button>
+                                </Badge>
+                            </Popover>
+                        }
+                        show = {this.handleStepClick(14, 1, 1)}
+                    >
                     <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
                         回合： 3 / 3
                     </Badge>
+                    </OverlayTrigger>
+                    <OverlayTrigger
+                        placement="bottom-start"
+                        overlay = {
+                            <Popover>
+                                <Popover.Content>
+                                    <strong>當卡池與玩家的手牌都歸零時還未找到黃金就是壞矮人贏了</strong>
+                                </Popover.Content>
+                                <Badge>
+                                <Button variant="outline-brown" size="sm" onClick={() => this.handleBadgeClick(2)}>下一步</Button>
+                                </Badge>
+                            </Popover>
+                        }
+                        show = {this.handleStepClick(15, 1, 1)}
+                    >
                     <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
                         卡池剩餘：{this.state.last_card}
                     </Badge>
+                    </OverlayTrigger>
                 </h5>
                 <Helmet>
                     <title>{`新手教學`}</title>
@@ -260,6 +362,50 @@ class Tutorial extends GamePlaying {
                             {this.state.card_no.map((row, i) => (
                                 <Row key={i} className={'d-flex justify-content-center'}>
                                     {row.map((card, j) => (
+                                        <OverlayTrigger
+                                            placement="top"
+                                            overlay = {
+                                                <Popover >
+                                                    <Popover.Content>
+                                                        <strong>放在這吧</strong>
+                                                    </Popover.Content>
+                                                </Popover>
+                                            }
+                                            show = {this.handleStepClick(1, (i*9+j), 1)}
+                                        >
+                                        <OverlayTrigger
+                                            placement="top"
+                                            overlay = {
+                                                <Popover >
+                                                    <Popover.Content>
+                                                        <strong>查看這張牌吧</strong>
+                                                    </Popover.Content>
+                                                </Popover>
+                                            }
+                                            show = {this.handleStepClick(9, (i*9+j), 6)}
+                                        >
+                                        <OverlayTrigger
+                                            placement="top"
+                                            overlay = {
+                                                <Popover >
+                                                    <Popover.Content>
+                                                        <strong>用石頭破壞這張牌吧</strong>
+                                                    </Popover.Content>
+                                                </Popover>
+                                            }
+                                            show = {this.handleStepClick(11, (i*9+j), 8)}
+                                        >
+                                        <OverlayTrigger
+                                            placement="top"
+                                            overlay = {
+                                                <Popover >
+                                                    <Popover.Content>
+                                                        <strong>放在這裡就贏了 !</strong>
+                                                    </Popover.Content>
+                                                </Popover>
+                                            }
+                                            show = {this.handleStepClick(13, (i*9+j), 10)}
+                                        >
                                         <GameCard
                                             key={j}
                                             card_no={card}
@@ -267,6 +413,10 @@ class Tutorial extends GamePlaying {
                                             boardCard={true}
                                             onCardClick={() => this.handlePositionClick(i * 9 + j)}
                                         />
+                                        </OverlayTrigger>
+                                        </OverlayTrigger>
+                                        </OverlayTrigger>
+                                        </OverlayTrigger>
                                     ))}
                                 </Row>
                             ))}
@@ -275,16 +425,16 @@ class Tutorial extends GamePlaying {
                             {/* Rival name & status */}
                             <Row className='my-2'>
                                 <OverlayTrigger
-                                    placement='top'
-                                    overlay={
-                                        <Popover>
-                                            <Popover.Title as='h3' style={{ color: 'black' }}>
-                                                <strong>自己的手牌</strong>
-                                            </Popover.Title>
-                                            <Popover.Content>試試用第一張牌修復玩家1的工具吧</Popover.Content>
+                                    placement="top"
+                                    overlay = {
+                                        <Popover >
+                                            <Popover.Content>
+                                                點擊這裡修復玩家1的工具吧，修復的工具為指定的喔
+                                            </Popover.Content>
                                         </Popover>
                                     }
-                                    show={this.state.step[2]}>
+                                    show = {this.state.step[5]}
+                                >
                                     <OtherGamePlayer
                                         player={this.state.player_2}
                                         onPositionClick={this.handlePositionClick}
@@ -293,18 +443,16 @@ class Tutorial extends GamePlaying {
                                     />
                                 </OverlayTrigger>
                                 <OverlayTrigger
-                                    placement='top'
-                                    overlay={
-                                        <Popover>
-                                            <Popover.Title as='h3' style={{ color: 'black' }}>
-                                                <strong>使用功能牌</strong>
-                                            </Popover.Title>
+                                    placement="top"
+                                    overlay = {
+                                        <Popover >
                                             <Popover.Content>
-                                                功能牌再點選後點擊玩家即可使用，試試用第一張牌破壞玩家2的工具吧
+                                                點擊這裡破壞玩家2的工具吧，被破壞的工具會呈現紅色
                                             </Popover.Content>
                                         </Popover>
                                     }
-                                    show={this.state.step[1]}>
+                                    show = {this.state.step[3]}
+                                >
                                     <OtherGamePlayer
                                         player={this.state.player_3}
                                         onPositionClick={this.handlePositionClick}
@@ -322,6 +470,7 @@ class Tutorial extends GamePlaying {
                                 onHandCardClick={this.handleHandCardClick}
                                 onPositionClick={this.handlePositionClick}
                                 onStepClick={this.handleStepClick}
+                                onBadgeClick={this.handleBadgeClick}
                             />
                         </Col>
                     </Row>
@@ -365,115 +514,156 @@ function SelfGamePlayer(props) {
             </Row>
             <Row className={'my-2'}>
                 <Col xs={8} lg={12} className={'px-2'} id='HandCardPopover'>
-                    <OverlayTrigger
-                        placement='top'
-                        overlay={
-                            <Popover>
-                                <Popover.Title as='h3' style={{ color: 'black' }}>
-                                    <strong>自己的手牌</strong>
-                                </Popover.Title>
-                                <Popover.Content>
-                                    道路牌點選兩次可旋轉，試試把第一張牌旋轉後放到適合的位置吧
-                                    <strong>提示: 第2排</strong>
-                                </Popover.Content>
-                            </Popover>
-                        }
-                        show={props.onStepClick(0)}>
-                        <OverlayTrigger
-                            placement='top'
-                            overlay={
-                                <Popover>
-                                    <Popover.Title as='h3' style={{ color: 'black' }}>
-                                        <strong>自己的手牌</strong>
-                                    </Popover.Title>
-                                    <Popover.Content>
-                                        地圖牌在點選後可以選擇窺探終點牌，試試窺探中間的終點牌吧
-                                    </Popover.Content>
-                                </Popover>
-                            }
-                            show={props.onStepClick(4)}>
+                    <Row className={'d-flex justify-content-around px-2'}>
+                        {props.player.hand_cards.map((card, i) => (
                             <OverlayTrigger
-                                placement='top'
-                                overlay={
-                                    <Popover>
-                                        <Popover.Title as='h3' style={{ color: 'black' }}>
+                                placement="top"
+                                overlay = {
+                                    <Popover >
+                                        <Popover.Title as="h3" style={{color: "black"}}>
                                             <strong>自己的手牌</strong>
                                         </Popover.Title>
                                         <Popover.Content>
-                                            是黃金的話，我們需要破壞阻擋的路，試試用石頭破壞終點前一張的道路吧
+                                            道路牌點選兩次可旋轉，試試把第一張牌旋轉後放到適合的位置吧
                                         </Popover.Content>
                                     </Popover>
                                 }
-                                show={props.onStepClick(5)}>
-                                <OverlayTrigger
-                                    placement='top'
-                                    overlay={
-                                        <Popover>
-                                            <Popover.Title as='h3' style={{ color: 'black' }}>
-                                                <strong>自己的手牌</strong>
-                                            </Popover.Title>
-                                            <Popover.Content>
-                                                看來我們有機會迎向終點了，試試用最後一張道路牌連通到黃金吧
-                                            </Popover.Content>
-                                        </Popover>
-                                    }
-                                    show={props.onStepClick(6)}>
-                                    <Row className={'d-flex justify-content-around px-2'}>
-                                        {props.player.hand_cards.map((card, i) => (
-                                            <GameCard
-                                                card_no={card}
-                                                isSelected={props.selectHandCardNo === card}
-                                                isRotated={
-                                                    props.selectHandCardNo === card ? props.selectHandCardRotate : false
-                                                }
-                                                key={i}
-                                                onCardClick={() => props.onHandCardClick(card)}
-                                            />
-                                        ))}
-                                    </Row>
-                                </OverlayTrigger>
+                                show = {props.onStepClick(0, card, 0)}
+                            >
+                            <OverlayTrigger
+                                placement="top"
+                                overlay = {
+                                    <Popover >
+                                        <Popover.Title as="h3" style={{color: "black"}}>
+                                            <strong>使用功能牌1</strong>
+                                        </Popover.Title>
+                                        <Popover.Content>
+                                            功能牌再點選後點擊玩家即可使用，試試破壞玩家的工具吧
+                                        </Popover.Content>
+                                    </Popover>
+                                }
+                                show = {props.onStepClick(2, card, 2)}
+                            >
+                            <OverlayTrigger
+                                placement="top"
+                                overlay = {
+                                    <Popover >
+                                        <Popover.Title as="h3" style={{color: "black"}}>
+                                            <strong>使用功能牌2</strong>
+                                        </Popover.Title>
+                                        <Popover.Content>
+                                            工具可以被破壞也可以被修復，試試修復玩家的工具吧
+                                        </Popover.Content>
+                                    </Popover>
+                                }
+                                show = {props.onStepClick(4, card, 3)}
+                            >
+                            <OverlayTrigger
+                                placement="top-end"
+                                overlay = {
+                                    <Popover >
+                                        <Popover.Title as="h3" style={{color: "black"}}>
+                                            <strong>棄牌</strong>
+                                        </Popover.Title>
+                                        <Popover.Content>
+                                            當沒有可以用的卡牌時就要棄牌，試試丟棄最後一張卡吧
+                                        </Popover.Content>
+                                    </Popover>
+                                }
+                                show = {props.onStepClick(6, card, 4)}
+                            >
+                            <OverlayTrigger
+                                placement="top-end"
+                                overlay = {
+                                    <Popover >
+                                        <Popover.Title as="h3" style={{color: "black"}}>
+                                            <strong>地圖牌</strong>
+                                        </Popover.Title>
+                                        <Popover.Content>
+                                            地圖牌在點選後可以選擇窺探終點牌，試試窺探中間的終點牌吧
+                                        </Popover.Content>
+                                    </Popover>
+                                }
+                                show = {props.onStepClick(8, card, 5)}
+                             >
+                            <OverlayTrigger
+                                placement="top-end"
+                                overlay = {
+                                    <Popover >
+                                        <Popover.Title as="h3" style={{color: "black"}}>
+                                            <strong>使用功能牌3</strong>
+                                        </Popover.Title>
+                                        <Popover.Content>
+                                            既然黃金的話，我們需要破壞阻擋的路，用石頭破壞終點前一張的道路吧
+                                        </Popover.Content>
+                                    </Popover>
+                                }
+                                show = {props.onStepClick(10, card, 7)}
+                            >
+                            <OverlayTrigger
+                                placement="top-end"
+                                overlay = {
+                                    <Popover >
+                                        <Popover.Title as="h3" style={{color: "black"}}>
+                                            <strong>抵達終點</strong>
+                                        </Popover.Title>
+                                        <Popover.Content>
+                                            看來我們有機會迎向終點了，試試用最後一張道路牌連通到黃金吧
+                                        </Popover.Content>
+                                    </Popover>
+                                }
+                                show = {props.onStepClick(12, card, 9)}
+                            >
+                            <GameCard
+                                card_no={card}
+                                isSelected={props.selectHandCardNo === card}
+                                isRotated={
+                                    props.selectHandCardNo === card ? props.selectHandCardRotate : false
+                                }
+                                key={i}
+                                onCardClick={() => props.onHandCardClick(card)}
+                            />
                             </OverlayTrigger>
-                        </OverlayTrigger>
-                    </OverlayTrigger>
+                            </OverlayTrigger>
+                            </OverlayTrigger>
+                            </OverlayTrigger>
+                            </OverlayTrigger>
+                            </OverlayTrigger>
+                            </OverlayTrigger>
+                        ))}
+                    </Row>
                 </Col>
                 <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center px-2 my-lg-2'}>
                     <Row>
                         <OverlayTrigger
-                            placement='top'
-                            overlay={
-                                <Popover>
-                                    <Popover.Title as='h3' style={{ color: 'black' }}>
-                                        <strong>棄牌紐</strong>
-                                    </Popover.Title>
+                            placement="top"
+                            overlay = {
+                                <Popover >
                                     <Popover.Content>
-                                        當沒有可以用的卡牌時就要棄牌，試試丟棄最後一張卡吧
+                                        點選這裡棄牌
                                     </Popover.Content>
                                 </Popover>
                             }
-                            show={props.onStepClick(3)}>
+                            show = {props.onStepClick(7, 43, 4)}
+                        >
                             <Button variant={'brown'} className={'mx-1'} onClick={() => props.onPositionClick(-1)}>
                                 <FontAwesomeIcon icon={faTrashAlt} />
                             </Button>
                         </OverlayTrigger>
                         <OverlayTrigger
-                            placement='top'
-                            overlay={
-                                <Popover>
+                            placement="top"
+                            overlay = {
+                                <Popover >
                                     <Popover.Content>
-                                        <p>導覽結束，點擊離開房間去進行一場遊戲吧</p>
-                                        <div className={'d-flex'}>
-                                            <Button
-                                                variant='outline-brown'
-                                                size={'sm'}
-                                                className={'ml-auto'}
-                                                onClick={() => props.onStepClick(8)}>
-                                                再看一次
-                                            </Button>
-                                        </div>
+                                        導覽結束，點擊離開房間去進行一場遊戲吧
                                     </Popover.Content>
+                                    <Badge>
+                                    <Button variant="outline-brown" onClick = {() => props.onBadgeClick(3)}>再看一次</Button>
+                                    </Badge>
                                 </Popover>
                             }
-                            show={props.onStepClick(7)}>
+                            show = {props.onStepClick(16, 1, 1)}
+                        >
                             <Button variant={'outline-brown'} className={'mx-1'} href={'/games/'}>
                                 <FontAwesomeIcon icon={faDoorOpen} />
                             </Button>
