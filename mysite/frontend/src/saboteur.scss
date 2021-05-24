@@ -1,125 +1,160 @@
-$brown: #6F5523;
+$brown: #6f5523;
 $dark-brown: #403013;
+$road-bg: #89d4e5;
+$action-bg: #b46f50;
 
 .bg-brown {
-  background-color: $brown;
+    background-color: $brown;
 
-  span .navbar-toggler-icon {
-    color: white;
-  }
+    span .navbar-toggler-icon {
+        color: white;
+    }
 }
-
 
 .btn-brown {
-  color: white;
-  background-color: $brown;
-  border-color: $brown;
-
-  &:active ,&:focus ,&:hover {
-    color: white;
-    background-color: $dark-brown;
-    border-color: $dark-brown;
-  }
-
-  &:focus {
-    box-shadow: 0 0 0 0.2rem rgba($dark-brown , 50%);
-  }
-}
-
-.btn-outline-brown {
-  color: $brown;
-  background-color: transparent;
-  border-color: $brown;
-
-  &:active ,&:focus ,&:hover {
     color: white;
     background-color: $brown;
     border-color: $brown;
-  }
 
-  &:focus {
-    box-shadow: 0 0 0 0.2rem rgba($brown , 50%);
-  }
+    &:active,
+    &:focus,
+    &:hover {
+        color: white;
+        background-color: $dark-brown;
+        border-color: $dark-brown;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 0.2rem rgba($dark-brown, 50%);
+    }
+}
+
+.btn-outline-brown {
+    color: $brown;
+    background-color: transparent;
+    border-color: $brown;
+
+    &:active,
+    &:focus,
+    &:hover {
+        color: white;
+        background-color: $brown;
+        border-color: $brown;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 0.2rem rgba($brown, 50%);
+    }
 }
 
 .badge-brown {
-  color: white;
-  background-color: $brown;
+    color: white;
+    background-color: $brown;
 }
 
 .badge-outline-brown {
-  color: $brown;
-  background-color: white;
-  border: 1px solid $brown;
+    color: $brown;
+    background-color: white;
+    border: 1px solid $brown;
 }
 
 .btn-round {
-  border-radius: 20px;
+    border-radius: 20px;
 }
 
 .boardCard {
-  flex: 0 0 10.5%;
-  max-width: 10.5%;
-  margin: 1px;
+    flex: 0 0 10.5%;
+    max-width: 10.5%;
+    margin: 1px;
 }
 
 .otherPlayerHandCard {
-  width: 15px;
-  height: 24px;
-  border-radius: 2px;
-  background-color: #6DA9E7;
-  border: 1px;
-  border-color: black;
-  margin: 0 auto;
+    width: 15px;
+    height: 24px;
+    border-radius: 2px;
+    background-color: #6da9e7;
+    border: 1px;
+    border-color: black;
+    margin: 0 auto;
 }
 
 .selfPlayerHandCard {
-  margin: 1px;
-  border: 2px white solid;
-  flex: 0 0 15.5%;
-  max-width: 15.5%;
+    margin: 1px;
+    border: 2px white solid;
+    flex: 0 0 15.5%;
+    max-width: 15.5%;
 }
 
 .nametag {
-  background-color: $dark-brown;
-  color: white;
-  width: 100px;
-  height: 25px;
-  margin: 5px;
-  border-radius:10px;
-  text-align: center;
+    background-color: $dark-brown;
+    color: white;
+    width: 100px;
+    height: 25px;
+    margin: 5px;
+    border-radius: 10px;
+    text-align: center;
 }
 
 .tool {
-  color: lightgray;
+    color: lightgray;
 }
 
 .broken {
-  color: red;
+    color: red;
 }
 
 .selected {
-  border: 2px $brown solid;
+    border: 2px $brown solid;
 }
 
 .card-rotate {
-  transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 
 .cursor-pointer {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .badge-block {
-  width: 100%;
+    width: 100%;
 }
 
 .text-brown {
-  color: $brown !important;;
+    color: $brown !important;
 }
 
-.dropdown-item.active, .dropdown-item:active {
-  background-color: $brown;
-  color: white;
-  text-decoration: none;
+.dropdown-item.active,
+.dropdown-item:active {
+    background-color: $brown;
+    color: white;
+    text-decoration: none;
+}
+
+.icon-fluid {
+    width: max-content !important;
+    max-width: 100%;
+    height: auto;
+}
+
+.road-card {
+    .card-header {
+        background-color: $road-bg;
+        border: 1px solid rgba($road-bg, 0.8);
+    }
+    .card,
+    &.card {
+        border: 1px solid rgba($road-bg, 0.8);
+    }
+}
+
+.action-card {
+    .card-header {
+        background-color: $action-bg;
+        border: 1px solid rgba($action-bg, 0.8);
+        color: white;
+    }
+    .card,
+    &.card {
+        border: 1px solid rgba($action-bg, 0.8);
+    }
 }

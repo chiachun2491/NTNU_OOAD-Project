@@ -1,4 +1,3 @@
-from asgiref.sync import sync_to_async
 from channels.auth import AuthMiddlewareStack
 from channels.db import database_sync_to_async
 from channels.middleware import BaseMiddleware

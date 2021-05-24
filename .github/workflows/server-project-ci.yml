@@ -44,6 +44,6 @@ jobs:
           port: ${{ secrets.REMOTE_PORT }}
           script: |
             cd ${{ secrets.REMOTE_TARGET }}
-            docker-compose -f docker-compose.yml -f docker-compose.ci.yml build
+            docker-compose -f docker-compose.yml -f docker-compose.ci.yml build --no-cache
             docker-compose -f docker-compose.yml -f docker-compose.ci.yml up -d
             

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 let APIbaseURL;
 
@@ -12,27 +12,33 @@ const axiosInstance = axios.create({
     baseURL: APIbaseURL,
     timeout: 5000,
     headers: {
-        'Authorization': "JWT " + localStorage.getItem('access_token'),
+        Authorization: 'JWT ' + localStorage.getItem('access_token'),
         'Content-Type': 'application/json',
-        'accept': 'application/json'
-    }
+        accept: 'application/json',
+    },
 });
 
 axiosInstance.interceptors.response.use(
-    response => response,
-    error => {
+    (response) => response,
+    (error) => {
         const originalRequest = error.config;
 
-        console.log(error);
+        console.error(error);
+        // handle network error first
+        if (error.message === 'Network Error') {
+            if (window.location.pathname !== '/networkError/') {
+                window.location.href = `/networkError/?next=${window.location.pathname}`;
+            }
+            return Promise.reject(error);
+        }
         // Prevent infinite loops
         if (error.response.status === 401 && originalRequest.url === '/auth/token/refresh/') {
             localStorage.removeItem('username');
-            window.location.href = '/account/login/';
+            window.location.href = `/account/login/?next=${window.location.pathname}`;
             return Promise.reject(error);
         }
 
-        if (error.response.data.code === "token_not_valid" &&
-            error.response.status === 401) {
+        if (error.response.data.code === 'token_not_valid' && error.response.status === 401) {
             const refreshToken = localStorage.getItem('refresh_token');
 
             if (refreshToken) {
@@ -44,35 +50,32 @@ axiosInstance.interceptors.response.use(
 
                 if (tokenParts.exp > now) {
                     return axiosInstance
-                        .post('/auth/token/refresh/', {refresh: refreshToken})
+                        .post('/auth/token/refresh/', { refresh: refreshToken })
                         .then((response) => {
-
                             localStorage.setItem('access_token', response.data.access);
                             localStorage.setItem('refresh_token', response.data.refresh);
 
-                            axiosInstance.defaults.headers['Authorization'] = "JWT " + response.data.access;
-                            originalRequest.headers['Authorization'] = "JWT " + response.data.access;
+                            axiosInstance.defaults.headers['Authorization'] = 'JWT ' + response.data.access;
+                            originalRequest.headers['Authorization'] = 'JWT ' + response.data.access;
 
                             return axiosInstance(originalRequest);
                         })
-                        .catch(err => {
-                            console.log(err)
+                        .catch((err) => {
+                            console.error(err);
                         });
                 } else {
-                    console.log("Refresh token is expired", tokenParts.exp, now);
-                    window.location.href = '/account/login/';
+                    console.error('Refresh token is expired', tokenParts.exp, now);
+                    window.location.href = `/account/login/?next=${window.location.pathname}`;
                 }
             } else {
-                console.log("Refresh token not available.");
-                window.location.href = '/account/login/';
+                console.error('Refresh token not available.');
+                window.location.href = `/account/login/?next=${window.location.pathname}`;
             }
         }
-
 
         // specific error handling done elsewhere
         return Promise.reject(error);
     }
 );
-
 
 export default axiosInstance;

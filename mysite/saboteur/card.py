@@ -6,11 +6,10 @@
 # @Link   : https://github.com/DannyLeee
 # @Date   : 2021/4/16 下午11:02:05
 
-import json
 from enum import IntEnum
 
 
-class Card_Activate():
+class CardActivate():
     """abstract class of strategy pattern"""
 
     def activate(self, card, gc, pos: int, action_type: int) -> dict:
@@ -29,57 +28,57 @@ class Card_Activate():
         pass
 
 
-class Dig(Card_Activate):
+class Dig(CardActivate):
     """class of strategy pattern for Road activate"""
 
     def activate(self, card, gc, pos: int, action_type: int) -> dict:
         r = pos // 9
         c = pos % 9
         gc.board[r][c] = card
-        return {"msg_type": "INFO", "msg": f"{gc.now_play} dig ({r+1}, {c+1})"}
+        return {"msg_type": "INFO", "msg": f"{gc.now_play} 放置道路在 ({r + 1}, {c + 1})"}
 
 
-class Influence(Card_Activate):
+class Influence(CardActivate):
     """class of strategy pattern for Action activate"""
 
     def activate(self, card, gc, pos: int, action_type: int) -> dict:
         pos -= 45
         Influenced = gc.player_list[pos]
         gc.set_player_state([Influenced], card, action_type)
-        is_break = "break" if card.is_break else "repair"
-        tools = ["miner lamp", "minecart", "mine pick"]
+        is_break = "破壞" if card.is_break else "修理"
+        tools = ["礦燈", "礦車", "礦鎬"]
         action_type = tools[action_type]
-        return_msg = {"msg_type": "INFO",  "msg": f"{gc.now_play} {is_break} {Influenced.id}'s {action_type}"}
+        return_msg = {"msg_type": "INFO", "msg": f"{gc.now_play} {is_break}了 {Influenced.id} 的{action_type}"}
         return return_msg
 
 
-class Destroy(Card_Activate):
+class Destroy(CardActivate):
     """class of strategy pattern for Rocks activate"""
 
     def activate(self, card, gc, pos: int, action_type: int) -> dict:
         r = pos // 9
         c = pos % 9
         gc.board[r][c] = Road(-1)
-        return_msg = {"msg_type": "INFO",  "msg": f"{gc.now_play} destroy ({r+1}, {c+1})"}
+        return_msg = {"msg_type": "INFO", "msg": f"{gc.now_play} 使用落石摧毀 ({r + 1}, {c + 1})"}
         return return_msg
 
 
-class Peek(Card_Activate):
+class Peek(CardActivate):
     """class of strategy pattern for Map activate"""
 
     def activate(self, card, gc, pos: int, action_type: int) -> dict:
         r = pos // 9
         c = pos % 9
-        msg = f"({r+1}, {c+1}) "
-        msg += "is gold" if gc.board[r][c].card_no == 71 else "not gold"
+        msg = f"({r + 1}, {c + 1}) "
+        msg += "金礦" if gc.board[r][c].card_no == 71 else "不是金礦"
         return_msg = {"msg_type": "PEEK", "msg": msg}  # pass msg to player
         return return_msg
 
 
-class Card_Legality():
+class CardLegality():
     """abstract class of strategy pattern"""
-    
-    def check_legality(self, gc, player, card, pos: int, action_type: int) -> "tuple[bool, str]":
+
+    def check_legality(self, gc, player, card, pos: int, action_type: int) -> (bool, str):
         """abstract method of strategy pattern
 
         check the player behavior is legality or not
@@ -98,10 +97,10 @@ class Card_Legality():
         pass
 
 
-class Road_Legality(Card_Legality):
+class RoadLegality(CardLegality):
     """class of strategy pattern for Road legality check"""
-    
-    def check_legality(self, gc, player, card, pos: int, action_type: int) -> "tuple[bool, str]":
+
+    def check_legality(self, gc, player, card, pos: int, action_type: int) -> (bool, str):
         legality = True
         illegal_msg = ""
         if pos <= 44:
@@ -109,21 +108,21 @@ class Road_Legality(Card_Legality):
             c = pos % 9
             if sum(player.action_state):
                 legality = False
-                illegal_msg = "some tool are broken can't dig road"
+                illegal_msg = "由於某些工具被破壞 無法放置道路"
             elif gc.board[r][c].card_no != -1:
                 legality = False
-                illegal_msg = "the position have road already"
+                illegal_msg = "此處已有道路"
             elif self.connect_to_rock(gc, card, r, c):
                 legality = False
-                illegal_msg = "road can't connect to rock"
+                illegal_msg = "道路不能連接至岩壁"
             else:
                 # check road is connect to start or not
                 went = [[False for _ in range(9)] for _ in range(5)]
                 legality = gc.connect_to_start(card, r, c, went)
-                illegal_msg = "the position does not connect to start road"
+                illegal_msg = "此處並無法連通至起始道路"
         else:
             legality = False
-            illegal_msg = "the card can't play to player"
+            illegal_msg = "此卡牌無法對玩家使用"
         return legality, illegal_msg
 
     def connect_to_rock(self, gc, card, row: int, col: int) -> int:
@@ -167,31 +166,34 @@ class Road_Legality(Card_Legality):
         return is_connect
 
 
-class Action_Legality(Card_Legality):
+class ActionLegality(CardLegality):
     """class of strategy pattern for Action legality check"""
 
-    def check_legality(self, gc, player, card, pos: int, action_type: int) -> "tuple[bool, str]":
+    def check_legality(self, gc, player, card, pos: int, action_type: int) -> (bool, str):
         legality = True
         illegal_msg = ""
         if pos <= 44:
             legality = False
-            illegal_msg = "the card can't play on card board"
+            illegal_msg = "此卡牌無法放置於桌面上"
         else:
-             # action_type = -1 if use multi repair card
+            # action_type = -1 if use multi repair card
             if action_type != -1 and action_type not in card.action_type:
                 legality = False
-                illegal_msg = "the card can't repair selected tool"
+                illegal_msg = "此卡牌無法修理選擇的工具"
             else:
                 pos -= 45
                 legality = gc.player_list[pos].action_state[action_type] ^ card.is_break
-                illegal_msg = "" if legality else "the player's tool are already broken/repaired"
+                is_break = "破壞" if card.is_break else "修理"
+                tools = ["礦燈", "礦車", "礦鎬"]
+                action_type = tools[action_type]
+                illegal_msg = "" if legality else f"此玩家的 {action_type} 已被{is_break}"
         return legality, illegal_msg
 
 
-class Rocks_Legality(Card_Legality):
+class RocksLegality(CardLegality):
     """class of strategy pattern for Rocks legality check"""
 
-    def check_legality(self, gc, player, card, pos: int, action_type: int) -> "tuple[bool, str]":
+    def check_legality(self, gc, player, card, pos: int, action_type: int) -> (bool, str):
         legality = True
         illegal_msg = ""
         if pos <= 44:
@@ -199,31 +201,31 @@ class Rocks_Legality(Card_Legality):
             c = pos % 9
             if gc.board[r][c].road_type != RoadType.normal:
                 legality = False
-                illegal_msg = "rock card can't destroy start/end road"
+                illegal_msg = "落石無法摧毀起始/終點道路"
             elif gc.board[r][c].card_no == -1:
                 legality = False
-                illegal_msg = "rock card can't destroy empty position"
+                illegal_msg = "落石無法摧毀沒有道路的位置"
         else:
             legality = False
-            illegal_msg = "the card can't play to player"
+            illegal_msg = "此卡牌無法對玩家使用"
         return legality, illegal_msg
 
 
-class Map_Legality(Card_Legality):
+class MapLegality(CardLegality):
     """class of strategy pattern for Map legality check"""
 
-    def check_legality(self, gc, player, card, pos: int, action_type: int) -> "tuple[bool, str]":
+    def check_legality(self, gc, player, card, pos: int, action_type: int) -> (bool, str):
         legality = True
         illegal_msg = ""
         if pos <= 44:
             r = pos // 9
             c = pos % 9
             if gc.board[r][c].road_type != RoadType.end:
-                    legality = False
-                    illegal_msg = "map card can't peek non end road"
+                legality = False
+                illegal_msg = "地圖卡不可使用於非終點道路"
         else:
             legality = False
-            illegal_msg = "the card can't play to player"
+            illegal_msg = "此卡牌無法對玩家使用"
         return legality, illegal_msg
 
 
@@ -265,7 +267,7 @@ class Card():
     """
 
     # -1 as empty card place
-    def __init__(self, card_no=-1, active_func: Card_Activate=None, legality_func: Card_Legality=None):
+    def __init__(self, card_no=-1, active_func: CardActivate = None, legality_func: CardLegality = None):
         self.card_no = card_no
         self.active_func = active_func
         self.legality_func = legality_func
@@ -296,16 +298,16 @@ class Card():
         return_msg = None
         if pos == -1:
             gc.fold_deck += [self]
-            return_msg = {"msg_type": "INFO", "msg": f"{gc.now_play} throw a card away"}
+            return_msg = {"msg_type": "INFO", "msg": f"{gc.now_play} 棄牌"}
         else:
             return_msg = self.active_func.activate(self, gc, pos, action_type)
         return return_msg
 
-    def check_legality(self, gc, player, pos, action_type) -> "tuple[bool, str]":
+    def check_legality(self, gc, player, pos, action_type) -> (bool, str):
         legality = True
         return_msg = ""
         if pos == -1:
-            pass # do nothing
+            pass  # do nothing
         else:
             legality, return_msg = self.legality_func.check_legality(gc, player, self, pos, action_type)
         return legality, return_msg
@@ -321,8 +323,8 @@ class RoadType(IntEnum):
 class Road(Card):
 
     def __init__(self, card_no=-1, rotate: int = 0, road_type: RoadType = RoadType.normal,
-                 active_func: Card_Activate = Dig(),
-                 legality_func: Card_Legality = Road_Legality()):
+                 active_func: CardActivate = Dig(),
+                 legality_func: CardLegality = RoadLegality()):
         """road card
 
         connected: list of connection (middle, top, right, down, left) 0 for not connect (List)
@@ -401,8 +403,8 @@ class Action(Card):
     """action card"""
 
     def __init__(self, card_no=-1, action_type=None, is_break=None,
-                 active_func: Card_Activate = Influence(),
-                 legality_func: Card_Legality = Action_Legality()):
+                 active_func: CardActivate = Influence(),
+                 legality_func: CardLegality = ActionLegality()):
         super().__init__(card_no=card_no, active_func=active_func, legality_func=legality_func)
         if action_type is None:
             self.action_type = self.get_action()
@@ -447,14 +449,14 @@ class Action(Card):
 class Rocks(Card):
     """the card can destroy normal road"""
 
-    def __init__(self, card_no=-1, active_func: Card_Activate = Destroy(),
-                 legality_func: Card_Legality = Rocks_Legality()):
+    def __init__(self, card_no=-1, active_func: CardActivate = Destroy(),
+                 legality_func: CardLegality = RocksLegality()):
         super().__init__(card_no=card_no, active_func=active_func, legality_func=legality_func)
 
 
 class Map(Card):
     """the card can peek gold(end road)"""
 
-    def __init__(self, card_no=-1, active_func: Card_Activate = Peek(),
-                 legality_func: Card_Legality = Map_Legality()):
+    def __init__(self, card_no=-1, active_func: CardActivate = Peek(),
+                 legality_func: CardLegality = MapLegality()):
         super().__init__(card_no=card_no, active_func=active_func, legality_func=legality_func)

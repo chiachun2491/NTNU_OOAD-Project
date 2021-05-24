@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {BrowserRouter, Switch} from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
 import './saboteur.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet';
 
 const baseTitle = '矮人礦坑';
 
@@ -16,9 +16,7 @@ ReactDOM.render(
             <Helmet>
                 <title>{baseTitle}</title>
             </Helmet>
-            <Switch>
-                <App/>
-            </Switch>
+            <App />
         </BrowserRouter>
     </React.StrictMode>,
     document.getElementById('root')
