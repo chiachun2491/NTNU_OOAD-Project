@@ -55,7 +55,7 @@ class Tutorial extends GamePlaying {
                 },
             },
             last_card: 36,
-            step: [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
+            step: [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false],
             step_no : [9, 13, 44, 57, 43, 65, 26, 62, 25, 14, 25],
         };
         
@@ -79,49 +79,49 @@ class Tutorial extends GamePlaying {
                 });
             }
             let newState = this.state;
-            if(cardNo === 9 && this.state.step[0]) {
-                newState.step[0] = false;
-                newState.step[1] = true;
+            if(cardNo === 9 && this.state.step[1]) {
+                newState.step[1] = false;
+                newState.step[2] = true;
                 this.setState({newState});
             }
-            else if(cardNo === 44 && this.state.step[2]) {
-                newState.step[2] = false;
-                newState.step[3] = true;
+            else if(cardNo === 44 && this.state.step[3]) {
+                newState.step[3] = false;
+                newState.step[4] = true;
                 this.setState({newState});
             }
-            else if(cardNo === 57 && this.state.step[4]) {
-                newState.step[4] = false;
-                newState.step[5] = true;
+            else if(cardNo === 57 && this.state.step[5]) {
+                newState.step[5] = false;
+                newState.step[6] = true;
                 this.setState({newState});
             }
-            else if(cardNo === 43 && this.state.step[6]) {
-                newState.step[6] = false;
-                newState.step[7] = true;
+            else if(cardNo === 43 && this.state.step[7]) {
+                newState.step[7] = false;
+                newState.step[8] = true;
                 this.setState({newState});
             }
-            else if(cardNo === 65 && this.state.step[8]) {
-                newState.step[8] = false;
-                newState.step[9] = true;
+            else if(cardNo === 65 && this.state.step[9]) {
+                newState.step[9] = false;
+                newState.step[10] = true;
                 this.setState({newState});
             }
-            else if(cardNo === 62 && this.state.step[10]) {
-                newState.step[10] = false;
-                newState.step[11] = true;
+            else if(cardNo === 62 && this.state.step[11]) {
+                newState.step[11] = false;
+                newState.step[12] = true;
                 this.setState({newState});
             }
-            else if(cardNo === 14 && this.state.step[12]) {
-                newState.step[12] = false;
-                newState.step[13] = true;
+            else if(cardNo === 14 && this.state.step[13]) {
+                newState.step[13] = false;
+                newState.step[14] = true;
                 this.setState({newState});
             }
         }
     }
 
     handleStepClick(order, cardNo, order_no) {
-        if(order < 14){
+        if(order < 15){
             return (this.state.step[order] && this.state.step_no[order_no] === cardNo)
         }
-        else if(order === 14 || order === 15 || order === 16) {
+        else if(order >= 15 && order <= 17) {
             return (this.state.step[order])
         }
         return false;
@@ -129,17 +129,22 @@ class Tutorial extends GamePlaying {
 
     handleBadgeClick(order) {
         let newState = this.state;
-        if(order === 1 && this.state.step[14]) {
-            newState.step[14] = false;
-            newState.step[15] = true;
+        if(order === 0 && this.state.step[0]) {
+            newState.step[0] = false;
+            newState.step[1] = true;
             this.setState({newState});
         }
-        else if(order === 2 && this.state.step[15]) {
+        else if(order === 1 && this.state.step[15]) {
             newState.step[15] = false;
             newState.step[16] = true;
             this.setState({newState});
         }
-        else if(order === 3 && this.state.step[16]) {
+        else if(order === 2 && this.state.step[16]) {
+            newState.step[16] = false;
+            newState.step[17] = true;
+            this.setState({newState});
+        }
+        else if(order === 3 && this.state.step[17]) {
             newState.card_no[1][4] = -1;
             newState.rotate[1][4] = false;
             newState.card_no[2][7] = 26;
@@ -148,7 +153,7 @@ class Tutorial extends GamePlaying {
             newState.player_2.action_state[2] = true;
             newState.player_3.action_state[0] = false;
             newState.step[0] = true;
-            newState.step[16] = false;
+            newState.step[17] = false;
             newState.last_card = 36;
             this.setState(newState);
         }
@@ -174,74 +179,74 @@ class Tutorial extends GamePlaying {
                 let newState = this.state;
                 // Road
                 if(pos === 13 && this.state.selectHandCardRotate) {
-                    if(this.state.selectHandCardNo == 9 && this.state.step[1]) {
+                    if(this.state.selectHandCardNo == 9 && this.state.step[2]) {
                         newState.card_no[1][4] = 9;
                         newState.rotate[1][4] = true;
                         newState.player_1.hand_cards = [44, 57, 28, 32, 31];
                         newState.last_card = 35;
-                        newState.step[1] = false;
-                        newState.step[2] = true;
+                        newState.step[2] = false;
+                        newState.step[3] = true;
                         this.setState(newState);
                     }
                 }
                 // rock and end
                 else if(pos === 25) {
-                    if(this.state.selectHandCardNo === 62 && this.state.step[11]) {
+                    if(this.state.selectHandCardNo === 62 && this.state.step[12]) {
                         newState.card_no[2][7] = -1;
                         newState.player_1.hand_cards = [28, 32, 31, 42, 14];
-                        newState.step[11] = false;
-                        newState.step[12] = true;
+                        newState.step[12] = false;
+                        newState.step[13] = true;
                         newState.last_card = 30;
                         this.setState(newState);
                     }
-                    else if(this.state.selectHandCardNo === 14 && this.state.step[13]) {
+                    else if(this.state.selectHandCardNo === 14 && this.state.step[14]) {
                         newState.card_no[2][7] = 14;
                         newState.card_no[2][8] = 1;
                         newState.player_1.hand_cards = [28, 32, 31, 42, 61];
-                        newState.step[13] = false;
-                        newState.step[14] = true;
+                        newState.step[14] = false;
+                        newState.step[15] = true;
                         newState.last_card = 29;
                         this.setState(newState);
                     }
                 }
                 // ban
-                else if(pos === BOARD_BASE + 2 && this.state.step[3]){
+                else if(pos === BOARD_BASE + 2 && this.state.step[4]){
                     if(this.state.selectHandCardNo === 44){
                         newState.player_1.hand_cards = [57, 28, 32, 31, 42];
-                        newState.step[3] = false;
-                        newState.step[4] = true;
+                        newState.step[4] = false;
+                        newState.step[5] = true;
                         newState.last_card = 34;
                         newState.player_3.action_state[0] = true;
                         this.setState(newState);
                     }
                 }
                 // unban
-                else if(pos === BOARD_BASE + 1 && this.state.step[5]) {
+                else if(pos === BOARD_BASE + 1 && this.state.step[6]) {
                     if(this.state.selectHandCardNo === 57) {
                         newState.player_1.hand_cards = [28, 32, 31, 42, 43];
-                        newState.step[5] = false;
-                        newState.step[6] = true;
+                        newState.step[6] = false;
+                        newState.step[7] = true;
                         newState.last_card = 33;
                         newState.player_2.action_state[2] = false;
                         this.setState(newState);
                     }
                 }
                 // map
-                else if(pos === 26 && this.state.step[9]) {
+                else if(pos === 26 && this.state.step[10]) {
                     if(this.state.selectHandCardNo === 65) {
                         newState.player_1.hand_cards = [28, 32, 31, 42, 62];
-                        newState.step[9] = false;
-                        newState.step[10] = true;
+                        newState.step[10] = false;
+                        newState.step[11] = true;
                         newState.last_card = 31;
                         this.setState(newState);
                     }
                 }
                 // abandon
-                else if(pos === -1 && this.state.step[7]) {
+                else if(pos === -1 && this.state.step[8]) {
                     if(this.state.selectHandCardNo === 43) {
                         newState.player_1.hand_cards = [28, 32, 31, 42, 65]
-                        newState.step[7] = false;
-                        newState.step[8] = true;
+                        newState.step[8] = false;
+                        newState.step[9] = true;
                         newState.last_card = 32;
                         this.setState(newState);
                     }
@@ -302,7 +307,7 @@ class Tutorial extends GamePlaying {
             }
         }
 
-        if (this.state.step[10]) {
+        if (this.state.step[11]) {
             msg = 'is Gold !';
         }
 
@@ -324,7 +329,7 @@ class Tutorial extends GamePlaying {
                                 </Badge>
                             </Popover>
                         }
-                        show = {this.handleStepClick(14, 1, 1)}
+                        show = {this.handleStepClick(15, 1, 1)}
                     >
                     <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
                         回合： 3 / 3
@@ -342,7 +347,7 @@ class Tutorial extends GamePlaying {
                                 </Badge>
                             </Popover>
                         }
-                        show = {this.handleStepClick(15, 1, 1)}
+                        show = {this.handleStepClick(16, 1, 1)}
                     >
                     <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
                         卡池剩餘：{this.state.last_card}
@@ -371,7 +376,7 @@ class Tutorial extends GamePlaying {
                                                     </Popover.Content>
                                                 </Popover>
                                             }
-                                            show = {this.handleStepClick(1, (i*9+j), 1)}
+                                            show = {this.handleStepClick(2, (i*9+j), 1)}
                                         >
                                         <OverlayTrigger
                                             placement="top"
@@ -382,7 +387,7 @@ class Tutorial extends GamePlaying {
                                                     </Popover.Content>
                                                 </Popover>
                                             }
-                                            show = {this.handleStepClick(9, (i*9+j), 6)}
+                                            show = {this.handleStepClick(10, (i*9+j), 6)}
                                         >
                                         <OverlayTrigger
                                             placement="top"
@@ -393,7 +398,7 @@ class Tutorial extends GamePlaying {
                                                     </Popover.Content>
                                                 </Popover>
                                             }
-                                            show = {this.handleStepClick(11, (i*9+j), 8)}
+                                            show = {this.handleStepClick(12, (i*9+j), 8)}
                                         >
                                         <OverlayTrigger
                                             placement="top"
@@ -404,7 +409,7 @@ class Tutorial extends GamePlaying {
                                                     </Popover.Content>
                                                 </Popover>
                                             }
-                                            show = {this.handleStepClick(13, (i*9+j), 10)}
+                                            show = {this.handleStepClick(14, (i*9+j), 10)}
                                         >
                                         <GameCard
                                             key={j}
@@ -433,7 +438,7 @@ class Tutorial extends GamePlaying {
                                             </Popover.Content>
                                         </Popover>
                                     }
-                                    show = {this.state.step[5]}
+                                    show = {this.state.step[6]}
                                 >
                                     <OtherGamePlayer
                                         player={this.state.player_2}
@@ -451,7 +456,7 @@ class Tutorial extends GamePlaying {
                                             </Popover.Content>
                                         </Popover>
                                     }
-                                    show = {this.state.step[3]}
+                                    show = {this.state.step[4]}
                                 >
                                     <OtherGamePlayer
                                         player={this.state.player_3}
@@ -461,6 +466,23 @@ class Tutorial extends GamePlaying {
                                     />
                                 </OverlayTrigger>
                             </Row>
+                            <OverlayTrigger
+                                placement="top"
+                                overlay = {
+                                    <Popover>
+                                        <Popover.Content>
+                                            <strong>玩家陣營 好矮人 v.s 壞矮人</strong>
+                                        </Popover.Content>
+                                        <Popover.Content>
+                                            你是好矮人，目的是將道路連線到終點牌的金塊
+                                        </Popover.Content>
+                                        <Badge>
+                                        <Button variant="outline-brown" size="sm" onClick={() => this.handleBadgeClick(0)}>開始</Button>
+                                        </Badge>
+                                    </Popover>
+                                }
+                                show = {this.state.step[0]}
+                            >
                             <SelfGamePlayer
                                 player={this.state.player_1}
                                 playerID={this.state.player_1.id}
@@ -472,6 +494,7 @@ class Tutorial extends GamePlaying {
                                 onStepClick={this.handleStepClick}
                                 onBadgeClick={this.handleBadgeClick}
                             />
+                            </OverlayTrigger>
                         </Col>
                     </Row>
                 </Container>
@@ -528,7 +551,7 @@ function SelfGamePlayer(props) {
                                         </Popover.Content>
                                     </Popover>
                                 }
-                                show = {props.onStepClick(0, card, 0)}
+                                show = {props.onStepClick(1, card, 0)}
                             >
                             <OverlayTrigger
                                 placement="top"
@@ -542,7 +565,7 @@ function SelfGamePlayer(props) {
                                         </Popover.Content>
                                     </Popover>
                                 }
-                                show = {props.onStepClick(2, card, 2)}
+                                show = {props.onStepClick(3, card, 2)}
                             >
                             <OverlayTrigger
                                 placement="top"
@@ -556,7 +579,7 @@ function SelfGamePlayer(props) {
                                         </Popover.Content>
                                     </Popover>
                                 }
-                                show = {props.onStepClick(4, card, 3)}
+                                show = {props.onStepClick(5, card, 3)}
                             >
                             <OverlayTrigger
                                 placement="top-end"
@@ -570,7 +593,7 @@ function SelfGamePlayer(props) {
                                         </Popover.Content>
                                     </Popover>
                                 }
-                                show = {props.onStepClick(6, card, 4)}
+                                show = {props.onStepClick(7, card, 4)}
                             >
                             <OverlayTrigger
                                 placement="top-end"
@@ -584,7 +607,7 @@ function SelfGamePlayer(props) {
                                         </Popover.Content>
                                     </Popover>
                                 }
-                                show = {props.onStepClick(8, card, 5)}
+                                show = {props.onStepClick(9, card, 5)}
                              >
                             <OverlayTrigger
                                 placement="top-end"
@@ -598,7 +621,7 @@ function SelfGamePlayer(props) {
                                         </Popover.Content>
                                     </Popover>
                                 }
-                                show = {props.onStepClick(10, card, 7)}
+                                show = {props.onStepClick(11, card, 7)}
                             >
                             <OverlayTrigger
                                 placement="top-end"
@@ -612,7 +635,7 @@ function SelfGamePlayer(props) {
                                         </Popover.Content>
                                     </Popover>
                                 }
-                                show = {props.onStepClick(12, card, 9)}
+                                show = {props.onStepClick(13, card, 9)}
                             >
                             <GameCard
                                 card_no={card}
@@ -644,7 +667,7 @@ function SelfGamePlayer(props) {
                                     </Popover.Content>
                                 </Popover>
                             }
-                            show = {props.onStepClick(7, 43, 4)}
+                            show = {props.onStepClick(8, 43, 4)}
                         >
                             <Button variant={'brown'} className={'mx-1'} onClick={() => props.onPositionClick(-1)}>
                                 <FontAwesomeIcon icon={faTrashAlt} />
@@ -662,7 +685,7 @@ function SelfGamePlayer(props) {
                                     </Badge>
                                 </Popover>
                             }
-                            show = {props.onStepClick(16, 1, 1)}
+                            show = {props.onStepClick(17, 1, 1)}
                         >
                             <Button variant={'outline-brown'} className={'mx-1'} href={'/games/'}>
                                 <FontAwesomeIcon icon={faDoorOpen} />
