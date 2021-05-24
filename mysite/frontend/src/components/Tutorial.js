@@ -9,7 +9,6 @@ import GamePlaying, { ActionStatus, OtherGamePlayer } from './GamePlaying';
 const BOARD_BASE = 45;
 
 class Tutorial extends GamePlaying {
-
     constructor(props) {
         super(props);
 
@@ -17,42 +16,46 @@ class Tutorial extends GamePlaying {
             selectHandCardNo: -1,
             selectHandCardRotate: false,
             alertMessage: null,
-            card_no: [[-1, -1, -1, -1, -1, -1, -1, -1, 73],
+            card_no: [
+                [-1, -1, -1, -1, -1, -1, -1, -1, 73],
                 [-1, -1, 19, 34, -1, -1, -1, -1, -1],
                 [0, 38, 33, 23, -1, 18, 40, 26, 73],
                 [-1, -1, -1, 8, 39, 13, -1, -1, -1],
-                [-1, -1, -1, 28, -1, -1, -1, -1, 73]],
-            rotate: [[false, false, false, false, false, false, false, false, false],
+                [-1, -1, -1, 28, -1, -1, -1, -1, 73],
+            ],
+            rotate: [
                 [false, false, false, false, false, false, false, false, false],
                 [false, false, false, false, false, false, false, false, false],
                 [false, false, false, false, false, false, false, false, false],
-                [false, false, false, false, false, false, false, false, false]],
+                [false, false, false, false, false, false, false, false, false],
+                [false, false, false, false, false, false, false, false, false],
+            ],
             gameData: {
-                return_msg: ''
+                return_msg: '',
             },
             player_1: {
                 id: 0,
                 hand_cards: [9, 44, 57, 28, 32],
-                action_state: [false, false, false]
+                action_state: [false, false, false],
             },
             player_2: {
                 id: '玩家1',
                 action_state: [false, false, true],
                 nowPlaying: false,
                 hand_cards: {
-                    length: 5
-                }
+                    length: 5,
+                },
             },
             player_3: {
                 id: '玩家2',
                 action_state: [false, false, false],
                 nowPlaying: false,
                 hand_cards: {
-                    length: 5
-                }
+                    length: 5,
+                },
             },
             last_card: 36,
-            step: [true, false, false, false, false, false, false, false]
+            step: [true, false, false, false, false, false, false, false],
         };
 
         this.handlePositionClick = this.handlePositionClick.bind(this);
@@ -61,7 +64,7 @@ class Tutorial extends GamePlaying {
 
     handleStepClick(order) {
         if (order < 8) {
-            return (this.state.step[order]);
+            return this.state.step[order];
         }
         // Reset tutorial
         else if (order === 8 && this.state.step[7] === true) {
@@ -83,17 +86,20 @@ class Tutorial extends GamePlaying {
 
     handlePositionClick(pos, action = -1) {
         if (this.state.selectHandCardNo !== -1) {
-            if (this.cardIsMulti(this.state.selectHandCardNo) && (action === -1) && (pos >= BOARD_BASE)) {
-                this.setState({
-                    alertMessage: {
-                        msg_type: 'ILLEGAL_PLAY',
-                        msg: 'Multi Action Card must select one tool to repair'
+            if (this.cardIsMulti(this.state.selectHandCardNo) && action === -1 && pos >= BOARD_BASE) {
+                this.setState(
+                    {
+                        alertMessage: {
+                            msg_type: 'ILLEGAL_PLAY',
+                            msg: 'Multi Action Card must select one tool to repair',
+                        },
+                    },
+                    () => {
+                        window.setTimeout(() => {
+                            this.setState({ alertMessage: null });
+                        }, 2000);
                     }
-                }, () => {
-                    window.setTimeout(() => {
-                        this.setState({ alertMessage: null });
-                    }, 2000);
-                });
+                );
             } else {
                 let newState = this.state;
                 // Road
@@ -171,27 +177,30 @@ class Tutorial extends GamePlaying {
                 // reset select card
                 this.setState({
                     selectHandCardNo: -1,
-                    selectHandCardRotate: false
+                    selectHandCardRotate: false,
                 });
             }
         } else {
-            this.setState({
-                alertMessage: {
-                    msg_type: 'ILLEGAL_PLAY',
-                    msg: 'Must select one hand card first'
+            this.setState(
+                {
+                    alertMessage: {
+                        msg_type: 'ILLEGAL_PLAY',
+                        msg: 'Must select one hand card first',
+                    },
+                },
+                () => {
+                    window.setTimeout(() => {
+                        this.setState({ alertMessage: null });
+                    }, 2000);
                 }
-            }, () => {
-                window.setTimeout(() => {
-                    this.setState({ alertMessage: null });
-                }, 2000);
-            });
+            );
         }
     }
 
     render() {
-
         // set alert message
-        let alertMessage, msg = '　';
+        let alertMessage,
+            msg = '　';
         if (this.props.socketErrorMessage !== null) {
             alertMessage = this.props.socketErrorMessage;
         } else if (this.state.alertMessage !== null) {
@@ -227,9 +236,13 @@ class Tutorial extends GamePlaying {
 
         return (
             <>
-                <h5 className="text-center m-0">
-                    <Badge variant={'brown'} className={'my-2'}>房間: {`新手教學`}</Badge>
-                    <Badge variant={'outline-brown'} className={'ml-2 my-2'}>回合： 3 / 3</Badge>
+                <h5 className='text-center m-0'>
+                    <Badge variant={'brown'} className={'my-2'}>
+                        房間: {`新手教學`}
+                    </Badge>
+                    <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
+                        回合： 3 / 3
+                    </Badge>
                     <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
                         卡池剩餘：{this.state.last_card}
                     </Badge>
@@ -237,7 +250,9 @@ class Tutorial extends GamePlaying {
                 <Helmet>
                     <title>{`遊玩導覽`}</title>
                 </Helmet>
-                <Badge className={'my-2 badge-block'} variant={variant}>{msg}</Badge>
+                <Badge className={'my-2 badge-block'} variant={variant}>
+                    {msg}
+                </Badge>
                 <Container>
                     <Row>
                         <Col xs={12} lg={8}>
@@ -250,28 +265,26 @@ class Tutorial extends GamePlaying {
                                             card_no={card}
                                             isRotated={this.state.rotate[i][j]}
                                             boardCard={true}
-                                            onCardClick={() => this.handlePositionClick(i * 9 + j)}/>
+                                            onCardClick={() => this.handlePositionClick(i * 9 + j)}
+                                        />
                                     ))}
                                 </Row>
                             ))}
                         </Col>
                         <Col xs={12} lg={4} className={'my-3'}>
                             {/* Rival name & status */}
-                            <Row className="my-2">
+                            <Row className='my-2'>
                                 <OverlayTrigger
-                                    placement="top"
+                                    placement='top'
                                     overlay={
                                         <Popover>
-                                            <Popover.Title as="h3" style={{ color: 'black' }}>
+                                            <Popover.Title as='h3' style={{ color: 'black' }}>
                                                 <strong>自己的手牌</strong>
                                             </Popover.Title>
-                                            <Popover.Content>
-                                                試試用第一張牌修復玩家1的工具吧
-                                            </Popover.Content>
+                                            <Popover.Content>試試用第一張牌修復玩家1的工具吧</Popover.Content>
                                         </Popover>
                                     }
-                                    show={this.state.step[2]}
-                                >
+                                    show={this.state.step[2]}>
                                     <OtherGamePlayer
                                         player={this.state.player_2}
                                         onPositionClick={this.handlePositionClick}
@@ -280,10 +293,10 @@ class Tutorial extends GamePlaying {
                                     />
                                 </OverlayTrigger>
                                 <OverlayTrigger
-                                    placement="top"
+                                    placement='top'
                                     overlay={
                                         <Popover>
-                                            <Popover.Title as="h3" style={{ color: 'black' }}>
+                                            <Popover.Title as='h3' style={{ color: 'black' }}>
                                                 <strong>使用功能牌</strong>
                                             </Popover.Title>
                                             <Popover.Content>
@@ -291,8 +304,7 @@ class Tutorial extends GamePlaying {
                                             </Popover.Content>
                                         </Popover>
                                     }
-                                    show={this.state.step[1]}
-                                >
+                                    show={this.state.step[1]}>
                                     <OtherGamePlayer
                                         player={this.state.player_3}
                                         onPositionClick={this.handlePositionClick}
@@ -327,9 +339,11 @@ function SelfGamePlayer(props) {
             {/* Your name & status */}
             <Row className={'my-2'}>
                 <Col xs={8} lg={12} className={'px-2'}>
-                    <Button variant={'brown'} block={true} size={''}
-                            onClick={() => props.onPositionClick((BOARD_BASE + props.playerID))}
-                    >
+                    <Button
+                        variant={'brown'}
+                        block={true}
+                        size={''}
+                        onClick={() => props.onPositionClick(BOARD_BASE + props.playerID)}>
                         You：{identity}
                     </Button>
                 </Col>
@@ -340,21 +354,22 @@ function SelfGamePlayer(props) {
                                 key={i}
                                 ban={ban}
                                 actionType={i}
-                                onPositionClick={() => props.onPositionClick((BOARD_BASE + props.playerID), i)}
+                                onPositionClick={() => props.onPositionClick(BOARD_BASE + props.playerID, i)}
                             />
                         ))}
-                        <Col xs={'auto'} className={'p-0 mx-1'}>$ : {2}</Col>
+                        <Col xs={'auto'} className={'p-0 mx-1'}>
+                            $ : {2}
+                        </Col>
                     </Row>
                 </Col>
             </Row>
-
             <Row className={'my-2'}>
-                <Col xs={8} lg={12} className={'px-2'} id="HandCardPopover">
+                <Col xs={8} lg={12} className={'px-2'} id='HandCardPopover'>
                     <OverlayTrigger
-                        placement="top"
+                        placement='top'
                         overlay={
                             <Popover>
-                                <Popover.Title as="h3" style={{ color: 'black' }}>
+                                <Popover.Title as='h3' style={{ color: 'black' }}>
                                     <strong>自己的手牌</strong>
                                 </Popover.Title>
                                 <Popover.Content>
@@ -363,13 +378,12 @@ function SelfGamePlayer(props) {
                                 </Popover.Content>
                             </Popover>
                         }
-                        show={props.onStepClick(0)}
-                    >
+                        show={props.onStepClick(0)}>
                         <OverlayTrigger
-                            placement="top"
+                            placement='top'
                             overlay={
                                 <Popover>
-                                    <Popover.Title as="h3" style={{ color: 'black' }}>
+                                    <Popover.Title as='h3' style={{ color: 'black' }}>
                                         <strong>自己的手牌</strong>
                                     </Popover.Title>
                                     <Popover.Content>
@@ -377,13 +391,12 @@ function SelfGamePlayer(props) {
                                     </Popover.Content>
                                 </Popover>
                             }
-                            show={props.onStepClick(4)}
-                        >
+                            show={props.onStepClick(4)}>
                             <OverlayTrigger
-                                placement="top"
+                                placement='top'
                                 overlay={
                                     <Popover>
-                                        <Popover.Title as="h3" style={{ color: 'black' }}>
+                                        <Popover.Title as='h3' style={{ color: 'black' }}>
                                             <strong>自己的手牌</strong>
                                         </Popover.Title>
                                         <Popover.Content>
@@ -391,13 +404,12 @@ function SelfGamePlayer(props) {
                                         </Popover.Content>
                                     </Popover>
                                 }
-                                show={props.onStepClick(5)}
-                            >
+                                show={props.onStepClick(5)}>
                                 <OverlayTrigger
-                                    placement="top"
+                                    placement='top'
                                     overlay={
                                         <Popover>
-                                            <Popover.Title as="h3" style={{ color: 'black' }}>
+                                            <Popover.Title as='h3' style={{ color: 'black' }}>
                                                 <strong>自己的手牌</strong>
                                             </Popover.Title>
                                             <Popover.Content>
@@ -405,14 +417,15 @@ function SelfGamePlayer(props) {
                                             </Popover.Content>
                                         </Popover>
                                     }
-                                    show={props.onStepClick(6)}
-                                >
+                                    show={props.onStepClick(6)}>
                                     <Row className={'d-flex justify-content-around px-2'}>
                                         {props.player.hand_cards.map((card, i) => (
                                             <GameCard
                                                 card_no={card}
                                                 isSelected={props.selectHandCardNo === card}
-                                                isRotated={props.selectHandCardNo === card ? props.selectHandCardRotate : false}
+                                                isRotated={
+                                                    props.selectHandCardNo === card ? props.selectHandCardRotate : false
+                                                }
                                                 key={i}
                                                 onCardClick={() => props.onHandCardClick(card)}
                                             />
@@ -423,14 +436,13 @@ function SelfGamePlayer(props) {
                         </OverlayTrigger>
                     </OverlayTrigger>
                 </Col>
-
                 <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center px-2 my-lg-2'}>
                     <Row>
                         <OverlayTrigger
-                            placement="top"
+                            placement='top'
                             overlay={
                                 <Popover>
-                                    <Popover.Title as="h3" style={{ color: 'black' }}>
+                                    <Popover.Title as='h3' style={{ color: 'black' }}>
                                         <strong>棄牌紐</strong>
                                     </Popover.Title>
                                     <Popover.Content>
@@ -438,26 +450,24 @@ function SelfGamePlayer(props) {
                                     </Popover.Content>
                                 </Popover>
                             }
-                            show={props.onStepClick(3)}
-                        >
+                            show={props.onStepClick(3)}>
                             <Button variant={'brown'} className={'mx-1'} onClick={() => props.onPositionClick(-1)}>
-                                <FontAwesomeIcon icon={faTrashAlt}/>
+                                <FontAwesomeIcon icon={faTrashAlt} />
                             </Button>
                         </OverlayTrigger>
                         <OverlayTrigger
-                            placement="top"
+                            placement='top'
                             overlay={
                                 <Popover>
-                                    <Popover.Content>
-                                        導覽結束，點擊離開房間去進行一場遊戲吧
-                                    </Popover.Content>
-                                    <Button variant="outline-brown" onClick={() => props.onStepClick(8)}>再看一次</Button>
+                                    <Popover.Content>導覽結束，點擊離開房間去進行一場遊戲吧</Popover.Content>
+                                    <Button variant='outline-brown' onClick={() => props.onStepClick(8)}>
+                                        再看一次
+                                    </Button>
                                 </Popover>
                             }
-                            show={props.onStepClick(7)}
-                        >
+                            show={props.onStepClick(7)}>
                             <Button variant={'outline-brown'} className={'mx-1'} href={'/games/'}>
-                                <FontAwesomeIcon icon={faDoorOpen}/>
+                                <FontAwesomeIcon icon={faDoorOpen} />
                             </Button>
                         </OverlayTrigger>
                     </Row>
