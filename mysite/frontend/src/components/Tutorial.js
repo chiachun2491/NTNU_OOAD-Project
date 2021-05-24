@@ -248,7 +248,7 @@ class Tutorial extends GamePlaying {
                     </Badge>
                 </h5>
                 <Helmet>
-                    <title>{`遊玩導覽`}</title>
+                    <title>{`新手教學`}</title>
                 </Helmet>
                 <Badge className={'my-2 badge-block'} variant={variant}>
                     {msg}
@@ -459,10 +459,18 @@ function SelfGamePlayer(props) {
                             placement='top'
                             overlay={
                                 <Popover>
-                                    <Popover.Content>導覽結束，點擊離開房間去進行一場遊戲吧</Popover.Content>
-                                    <Button variant='outline-brown' onClick={() => props.onStepClick(8)}>
-                                        再看一次
-                                    </Button>
+                                    <Popover.Content>
+                                        <p>導覽結束，點擊離開房間去進行一場遊戲吧</p>
+                                        <div className={'d-flex'}>
+                                            <Button
+                                                variant='outline-brown'
+                                                size={'sm'}
+                                                className={'ml-auto'}
+                                                onClick={() => props.onStepClick(8)}>
+                                                再看一次
+                                            </Button>
+                                        </div>
+                                    </Popover.Content>
                                 </Popover>
                             }
                             show={props.onStepClick(7)}>
