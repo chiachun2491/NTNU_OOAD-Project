@@ -150,7 +150,7 @@ class GameController():
                     flag -= 1
 
                     self.game_state = GameState.game_point
-                    return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 好矮人獲勝"}
+                    self.return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 好矮人獲勝"}
 
             if len(self.card_pool) > 0:
                 self.deal_card([now_play])
@@ -175,11 +175,10 @@ class GameController():
             if flag == self.num_player:  # bad dwarf win
                 self.winner_list = [winner for winner in self.player_list if winner.role is False]
                 self.game_state = GameState.game_point
-                return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 壞矮人獲勝"}
+                self.return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 壞矮人獲勝"}
 
         if self.game_state == GameState.game_point:
             self.calc_point(self.winner_list, self.winner)
-            self.view_player(self.player_list)  # debug
             self.winner = None
             self.winner_list = []
             self.round_reset()
@@ -213,7 +212,6 @@ class GameController():
             number of role (List)
         """
         num_bad_rule = [None, None, None, 1, 1, 2, 2, 3, 3, 3, 4]  # bad dwarve num by rule
-        role_list = []
         num_bad = num_bad_rule[self.num_player]
         role_list = [False] * num_bad
         role_list += [True] * (self.num_player + 1 - num_bad)
