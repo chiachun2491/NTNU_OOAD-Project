@@ -177,7 +177,8 @@ class GameController():
             if flag == self.num_player:  # bad dwarf win
                 self.winner_list = [winner for winner in self.player_list if winner.role is False]
                 self.game_state = GameState.game_point
-                self.return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 壞矮人獲勝"}
+                return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 壞矮人獲勝"}
+                self.return_msg = [return_msg.copy() for _ in range(self.num_player)]
 
         if self.game_state == GameState.game_point:
             self.calc_point(self.winner_list, self.winner)
