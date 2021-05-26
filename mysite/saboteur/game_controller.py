@@ -25,7 +25,15 @@ class GameState(IntEnum):
 
 
 class GameController():
-    """Game_Controller"""
+    """Game_Controller
+    
+    :attribute
+        return_msg: message type and message pass to web server (if have msg Dict or None)
+            message define (type, msg):
+                ILLEGAL_PLAY: String of illegal message
+                PEEK: Int of end road card_no
+                INFO: String of some game information
+    """
 
     def __init__(self, round, num_player, player_list, game_state, turn, card_pool,
                  fold_deck, board, gold_stack, winner, winner_list, gold_pos, now_play, return_msg):
@@ -89,19 +97,13 @@ class GameController():
         }
         return dict_
 
-    def state_control(self, card_id: int = -1, position: int = -1, rotate: int = 0, act_type: int = -1) -> to_dict:
+    def state_control(self, card_id: int = -1, position: int = -1, rotate: int = 0, act_type: int = -1):
         """a state machine control game state and do game control
 
         :parms
             card_id: the player play card's id (Int)
             postion: the player play card's position (Int)
             act_type: the player play action's type (Int)
-        :returns
-            return_msg: message type and message pass to web server (if have msg Dict or None)
-                message define (type, msg):
-                    ILLEGAL_PLAY: String of illegal message
-                    PEEK: Int of end road card_no
-                    INFO: String of some game information
         """
 
         if self.game_state == GameState.play:
@@ -150,7 +152,7 @@ class GameController():
                     flag -= 1
 
                     self.game_state = GameState.game_point
-                    return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 好矮人獲勝"}
+                    self.return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 好矮人獲勝"}
 
             if len(self.card_pool) > 0:
                 self.deal_card([now_play])
@@ -176,10 +178,10 @@ class GameController():
                 self.winner_list = [winner for winner in self.player_list if winner.role is False]
                 self.game_state = GameState.game_point
                 return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 壞矮人獲勝"}
+                self.return_msg = [return_msg.copy() for _ in range(self.num_player)]
 
         if self.game_state == GameState.game_point:
             self.calc_point(self.winner_list, self.winner)
-            self.view_player(self.player_list)  # debug
             self.winner = None
             self.winner_list = []
             self.round_reset()
@@ -206,14 +208,13 @@ class GameController():
             self.board[row][8] = Road(end_road[i] + 70, road_type=RoadType.end)
             i += 1
 
-    def set_role(self):
+    def set_role(self) -> list:
         """set number of role of each round by rule
 
         :returns:
             number of role (List)
         """
         num_bad_rule = [None, None, None, 1, 1, 2, 2, 3, 3, 3, 4]  # bad dwarve num by rule
-        role_list = []
         num_bad = num_bad_rule[self.num_player]
         role_list = [False] * num_bad
         role_list += [True] * (self.num_player + 1 - num_bad)
@@ -273,7 +274,7 @@ class GameController():
             else:
                 self.return_msg[i]["msg"] += f"，第 {self.round} 回合開始"
 
-    def connect_to_start(self, card: Road, row: int, col: int, went: list):
+    def connect_to_start(self, card: Road, row: int, col: int, went: list) -> bool:
         """check the road is connect to starting road or not with DFS algorithm
 
         :parms

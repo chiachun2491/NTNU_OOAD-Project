@@ -78,7 +78,7 @@ class Peek(CardActivate):
 class CardLegality():
     """abstract class of strategy pattern"""
 
-    def check_legality(self, gc, player, card, pos: int, action_type: int) -> (bool, str):
+    def check_legality(self, gc, player, card, pos: int, action_type: int):
         """abstract method of strategy pattern
 
         check the player behavior is legality or not
@@ -100,7 +100,7 @@ class CardLegality():
 class RoadLegality(CardLegality):
     """class of strategy pattern for Road legality check"""
 
-    def check_legality(self, gc, player, card, pos: int, action_type: int) -> (bool, str):
+    def check_legality(self, gc, player, card, pos: int, action_type: int):
         legality = True
         illegal_msg = ""
         if pos <= 44:
@@ -169,7 +169,7 @@ class RoadLegality(CardLegality):
 class ActionLegality(CardLegality):
     """class of strategy pattern for Action legality check"""
 
-    def check_legality(self, gc, player, card, pos: int, action_type: int) -> (bool, str):
+    def check_legality(self, gc, player, card, pos: int, action_type: int):
         legality = True
         illegal_msg = ""
         if pos <= 44:
@@ -193,7 +193,7 @@ class ActionLegality(CardLegality):
 class RocksLegality(CardLegality):
     """class of strategy pattern for Rocks legality check"""
 
-    def check_legality(self, gc, player, card, pos: int, action_type: int) -> (bool, str):
+    def check_legality(self, gc, player, card, pos: int, action_type: int):
         legality = True
         illegal_msg = ""
         if pos <= 44:
@@ -214,7 +214,7 @@ class RocksLegality(CardLegality):
 class MapLegality(CardLegality):
     """class of strategy pattern for Map legality check"""
 
-    def check_legality(self, gc, player, card, pos: int, action_type: int) -> (bool, str):
+    def check_legality(self, gc, player, card, pos: int, action_type: int):
         legality = True
         illegal_msg = ""
         if pos <= 44:
@@ -303,7 +303,21 @@ class Card():
             return_msg = self.active_func.activate(self, gc, pos, action_type)
         return return_msg
 
-    def check_legality(self, gc, player, pos, action_type) -> (bool, str):
+    def check_legality(self, gc, player, pos, action_type):
+        """delegates some work to the strategy object instead of
+        implementing multiple versions of the algorithm on its own.
+        (except fold card which doing the same thing for every type of card)
+
+        :parms
+            gc: the game controller object (GameController)
+            player: the player who play the card (Player)
+            pos: the position of `card` will activate (Int)
+            action_type: the choice of repair which tool of the multi-repair action card (Int)
+        :returns
+            return_msg: message type and message pass to web server (if have msg Dict or None)
+                format same as `GameController.state_control()` defined
+        """
+
         legality = True
         return_msg = ""
         if pos == -1:
@@ -343,7 +357,7 @@ class Road(Card):
         })
         return dict_
 
-    def get_connection(self):
+    def get_connection(self) -> list:
         """set the road connection for road connection checking
 
         :returns
