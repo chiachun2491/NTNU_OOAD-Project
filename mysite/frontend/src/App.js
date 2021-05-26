@@ -20,7 +20,7 @@ class App extends Component {
                     <Route path='/account' component={Account} />
                     <Route path={'/rules/'} exact component={Rules} />
                     <Route path={'/hello/'} exact component={Hello} />
-                    <Route path={"/tutorial/"} exact component={Tutorial}/>
+                    <Route path={'/tutorial/'} exact component={Tutorial} />
                     <Route path={'/networkError/'} exact component={NetworkError} />
                     <Route exact component={PageNotFound} />
                 </Switch>
