@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-
 import { Container, Row, Col, Button, Image, Badge } from 'react-bootstrap';
+import { Helmet } from 'react-helmet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHammer, faLightbulb, faShoppingCart, faTrashAlt, faDoorOpen } from '@fortawesome/free-solid-svg-icons';
 import GameCard from '../components/GameCard';
+import { TutorialOverlayTrigger } from './TutorialOverlay';
 import cart_red from '../images/status/cart_red.png';
 import lamp_red from '../images/status/lamp_red.png';
 import pick_red from '../images/status/pick_red.png';
 import cart from '../images/status/cart.png';
 import lamp from '../images/status/lamp.png';
 import pick from '../images/status/pick.png';
-import { Helmet } from 'react-helmet';
 
 const BOARD_BASE = 45;
 
@@ -25,14 +25,8 @@ class GamePlaying extends Component {
         };
 
         this.handleHandCardClick = this.handleHandCardClick.bind(this);
-        this.cardCanRotate = this.cardCanRotate.bind(this);
         this.handlePositionClick = this.handlePositionClick.bind(this);
-        this.cardIsMulti = this.cardIsMulti.bind(this);
     }
-
-    componentDidMount() {}
-
-    // TODO: card state control
 
     handleHandCardClick(cardNo) {
         if (cardNo !== this.state.selectHandCardNo) {
@@ -58,10 +52,8 @@ class GamePlaying extends Component {
         return cardNo >= 59 && cardNo <= 61;
     }
 
-    handlePositionClick(pos, action = -1) {
-        // defocus
-        document.activeElement.blur();
-        const username = localStorage.getItem('username');
+    actionIsLegal(pos, action) {
+        const username = localStorage.getItem('username') ? localStorage.getItem('username') : '你';
         if (this.props.roomData.game_data.now_play === username) {
             if (this.state.selectHandCardNo !== -1) {
                 console.log(this.state.selectHandCardNo, this.state.selectHandCardRotate, pos, action);
@@ -77,29 +69,11 @@ class GamePlaying extends Component {
                             window.setTimeout(() => {
                                 this.setState({ alertMessage: null });
                             }, 2000);
+                            return false;
                         }
                     );
                 } else {
-                    // TODO: send state control to socket
-                    const ws = this.props.ws;
-                    try {
-                        ws.send(
-                            JSON.stringify({
-                                event: 'play_card',
-                                id: this.state.selectHandCardNo,
-                                rotate: this.state.selectHandCardRotate ? 1 : 0,
-                                pos: pos,
-                                act: action,
-                            })
-                        );
-                    } catch (e) {
-                        console.log(e);
-                    }
-                    // reset select card
-                    this.setState({
-                        selectHandCardNo: -1,
-                        selectHandCardRotate: false,
-                    });
+                    return true;
                 }
             } else {
                 this.setState(
@@ -113,18 +87,57 @@ class GamePlaying extends Component {
                         window.setTimeout(() => {
                             this.setState({ alertMessage: null });
                         }, 2000);
+                        return false;
                     }
                 );
             }
         }
     }
 
+    handlePositionClick(pos, action = -1) {
+        // defocus
+        document.activeElement.blur();
+        if (this.actionIsLegal(pos, action)) {
+            // send state control to socket
+            const ws = this.props.ws;
+            try {
+                ws.send(
+                    JSON.stringify({
+                        event: 'play_card',
+                        id: this.state.selectHandCardNo,
+                        rotate: this.state.selectHandCardRotate ? 1 : 0,
+                        pos: pos,
+                        act: action,
+                    })
+                );
+            } catch (e) {
+                console.log(e);
+            }
+            // reset select card
+            this.setState({
+                selectHandCardNo: -1,
+                selectHandCardRotate: false,
+            });
+        }
+    }
+
     render() {
-        const username = localStorage.getItem('username');
+        const username = localStorage.getItem('username') ? localStorage.getItem('username') : '你';
         const gameData = this.props.roomData.game_data;
+        const nowStep =
+            this.props.nowStep !== undefined
+                ? this.props.nowStep
+                : {
+                      title: null,
+                      content: null,
+                      button: null,
+                      showPosition: null,
+                  };
+
+        const popover = this.props.popover !== undefined ? this.props.popover : null;
 
         // set self_id
-        let self_id;
+        let self_id = 0;
         const list_len = gameData.player_list.length;
         for (let i = 0; i < list_len; i++) {
             if (gameData.player_list[i].id === username) {
@@ -139,13 +152,18 @@ class GamePlaying extends Component {
             let playerIndex = (self_id + i) % list_len;
             let player = gameData.player_list[playerIndex];
             other_players.push(
-                <OtherGamePlayer
-                    nowPlaying={gameData.now_play === player.id}
-                    key={player.id}
-                    player={player}
-                    onPositionClick={this.handlePositionClick}
-                    playerID={playerIndex}
-                />
+                <TutorialOverlayTrigger
+                    key={`PLAYER_${playerIndex}`}
+                    overlay={popover}
+                    show={nowStep.showPosition === `PLAYER_${playerIndex}`}>
+                    <OtherGamePlayer
+                        nowPlaying={gameData.now_play === player.id}
+                        key={player.id}
+                        player={player}
+                        onPositionClick={this.handlePositionClick}
+                        playerID={playerIndex}
+                    />
+                </TutorialOverlayTrigger>
             );
         }
 
@@ -195,13 +213,18 @@ class GamePlaying extends Component {
                             {gameData.board.map((row, i) => (
                                 <Row key={i} className={'d-flex justify-content-center'}>
                                     {row.map((card, j) => (
-                                        <GameCard
-                                            key={j}
-                                            card_no={card.card_no}
-                                            isRotated={card.rotate !== 0}
-                                            boardCard={true}
-                                            onCardClick={() => this.handlePositionClick(i * 9 + j)}
-                                        />
+                                        <TutorialOverlayTrigger
+                                            key={`BOARD_${i * 9 + j}`}
+                                            overlay={popover}
+                                            show={nowStep.showPosition === `BOARD_${i * 9 + j}`}>
+                                            <GameCard
+                                                key={j}
+                                                card_no={card.card_no}
+                                                isRotated={card.rotate !== 0}
+                                                boardCard={true}
+                                                onCardClick={() => this.handlePositionClick(i * 9 + j)}
+                                            />
+                                        </TutorialOverlayTrigger>
                                     ))}
                                 </Row>
                             ))}
@@ -217,6 +240,8 @@ class GamePlaying extends Component {
                                 selectHandCardNo={this.state.selectHandCardNo}
                                 selectHandCardRotate={this.state.selectHandCardRotate}
                                 onPositionClick={this.handlePositionClick}
+                                overlay={popover}
+                                showPosition={nowStep.showPosition}
                             />
                         </Col>
                     </Row>
@@ -257,18 +282,22 @@ function OtherGamePlayer(props) {
 
 function SelfGamePlayer(props) {
     const identity = props.player.role ? '好矮人' : '壞矮人';
+    const overlay = props.overlay;
+    const showPosition = props.showPosition;
     return (
         <>
             {/* Your name & status */}
             <Row className={'my-2'}>
                 <Col xs={8} lg={12} className={'px-2'}>
-                    <Button
-                        variant={props.nowPlaying ? 'brown' : 'outline-brown'}
-                        block={true}
-                        size={''}
-                        onClick={() => props.onPositionClick(BOARD_BASE + props.playerID)}>
-                        {props.player.id}：{identity}
-                    </Button>
+                    <TutorialOverlayTrigger placement={'top'} overlay={overlay} show={showPosition === 'SELF_BTN'}>
+                        <Button
+                            variant={props.nowPlaying ? 'brown' : 'outline-brown'}
+                            block={true}
+                            size={''}
+                            onClick={() => props.onPositionClick(BOARD_BASE + props.playerID)}>
+                            {props.player.id}：{identity}
+                        </Button>
+                    </TutorialOverlayTrigger>
                 </Col>
                 <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center p-0'}>
                     <Row className={'my-lg-1'}>
@@ -290,31 +319,42 @@ function SelfGamePlayer(props) {
                 <Col xs={8} lg={12} className={'px-2'}>
                     <Row className={'d-flex justify-content-around px-2'}>
                         {props.player.hand_cards.map((card, i) => (
-                            <GameCard
-                                card_no={card.card_no}
-                                isSelected={props.selectHandCardNo === card.card_no}
-                                isRotated={props.selectHandCardNo === card.card_no ? props.selectHandCardRotate : false}
-                                onCardClick={() => props.onHandCardClick(card.card_no)}
-                                key={i}
-                            />
+                            <TutorialOverlayTrigger
+                                key={`SELF_CARD_${i}`}
+                                placement={'top'}
+                                overlay={overlay}
+                                show={showPosition === `SELF_CARD_${i}`}>
+                                <GameCard
+                                    card_no={card.card_no}
+                                    isSelected={props.selectHandCardNo === card.card_no}
+                                    isRotated={
+                                        props.selectHandCardNo === card.card_no ? props.selectHandCardRotate : false
+                                    }
+                                    onCardClick={() => props.onHandCardClick(card.card_no)}
+                                    key={i}
+                                />
+                            </TutorialOverlayTrigger>
                         ))}
                     </Row>
                 </Col>
                 <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center px-2 my-lg-2'}>
                     <Row>
-                        <Button variant={'brown'} className={'mx-1'} onClick={() => props.onPositionClick(-1)}>
-                            <FontAwesomeIcon icon={faTrashAlt} />
-                        </Button>
-                        <Button variant={'outline-brown'} className={'mx-1'} href={'/games/'}>
-                            <FontAwesomeIcon icon={faDoorOpen} />
-                        </Button>
+                        <TutorialOverlayTrigger placement={'top'} overlay={overlay} show={showPosition === 'DROP_BTN'}>
+                            <Button variant={'brown'} className={'mx-1'} onClick={() => props.onPositionClick(-1)}>
+                                <FontAwesomeIcon icon={faTrashAlt} />
+                            </Button>
+                        </TutorialOverlayTrigger>
+                        <TutorialOverlayTrigger placement={'top'} overlay={overlay} show={showPosition === 'LEAVE_BTN'}>
+                            <Button variant={'outline-brown'} className={'mx-1'} href={'/games/'}>
+                                <FontAwesomeIcon icon={faDoorOpen} />
+                            </Button>
+                        </TutorialOverlayTrigger>
                     </Row>
                 </Col>
             </Row>
         </>
     );
 }
-
 function ActionStatus(props) {
     let actionIcon;
     let actionType = props.ban ? (props.actionType + 1) * -1 : props.actionType + 1;
@@ -350,4 +390,3 @@ function ActionStatus(props) {
 }
 
 export default GamePlaying;
-export {ActionStatus, OtherGamePlayer};
