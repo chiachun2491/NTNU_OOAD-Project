@@ -11,16 +11,10 @@ const ROOM_VOLUME_MAX = 10;
 class GameOrganzie extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            // volume: 4,
-        };
+
         this.gameStartClicked = this.gameStartClicked.bind(this);
         this.roomVolumeUpdate = this.roomVolumeUpdate.bind(this);
-    }
-
-    componentDidMount() {
-        // const volume = this.props.roomData.volume;
-        // this.setState({ volume: volume });
+        this.kickPlayer = this.kickPlayer.bind(this);
     }
 
     gameStartClicked = () => {
@@ -50,17 +44,37 @@ class GameOrganzie extends Component {
         }
     }
 
+    kickPlayer(username) {
+        const ws = this.props.ws;
+        try {
+            ws.send(JSON.stringify({ event: 'kick_player', username: username }));
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     render() {
-        let gameCanStart = false;
-        let gameNeedPlayerMessage = '';
-        const nowPlayerAmount = this.props.roomData.players_data.length;
+        const username = localStorage.getItem('username');
+        const adminName = this.props.roomData.admin;
+        const admin = adminName === username;
+
+        let playersData = this.props.roomData.players_data;
+        playersData.sort((x, y) => {
+            return x.player === adminName ? -1 : y.player === adminName ? 1 : 0;
+        });
+
+        const nowPlayerAmount = playersData.length;
         const nowVolume = this.props.roomData.volume;
+
+        let gameCanStart = false;
+        let gameStartButtonContent = '';
+
         if (nowPlayerAmount < ROOM_VOLUME_MIN) {
             gameCanStart = false;
-            gameNeedPlayerMessage = '（還需 ' + (ROOM_VOLUME_MIN - nowPlayerAmount) + ' 位玩家加入）';
+            gameStartButtonContent = '還需 ' + (ROOM_VOLUME_MIN - nowPlayerAmount) + ' 位玩家加入';
         } else {
-            gameCanStart = true;
-            gameNeedPlayerMessage = '';
+            gameCanStart = admin;
+            gameStartButtonContent = admin ? '開始遊戲' : '等待房主開始遊戲';
         }
         // TODO: handle kick button action
         return (
@@ -70,29 +84,39 @@ class GameOrganzie extends Component {
                 </Helmet>
                 <h5 className={'text-center my-3'}>玩家列表</h5>
                 <Row className={'d-flex justify-content-center align-items-center my-3'}>
-                    <Col xs={'auto'}>
-                        <Button
-                            variant={'brown'}
-                            size={'sm'}
-                            disabled={nowVolume <= Math.max(ROOM_VOLUME_MIN, nowPlayerAmount)}
-                            onClick={() => this.roomVolumeUpdate(false)}>
-                            <FontAwesomeIcon icon={faMinus} />
-                        </Button>
-                    </Col>
+                    {admin ? (
+                        <Col xs={'auto'}>
+                            <Button
+                                variant={'brown'}
+                                size={'sm'}
+                                disabled={nowVolume <= Math.max(ROOM_VOLUME_MIN, nowPlayerAmount)}
+                                onClick={() => this.roomVolumeUpdate(false)}>
+                                <FontAwesomeIcon icon={faMinus} />
+                            </Button>
+                        </Col>
+                    ) : null}
                     <Col xs={'auto'}>房間容量：{nowVolume}</Col>
-                    <Col xs={'auto'}>
-                        <Button
-                            variant={'brown'}
-                            size={'sm'}
-                            disabled={nowVolume >= ROOM_VOLUME_MAX}
-                            onClick={() => this.roomVolumeUpdate(true)}>
-                            <FontAwesomeIcon icon={faPlus} />
-                        </Button>
-                    </Col>
+                    {admin ? (
+                        <Col xs={'auto'}>
+                            <Button
+                                variant={'brown'}
+                                size={'sm'}
+                                disabled={nowVolume >= ROOM_VOLUME_MAX}
+                                onClick={() => this.roomVolumeUpdate(true)}>
+                                <FontAwesomeIcon icon={faPlus} />
+                            </Button>
+                        </Col>
+                    ) : null}
                 </Row>
 
-                {this.props.roomData.players_data.map((player) => (
-                    <GamePlayer key={player.player} playerName={player.player} isAdmin={true} />
+                {playersData.map((player) => (
+                    <GamePlayer
+                        key={player.player}
+                        playerName={player.player}
+                        adminName={adminName}
+                        selfname={username}
+                        handleKickFunction={this.kickPlayer}
+                    />
                 ))}
                 {/*nowVolume - nowPlayerAmount*/}
                 {Array.apply(null, Array(nowVolume - nowPlayerAmount)).map(() => EmptyGamePlayer)}
@@ -103,7 +127,7 @@ class GameOrganzie extends Component {
                     className={'my-3'}
                     onClick={this.gameStartClicked}
                     disabled={!gameCanStart}>
-                    開始遊戲{gameNeedPlayerMessage}
+                    {gameStartButtonContent}
                 </Button>
             </>
         );
@@ -116,15 +140,18 @@ const GamePlayer = (props) => (
             <Card className='my-2'>
                 <Card.Body className='d-flex justify-content-between align-items-center'>
                     <span className={'mr-auto'}>
-                        <FontAwesomeIcon icon={props.isAdmin ? faUserCog : faUser} className={'mr-2'} />
+                        <FontAwesomeIcon
+                            icon={props.adminName === props.playerName ? faUserCog : faUser}
+                            className={'mr-2'}
+                        />
                         {props.playerName}
                     </span>
                     <span>
-                        {props.isAdmin ? null : (
-                            <Button variant='brown'>
+                        {props.adminName === props.selfname && props.playerName !== props.selfname ? (
+                            <Button variant='brown' onClick={() => props.handleKickFunction(props.playerName)}>
                                 <FontAwesomeIcon icon={faWindowClose} />
                             </Button>
-                        )}
+                        ) : null}
                     </span>
                 </Card.Body>
             </Card>

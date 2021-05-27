@@ -23,6 +23,7 @@ class GameRoom(models.Model):
     lobby_socket_group_name = 'lobby'
 
     created_at = models.DateTimeField(auto_now_add=True)
+    admin = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin')
     volume = models.SmallIntegerField(default=4)
     players = models.ManyToManyField(CustomUser, through='PlayerData', through_fields=('room', 'player'), blank=True)
     status = models.CharField(max_length=8, choices=StatusType.choices, default=StatusType.ORGANIZE)
@@ -68,6 +69,9 @@ class GameRoom(models.Model):
                 self.players.add(user)
                 can_speak = True
 
+                if self.admin is None:
+                    self.admin = user
+
         elif self.status == GameRoom.StatusType.PLAYING:
             if user in self.players.all():
                 can_speak = True
@@ -82,9 +86,16 @@ class GameRoom(models.Model):
             user = CustomUser.objects.get(username=username)
             self.players.remove(user)
             if len(self.players.all()) > 0:
+                if self.admin == user:
+                    self.admin = self.players.all()[0]
                 self.save()
             else:
                 self.delete()
+
+    def kick_player(self, username):
+        user = CustomUser.objects.get(username=username)
+        self.players.remove(user)
+        self.save()
 
     def change_status(self, status):
         self.status = status

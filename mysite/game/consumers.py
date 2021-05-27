@@ -46,6 +46,9 @@ class GameRoomConsumer(WebsocketConsumer):
                 self.room.volume = int(text_data_json['volume'])
                 self.room.save()
 
+            elif event == 'kick_player':
+                self.room.kick_player(text_data_json['username'])
+
             elif event == 'play_card':
                 return_msg = self.room.state_control(
                     int(text_data_json['id']),
