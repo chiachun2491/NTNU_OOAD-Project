@@ -170,6 +170,7 @@ class Lobby extends Component {
                         key={room.permanent_url}
                         roomName={room.permanent_url}
                         playerAmount={room.players_length}
+                        volume={room.volume}
                     />
                 ))}
             </>
