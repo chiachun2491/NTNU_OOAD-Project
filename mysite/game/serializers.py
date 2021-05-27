@@ -19,7 +19,7 @@ class GameRoomSerializer(ModelSerializer):
 
     class Meta:
         model = GameRoom
-        fields = ['players_data', 'status', 'game_data', 'permanent_url']
+        fields = ['players_data', 'status', 'game_data', 'permanent_url', 'volume']
 
 
 class LightGameRoomSerializer(GameRoomSerializer):
@@ -30,4 +30,4 @@ class LightGameRoomSerializer(GameRoomSerializer):
 
     class Meta:
         model = GameRoom
-        fields = ['players_length', 'status', 'permanent_url']
+        fields = ['players_length', 'status', 'permanent_url', 'volume']

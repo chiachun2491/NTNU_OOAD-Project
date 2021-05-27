@@ -37,11 +37,14 @@ class GameRoomConsumer(WebsocketConsumer):
     def receive(self, text_data):
         if self.can_speak:
             text_data_json = json.loads(text_data)
-            print(text_data_json)
             event = text_data_json['event']
 
             if event == 'status_change':
                 self.room.change_status(text_data_json['message'])
+
+            elif event == 'volume_change':
+                self.room.volume = int(text_data_json['volume'])
+                self.room.save()
 
             elif event == 'play_card':
                 return_msg = self.room.state_control(
