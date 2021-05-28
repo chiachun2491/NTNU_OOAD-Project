@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { faUser, faCrown } from '@fortawesome/free-solid-svg-icons';
+import { faUserCog, faUser, faCrown } from '@fortawesome/free-solid-svg-icons';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axiosInstance from '../Api';
 import { Helmet } from 'react-helmet';
 
 class GameEnd extends Component {
@@ -11,21 +10,20 @@ class GameEnd extends Component {
         this.createNewRoomClicked = this.createNewRoomClicked.bind(this);
     }
 
-    componentDidMount() {}
-
     createNewRoomClicked() {
-        axiosInstance
-            .post('/game/room_create/')
-            .then((response) => {
-                // console.log(response.data);
-                window.location.href = '/games/' + response.data.permanent_url + '/';
-            })
-            .catch((err) => {
-                console.error(err);
-            });
+        const ws = this.props.ws;
+        try {
+            ws.send(JSON.stringify({ event: 'create_new_room' }));
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     render() {
+        const username = localStorage.getItem('username');
+        const adminName = this.props.roomData.admin;
+        const admin = adminName === username;
+
         let players = this.props.roomData.players_data;
         if (players.length > 1) {
             players.sort(function (a, b) {
@@ -38,23 +36,23 @@ class GameEnd extends Component {
                 <Helmet>
                     <title>{`遊戲結果：${this.props.roomName}`}</title>
                 </Helmet>
-                <h3 className={'my-3'}>玩家列表</h3>
-                {players.map((player) => {
-                    let isWinner = false;
-                    if (player.point === max) {
-                        isWinner = true;
-                    }
-                    return (
-                        <GamePlayer
-                            key={player.player}
-                            playerName={player.player}
-                            isWinner={isWinner}
-                            point={player.point}
-                        />
-                    );
-                })}
-                <Button variant={'brown'} className={'my-3'} block={true} onClick={this.createNewRoomClicked}>
-                    開始新回合
+                <h5 className={'text-center my-3'}>玩家列表</h5>
+                {players.map((player) => (
+                    <GamePlayer
+                        key={player.player}
+                        playerName={player.player}
+                        isWinner={player.point === max}
+                        isAdmin={adminName === player.player}
+                        point={player.point}
+                    />
+                ))}
+                <Button
+                    variant={'brown'}
+                    className={'my-3'}
+                    block={true}
+                    onClick={this.createNewRoomClicked}
+                    disabled={!admin}>
+                    {admin ? null : '等待房主'}開始新回合
                 </Button>
                 <div className={'text-center'}>
                     <Button variant={'brown'} className={'my-3'} size={'sm'} href={'/games/'}>
@@ -66,31 +64,22 @@ class GameEnd extends Component {
     }
 }
 
-class GamePlayer extends Component {
-    render() {
-        let winnerIcon;
-        if (this.props.isWinner) {
-            winnerIcon = <FontAwesomeIcon icon={faCrown} className={'mr-2'} color={'orange'} />;
-        } else {
-            winnerIcon = null;
-        }
-
-        return (
-            <Row>
-                <Col>
-                    <Card className='my-2'>
-                        <Card.Body className='d-flex justify-content-between align-items-center'>
-                            <span className={'mr-auto'}>
-                                <FontAwesomeIcon icon={faUser} className={'mr-2'} />
-                                {this.props.playerName}: {this.props.point}
-                            </span>
-                            <span>{winnerIcon}</span>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        );
-    }
-}
+const GamePlayer = (props) => (
+    <Row>
+        <Col>
+            <Card className='my-2'>
+                <Card.Body className='d-flex justify-content-between align-items-center'>
+                    <span className={'mr-auto'}>
+                        <FontAwesomeIcon icon={props.isAdmin ? faUserCog : faUser} className={'mr-2'} />
+                        {props.playerName}: {props.point}
+                    </span>
+                    <span>
+                        {props.isWinner ? <FontAwesomeIcon icon={faCrown} className={'mr-2'} color={'orange'} /> : null}
+                    </span>
+                </Card.Body>
+            </Card>
+        </Col>
+    </Row>
+);
 
 export default GameEnd;

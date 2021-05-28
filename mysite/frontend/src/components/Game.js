@@ -93,10 +93,12 @@ class Game extends Component {
                     // this.setState({badgeMessage: {}});
                     break;
                 case 'room_player_kicked':
-                    console.log(message);
                     if (username === message.username) {
                         window.location.href = '/games/';
                     }
+                    break;
+                case 'new_room_received':
+                    window.location.href = `/games/${message.room_id}/`;
                     break;
                 default:
                     console.log(message);
