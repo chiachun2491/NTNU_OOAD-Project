@@ -152,7 +152,8 @@ class GameController():
                     flag -= 1
 
                     self.game_state = GameState.game_point
-                    self.return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 好矮人獲勝"}
+                    return_msg = {"msg_type": "INFO", "msg": f"第 {self.round} 回合 好矮人獲勝"}
+                    self.return_msg = [return_msg.copy() for _ in range(self.num_player)]
 
             if len(self.card_pool) > 0:
                 self.deal_card([now_play])
