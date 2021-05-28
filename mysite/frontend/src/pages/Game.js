@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { Badge } from 'react-bootstrap';
-import GameOrganize from './GameOrganize';
-import GamePlaying from './GamePlaying';
-import GameEnd from './GameEnd';
-import axiosInstance from '../Api';
-import GameRoomError from './GameRoomError';
+import { Helmet } from 'react-helmet';
+import axiosInstance from '../api/Api';
+import GameOrganize from '../components/game/GameOrganize';
+import GamePlaying from '../components/game/GamePlaying';
+import GameEnd from '../components/game/GameEnd';
+import GameRoomError from '../components/errors/GameRoomError';
 
 const wsProtocol = window.location.origin.includes('https') ? 'wss://' : 'ws://';
 let wsBaseURL;
@@ -157,12 +158,14 @@ class Game extends Component {
 
     render() {
         try {
-            let gameComponent = <div />;
+            let gameComponent;
             let roundBadge, cardPoolBadge;
+            let title;
             if (this.state.roomData.status === RoomStatus.ORGANIZE) {
                 gameComponent = (
                     <GameOrganize ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData} />
                 );
+                title = '正在等待';
             } else if (this.state.roomData.status === RoomStatus.PLAYING) {
                 gameComponent = (
                     <GamePlaying
@@ -182,14 +185,19 @@ class Game extends Component {
                         卡池剩餘：{this.state.roomData.game_data.card_pool.length}
                     </Badge>
                 );
+                title = '正在遊戲';
             } else if (this.state.roomData.status === RoomStatus.END) {
                 gameComponent = (
                     <GameEnd ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData} />
                 );
+                title = '遊戲結果';
             }
 
             return (
                 <>
+                    <Helmet>
+                        <title>{`${title}：${this.props.roomName}`}</title>
+                    </Helmet>
                     <h5 className='text-center m-0'>
                         <Badge variant={'brown'} className={'my-2'}>
                             房間: {this.state.roomName}
@@ -202,7 +210,7 @@ class Game extends Component {
             );
         } catch (e) {
             console.error(e);
-            return GameRoomError;
+            return <GameRoomError />;
         }
     }
 }

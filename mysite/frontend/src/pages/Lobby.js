@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import RoomItem from './Room';
 import { Button } from 'react-bootstrap';
-import axiosInstance from '../Api';
 import { Helmet } from 'react-helmet';
-import { Loading } from './Loading';
+import axiosInstance from '../api/Api';
+import RoomItem from '../components/RoomItem';
+import { Loading } from '../components/Loading';
 
 const wsProtocol = window.location.origin.includes('https') ? 'wss://' : 'ws://';
 let wsBaseURL;

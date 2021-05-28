@@ -1,6 +1,4 @@
-import React from 'react';
-
-import { Container, Nav, Navbar, Button, NavDropdown } from 'react-bootstrap';
+import { Container, Nav, Navbar, Button } from 'react-bootstrap';
 import { withRouter } from 'react-router-dom';
 import handleLogout from '../components/Logout';
 

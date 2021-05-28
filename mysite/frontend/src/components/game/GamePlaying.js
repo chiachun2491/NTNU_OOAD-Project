@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
 import { Container, Row, Col, Button, Image, Badge } from 'react-bootstrap';
-import { Helmet } from 'react-helmet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHammer, faLightbulb, faShoppingCart, faTrashAlt, faDoorOpen } from '@fortawesome/free-solid-svg-icons';
-import GameCard from '../components/GameCard';
-import { TutorialOverlayTrigger } from './TutorialOverlay';
-import cart_red from '../images/status/cart_red.png';
-import lamp_red from '../images/status/lamp_red.png';
-import pick_red from '../images/status/pick_red.png';
-import cart from '../images/status/cart.png';
-import lamp from '../images/status/lamp.png';
-import pick from '../images/status/pick.png';
+import GameCard from './GameCard';
+import { TutorialOverlayTrigger } from '../TutorialOverlay';
+import cart_red from '../../images/status/cart_red.png';
+import lamp_red from '../../images/status/lamp_red.png';
+import pick_red from '../../images/status/pick_red.png';
+import cart from '../../images/status/cart.png';
+import lamp from '../../images/status/lamp.png';
+import pick from '../../images/status/pick.png';
 
 const BOARD_BASE = 45;
 
@@ -200,9 +199,6 @@ class GamePlaying extends Component {
         }
         return (
             <>
-                <Helmet>
-                    <title>{`正在遊戲：${this.props.roomName}`}</title>
-                </Helmet>
                 <Badge className={'my-2 badge-block'} variant={variant}>
                     {msg}
                 </Badge>

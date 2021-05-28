@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-
 import { Card, Button, Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCog, faUser, faWindowClose, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
-import { Helmet } from 'react-helmet';
 
 const ROOM_VOLUME_MIN = 3;
 const ROOM_VOLUME_MAX = 10;
@@ -79,9 +77,6 @@ class GameOrganize extends Component {
         // TODO: handle kick button action
         return (
             <>
-                <Helmet>
-                    <title>{`正在等待：${this.props.roomName}`}</title>
-                </Helmet>
                 <h5 className={'text-center my-3'}>玩家列表</h5>
                 <Row className={'d-flex justify-content-center align-items-center my-3'}>
                     {admin ? (

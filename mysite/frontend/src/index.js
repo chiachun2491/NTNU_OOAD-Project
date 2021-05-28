@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.css';
-import './index.css';
-import './saboteur.scss';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
 import { Helmet } from 'react-helmet';
+import 'bootstrap/dist/css/bootstrap.css';
+import './styles/index.css';
+import './styles/saboteur.scss';
+import CustomLayout from './containers/Layout';
+import { RootSwitch } from './routes/RootSwitch';
+import reportWebVitals from './reportWebVitals';
 
 const baseTitle = '矮人礦坑';
 
@@ -16,7 +17,9 @@ ReactDOM.render(
             <Helmet>
                 <title>{baseTitle}</title>
             </Helmet>
-            <App />
+            <CustomLayout>
+                <RootSwitch />
+            </CustomLayout>
         </BrowserRouter>
     </React.StrictMode>,
     document.getElementById('root')

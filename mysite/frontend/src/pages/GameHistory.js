@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import RoomItem from './Room';
-import { Badge, Spinner } from 'react-bootstrap';
-import axiosInstance from '../Api';
+import { Badge } from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
-import { Loading } from './Loading';
+import axiosInstance from '../api/Api';
+import RoomItem from '../components/RoomItem';
+import { Loading } from '../components/Loading';
 
-class History extends Component {
+class GameHistory extends Component {
     constructor(props) {
         super(props);
 
@@ -85,4 +85,4 @@ class History extends Component {
     }
 }
 
-export default History;
+export default GameHistory;

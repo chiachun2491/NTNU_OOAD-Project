@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { faUserCog, faUser, faCrown } from '@fortawesome/free-solid-svg-icons';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Helmet } from 'react-helmet';
+import { faUserCog, faUser, faCrown } from '@fortawesome/free-solid-svg-icons';
 
 class GameEnd extends Component {
     constructor(props) {
@@ -33,9 +32,6 @@ class GameEnd extends Component {
         let max = Math.max(...players.map((p) => p.point));
         return (
             <>
-                <Helmet>
-                    <title>{`遊戲結果：${this.props.roomName}`}</title>
-                </Helmet>
                 <h5 className={'text-center my-3'}>玩家列表</h5>
                 {players.map((player) => (
                     <GamePlayer
