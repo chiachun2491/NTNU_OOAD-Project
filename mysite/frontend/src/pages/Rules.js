@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Image, Row, Col, Figure, Table } from 'react-bootstrap';
+import { Card, Image, Row, Col, Table } from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
 import board from '../images/rules/board.png';
 import card_ban1 from '../images/card/card_ban1.png';
