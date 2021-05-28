@@ -49,17 +49,21 @@ class History extends Component {
             }
             historyDiv = (
                 <>
-                    <h5 className='text-center m-0'>
-                        <Badge variant={'brown'} className={'my-2'}>
-                            尚未結束的遊戲
-                        </Badge>
-                    </h5>
+                    {roomPlayingHistory.length > 0 ? (
+                        <h5 className='text-center m-0'>
+                            <Badge variant={'brown'} className={'my-2'}>
+                                尚未結束的遊戲
+                            </Badge>
+                        </h5>
+                    ) : null}
                     {roomPlayingHistory}
-                    <h5 className='text-center m-0'>
-                        <Badge variant={'brown'} className={'my-2'}>
-                            已經結束的遊戲
-                        </Badge>
-                    </h5>
+                    {roomEndHistory.length > 0 ? (
+                        <h5 className='text-center m-0'>
+                            <Badge variant={'brown'} className={'my-2'}>
+                                已經結束的遊戲
+                            </Badge>
+                        </h5>
+                    ) : null}
                     {roomEndHistory}
                 </>
             );
