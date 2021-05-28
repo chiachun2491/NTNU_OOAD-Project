@@ -3,6 +3,7 @@ import RoomItem from './Room';
 import { Button } from 'react-bootstrap';
 import axiosInstance from '../Api';
 import { Helmet } from 'react-helmet';
+import { Loading } from './Loading';
 
 const wsProtocol = window.location.origin.includes('https') ? 'wss://' : 'ws://';
 let wsBaseURL;
@@ -14,6 +15,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 class Lobby extends Component {
+    timeout = 250;
+
     constructor(props) {
         super(props);
 
@@ -21,6 +24,7 @@ class Lobby extends Component {
             ws: null,
             roomList: [],
             socketErrorMessage: null,
+            loaded: false,
         };
 
         this.createNewRoomClicked = this.createNewRoomClicked.bind();
@@ -31,7 +35,7 @@ class Lobby extends Component {
             .get('game/room_list/')
             .then((response) => {
                 // console.log(response);
-                this.setState({ roomList: response.data });
+                this.setState({ roomList: response.data, loaded: true });
 
                 // TODO: Websocket connect to fetch new room status
                 this.connectSocket();
@@ -40,8 +44,6 @@ class Lobby extends Component {
                 console.error(err);
             });
     }
-
-    timeout = 250;
 
     connectSocket() {
         // TODO: socket connect
@@ -164,15 +166,18 @@ class Lobby extends Component {
                 <Button variant={'brown'} className={'my-3'} block={true} onClick={this.createNewRoomClicked}>
                     新增房間
                 </Button>
-
-                {roomList.map((room) => (
-                    <RoomItem
-                        key={room.permanent_url}
-                        roomName={room.permanent_url}
-                        playerAmount={room.players_length}
-                        volume={room.volume}
-                    />
-                ))}
+                {this.state.loaded ? (
+                    roomList.map((room) => (
+                        <RoomItem
+                            key={room.permanent_url}
+                            roomName={room.permanent_url}
+                            playerAmount={room.players_length}
+                            volume={room.volume}
+                        />
+                    ))
+                ) : (
+                    <Loading />
+                )}
             </>
         );
     }
