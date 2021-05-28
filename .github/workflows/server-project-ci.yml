@@ -1,0 +1,49 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Server Project CI
+
+on:
+  push:
+    branches: [ develop ]
+    
+defaults:
+  run:
+    working-directory: ./mysite/frontend
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: '15.x'
+      - run: yarn install
+      - run: CI=false yarn build
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@v2.1.7
+        env:
+            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+            REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+            REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
+            REMOTE_USER: ${{ secrets.REMOTE_USER }}
+            TARGET: ${{ secrets.REMOTE_TARGET }}
+            EXCLUDE: "mysite/frontend/node_modules/"
+  docker-compose:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: docker-compose build and up
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.REMOTE_PORT }}
+          script: |
+            cd ${{ secrets.REMOTE_TARGET }}
+            docker-compose -f docker-compose.yml -f docker-compose.ci.yml build --no-cache
+            docker-compose -f docker-compose.yml -f docker-compose.ci.yml up -d
+            
