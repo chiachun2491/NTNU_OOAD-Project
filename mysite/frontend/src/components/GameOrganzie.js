@@ -119,7 +119,9 @@ class GameOrganzie extends Component {
                     />
                 ))}
                 {/*nowVolume - nowPlayerAmount*/}
-                {Array.apply(null, Array(nowVolume - nowPlayerAmount)).map(() => EmptyGamePlayer)}
+                {Array.apply(null, Array(nowVolume - nowPlayerAmount)).map((_, index) => (
+                    <EmptyGamePlayer key={index} />
+                ))}
 
                 <Button
                     variant={'brown'}
@@ -159,7 +161,7 @@ const GamePlayer = (props) => (
     </Row>
 );
 
-const EmptyGamePlayer = (
+const EmptyGamePlayer = () => (
     <Row>
         <Col>
             <Card className='my-2'>
