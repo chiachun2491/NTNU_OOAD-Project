@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Badge } from 'react-bootstrap';
-import GameOrganzie from './GameOrganzie';
+import GameOrganize from './GameOrganize';
 import GamePlaying from './GamePlaying';
 import GameEnd from './GameEnd';
 import axiosInstance from '../Api';
@@ -161,7 +161,7 @@ class Game extends Component {
             let roundBadge, cardPoolBadge;
             if (this.state.roomData.status === RoomStatus.ORGANIZE) {
                 gameComponent = (
-                    <GameOrganzie ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData} />
+                    <GameOrganize ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData} />
                 );
             } else if (this.state.roomData.status === RoomStatus.PLAYING) {
                 gameComponent = (

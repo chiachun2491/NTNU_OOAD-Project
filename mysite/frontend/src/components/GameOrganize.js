@@ -8,7 +8,7 @@ import { Helmet } from 'react-helmet';
 const ROOM_VOLUME_MIN = 3;
 const ROOM_VOLUME_MAX = 10;
 
-class GameOrganzie extends Component {
+class GameOrganize extends Component {
     constructor(props) {
         super(props);
 
@@ -66,8 +66,8 @@ class GameOrganzie extends Component {
         const nowPlayerAmount = playersData.length;
         const nowVolume = this.props.roomData.volume;
 
-        let gameCanStart = false;
-        let gameStartButtonContent = '';
+        let gameCanStart;
+        let gameStartButtonContent;
 
         if (nowPlayerAmount < ROOM_VOLUME_MIN) {
             gameCanStart = false;
@@ -176,4 +176,4 @@ const EmptyGamePlayer = () => (
     </Row>
 );
 
-export default GameOrganzie;
+export default GameOrganize;
