@@ -86,19 +86,18 @@ class Game extends Component {
         ws.onmessage = (event) => {
             // listen to data sent from the websocket server
             const message = JSON.parse(event.data);
+            const username = localStorage.getItem('username');
             switch (message.event) {
                 case 'room_data_updated':
                     this.setState({ roomData: message.room_data });
                     // this.setState({badgeMessage: {}});
                     break;
-                // case 'alert_message':
-                //     console.log(message.message);
-                //     this.setState({alertMessage: message.message}, () => {
-                //         window.setTimeout(() => {
-                //             this.setState({alertMessage: null});
-                //         }, 2000);
-                //     });
-                //     break;
+                case 'room_player_kicked':
+                    console.log(message);
+                    if (username === message.username) {
+                        window.location.href = '/games/';
+                    }
+                    break;
                 default:
                     console.log(message);
                     break;

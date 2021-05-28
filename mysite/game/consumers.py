@@ -48,6 +48,13 @@ class GameRoomConsumer(WebsocketConsumer):
 
             elif event == 'kick_player':
                 self.room.kick_player(text_data_json['username'])
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'player_kicked',
+                        'username': text_data_json['username']
+                    }
+                )
 
             elif event == 'play_card':
                 return_msg = self.room.state_control(
@@ -114,6 +121,12 @@ class GameRoomConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'event': 'room_data_updated',
             'room_data': self._get_room_dict()
+        }))
+
+    def player_kicked(self, event):
+        self.send(text_data=json.dumps({
+            'event': 'room_player_kicked',
+            'username': event['username']
         }))
 
 
