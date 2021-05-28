@@ -18,13 +18,7 @@ const Header = (props) => {
                     {username !== null ? <Nav.Link href='/games/'>遊戲大廳</Nav.Link> : null}
                     <Nav.Link href='/tutorial/'>新手教學</Nav.Link>
                     <Nav.Link href='/rules/'>規則解說</Nav.Link>
-                    {username !== null ? (
-                        <NavDropdown title='帳號管理' id={'account-dropdown'}>
-                            <NavDropdown.Item href='/account/history/'>遊玩紀錄</NavDropdown.Item>
-                            <NavDropdown.Divider />
-                            <NavDropdown.Item href='#'>修改密碼</NavDropdown.Item>
-                        </NavDropdown>
-                    ) : null}
+                    {username !== null ? <Nav.Link href='/account/history/'>遊玩紀錄</Nav.Link> : null}
                 </Nav>
                 <Nav>
                     {username !== null ? (
