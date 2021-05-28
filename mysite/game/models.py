@@ -72,11 +72,9 @@ class GameRoom(models.Model):
                 if self.admin is None:
                     self.admin = user
 
-        elif self.status == GameRoom.StatusType.PLAYING:
+        elif self.status == GameRoom.StatusType.PLAYING or self.status == GameRoom.StatusType.END:
             if user in self.players.all():
                 can_speak = True
-        else:  # END
-            pass
 
         self.save()
         return can_speak

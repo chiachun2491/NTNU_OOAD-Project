@@ -23,15 +23,13 @@ function TutorialPopover(title = null, content = null, button = null, handleEven
     );
 }
 
-function TutorialOverlayTrigger(props) {
-    return (
-        <OverlayTrigger
-            placement={props.placement ? props.placement : 'top'}
-            overlay={props.overlay}
-            show={props.show ? props.show : false}>
-            {props.children}
-        </OverlayTrigger>
-    );
-}
+const TutorialOverlayTrigger = (props) => (
+    <OverlayTrigger
+        placement={props.placement ? props.placement : 'top'}
+        overlay={props.overlay}
+        show={props.show ? props.show : false}>
+        {props.children}
+    </OverlayTrigger>
+);
 
 export { TutorialPopover, TutorialOverlayTrigger };

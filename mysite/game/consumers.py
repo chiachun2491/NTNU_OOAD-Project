@@ -48,6 +48,13 @@ class GameRoomConsumer(WebsocketConsumer):
 
             elif event == 'kick_player':
                 self.room.kick_player(text_data_json['username'])
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'player_kicked',
+                        'username': text_data_json['username']
+                    }
+                )
 
             elif event == 'play_card':
                 return_msg = self.room.state_control(
@@ -66,6 +73,18 @@ class GameRoomConsumer(WebsocketConsumer):
                         )
                     else:
                         self.alert_message(event)
+
+            elif event == 'create_new_room':
+                new_room = GameRoom.objects.create(volume=self.room.volume, admin=self.room.admin)
+                new_room.save()
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name,
+                    {
+                        'type': 'send_new_room',
+                        'room_id': new_room.permanent_url
+                    }
+                )
+
             else:
                 # Send message to room group
                 async_to_sync(self.channel_layer.group_send)(
@@ -114,6 +133,18 @@ class GameRoomConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'event': 'room_data_updated',
             'room_data': self._get_room_dict()
+        }))
+
+    def player_kicked(self, event):
+        self.send(text_data=json.dumps({
+            'event': 'room_player_kicked',
+            'username': event['username']
+        }))
+
+    def send_new_room(self, event):
+        self.send(text_data=json.dumps({
+            'event': 'new_room_received',
+            'room_id': event['room_id']
         }))
 
 

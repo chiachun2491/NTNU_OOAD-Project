@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Form, Button } from 'react-bootstrap';
-import axiosInstance from '../Api';
 import { Helmet } from 'react-helmet';
+import axiosInstance from '../api/Api';
 
 class Signup extends Component {
     constructor(props) {

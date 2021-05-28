@@ -1,4 +1,4 @@
-import axiosInstance from '../Api';
+import axiosInstance from '../api/Api';
 
 function handleLogout() {
     try {

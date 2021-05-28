@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
-
 import { Card, Button, Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCog, faUser, faWindowClose, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
-import { Helmet } from 'react-helmet';
 
 const ROOM_VOLUME_MIN = 3;
 const ROOM_VOLUME_MAX = 10;
 
-class GameOrganzie extends Component {
+class GameOrganize extends Component {
     constructor(props) {
         super(props);
 
@@ -66,8 +64,8 @@ class GameOrganzie extends Component {
         const nowPlayerAmount = playersData.length;
         const nowVolume = this.props.roomData.volume;
 
-        let gameCanStart = false;
-        let gameStartButtonContent = '';
+        let gameCanStart;
+        let gameStartButtonContent;
 
         if (nowPlayerAmount < ROOM_VOLUME_MIN) {
             gameCanStart = false;
@@ -79,9 +77,6 @@ class GameOrganzie extends Component {
         // TODO: handle kick button action
         return (
             <>
-                <Helmet>
-                    <title>{`正在等待：${this.props.roomName}`}</title>
-                </Helmet>
                 <h5 className={'text-center my-3'}>玩家列表</h5>
                 <Row className={'d-flex justify-content-center align-items-center my-3'}>
                     {admin ? (
@@ -119,7 +114,9 @@ class GameOrganzie extends Component {
                     />
                 ))}
                 {/*nowVolume - nowPlayerAmount*/}
-                {Array.apply(null, Array(nowVolume - nowPlayerAmount)).map(() => EmptyGamePlayer)}
+                {Array.apply(null, Array(nowVolume - nowPlayerAmount)).map((_, index) => (
+                    <EmptyGamePlayer key={index} />
+                ))}
 
                 <Button
                     variant={'brown'}
@@ -159,7 +156,7 @@ const GamePlayer = (props) => (
     </Row>
 );
 
-const EmptyGamePlayer = (
+const EmptyGamePlayer = () => (
     <Row>
         <Col>
             <Card className='my-2'>
@@ -174,4 +171,4 @@ const EmptyGamePlayer = (
     </Row>
 );
 
-export default GameOrganzie;
+export default GameOrganize;

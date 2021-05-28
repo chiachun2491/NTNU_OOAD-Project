@@ -143,11 +143,11 @@ function Rules() {
                                     <Card.Text>
                                         <Row className={'d-flex justify-content-around'}>
                                             <Col xs={3} className={'pr-0 mr-3'}>
-                                                <Image src={card_ban1} fluid thumbnail />
+                                                <Image src={card_ban2} fluid thumbnail />
                                                 <Figure.Caption className={'text-center'}>破壞油燈</Figure.Caption>
                                             </Col>
                                             <Col xs={3} className={'pr-0 mr-3'}>
-                                                <Image src={card_ban2} fluid thumbnail />
+                                                <Image src={card_ban1} fluid thumbnail />
                                                 <Figure.Caption className={'text-center'}>破壞推車</Figure.Caption>
                                             </Col>
                                             <Col xs={3} className={'pr-0 mr-3'}>
@@ -171,11 +171,11 @@ function Rules() {
                                     <Card.Text>
                                         <Row className={'d-flex justify-content-around'}>
                                             <Col xs={3} className={'pr-0 mr-3'}>
-                                                <Image src={card_disban1} fluid thumbnail />
+                                                <Image src={card_disban2} fluid thumbnail />
                                                 <Figure.Caption className={'text-center'}>修理油燈</Figure.Caption>
                                             </Col>
                                             <Col xs={3} className={'pr-0 mr-3'}>
-                                                <Image src={card_disban2} fluid thumbnail />
+                                                <Image src={card_disban1} fluid thumbnail />
                                                 <Figure.Caption className={'text-center'}>修理推車</Figure.Caption>
                                             </Col>
                                             <Col xs={3} className={'pr-0 mr-3'}>

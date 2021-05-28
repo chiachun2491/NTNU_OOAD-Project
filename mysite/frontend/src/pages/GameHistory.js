@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
-import RoomItem from './Room';
-import { Badge, Spinner } from 'react-bootstrap';
-import axiosInstance from '../Api';
+import { Badge } from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
+import axiosInstance from '../api/Api';
+import RoomItem from '../components/RoomItem';
+import { Loading } from '../components/Loading';
 
-class History extends Component {
+class GameHistory extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             roomList: [],
+            loaded: false,
         };
     }
 
@@ -19,7 +21,7 @@ class History extends Component {
             .then((response) => {
                 // console.log(response);
                 let roomList = response.data;
-                this.setState({ roomList: roomList });
+                this.setState({ roomList: roomList, loaded: true });
                 console.log(roomList);
             })
             .catch((err) => {
@@ -49,28 +51,26 @@ class History extends Component {
             }
             historyDiv = (
                 <>
-                    <h5 className='text-center m-0'>
-                        <Badge variant={'brown'} className={'my-2'}>
-                            尚未結束的遊戲
-                        </Badge>
-                    </h5>
+                    {roomPlayingHistory.length > 0 ? (
+                        <h5 className='text-center m-0'>
+                            <Badge variant={'brown'} className={'my-2'}>
+                                尚未結束的遊戲
+                            </Badge>
+                        </h5>
+                    ) : null}
                     {roomPlayingHistory}
-                    <h5 className='text-center m-0'>
-                        <Badge variant={'brown'} className={'my-2'}>
-                            已經結束的遊戲
-                        </Badge>
-                    </h5>
+                    {roomEndHistory.length > 0 ? (
+                        <h5 className='text-center m-0'>
+                            <Badge variant={'brown'} className={'my-2'}>
+                                已經結束的遊戲
+                            </Badge>
+                        </h5>
+                    ) : null}
                     {roomEndHistory}
                 </>
             );
         } else {
-            historyDiv = (
-                <>
-                    <div className='d-flex align-items-center justify-content-center'>
-                        <Spinner animation='border' variant='brown' size={'sm'} className={'mr-2'} /> 載入中...
-                    </div>
-                </>
-            );
+            historyDiv = <div className={'text-muted small text-center'}>目前還沒有遊玩紀錄喔！</div>;
         }
 
         return (
@@ -79,10 +79,10 @@ class History extends Component {
                     <title>{`${username} 的遊玩紀錄`}</title>
                 </Helmet>
                 <h5 className={'text-center my-3'}>{username} 的遊玩紀錄</h5>
-                {historyDiv}
+                {this.state.loaded ? historyDiv : <Loading />}
             </>
         );
     }
 }
 
-export default History;
+export default GameHistory;

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Row, Col, Button, Spinner } from 'react-bootstrap';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet';
-import axiosInstance from '../Api';
+import axiosInstance from '../../api/Api';
 
 class NetworkError extends Component {
     messageDefault = '重新連線中...';
