@@ -255,6 +255,7 @@ function OtherGamePlayer(props) {
     return (
         <Col xs={4} lg={6} className={'px-2 my-2'}>
             <Button
+                className={'text-wrap'}
                 variant={props.nowPlaying ? 'brown' : 'outline-brown'}
                 size={'sm'}
                 block={true}
@@ -287,6 +288,7 @@ function SelfGamePlayer(props) {
                 <Col xs={8} lg={12} className={'px-2'}>
                     <TutorialOverlayTrigger placement={'top'} overlay={overlay} show={showPosition === 'SELF_BTN'}>
                         <Button
+                            className={'text-wrap'}
                             variant={props.nowPlaying ? 'brown' : 'outline-brown'}
                             block={true}
                             size={''}
