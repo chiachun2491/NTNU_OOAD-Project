@@ -196,7 +196,7 @@ class Game extends Component {
             return (
                 <>
                     <Helmet>
-                        <title>{`${title}：${this.props.roomName}`}</title>
+                        <title>{`${title}：${this.state.roomName}`}</title>
                     </Helmet>
                     <h5 className='text-center m-0'>
                         <Badge variant={'brown'} className={'my-2'}>
