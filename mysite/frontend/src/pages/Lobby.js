@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet';
 import axiosInstance from '../api/Api';
 import RoomItem from '../components/RoomItem';
 import { Loading } from '../components/Loading';
+import getUserName from '../utils/getUserName';
 
 const wsProtocol = window.location.origin.includes('https') ? 'wss://' : 'ws://';
 let wsBaseURL;
@@ -143,7 +144,7 @@ class Lobby extends Component {
     }
 
     render() {
-        const username = localStorage.getItem('username');
+        const username = getUserName();
         const roomList = this.state.roomList;
         // sort by value
         roomList.sort(function (a, b) {

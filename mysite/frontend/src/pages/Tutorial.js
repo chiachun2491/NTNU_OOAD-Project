@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Badge } from 'react-bootstrap';
 import GamePlaying from '../components/game/GamePlaying';
 import { TutorialPopover, TutorialOverlayTrigger } from '../components/TutorialOverlay';
+import getUserName from '../utils/getUserName';
 
 class Tutorial extends Component {
     constructor(props) {
@@ -21,7 +22,7 @@ class Tutorial extends Component {
     changeStep(cardNo = null, rotate = null, pos = null, action = null, button = null) {
         let newState = this.state;
         let gameData = newState.roomData.game_data;
-        const username = localStorage.getItem('username') ? localStorage.getItem('username') : '你';
+        const username = getUserName() || '你';
         if (newState.nowStep === TutorialStep.INTRO && button === true) {
             newState.nowStep = TutorialStep.SELECT_ROAD_AND_ROTATE;
         } else if (newState.nowStep === TutorialStep.SELECT_ROAD_AND_ROTATE && cardNo === 9 && rotate === true) {
@@ -145,6 +146,7 @@ class Tutorial extends Component {
                 <GamePlayingTutorial
                     roomName={this.state.roomName}
                     roomData={this.state.roomData}
+                    username={getUserName()}
                     socketErrorMessage={null}
                     popover={popover}
                     nowStep={this.state.nowStep}
@@ -440,10 +442,10 @@ const TutorialGameData = {
         ],
     ],
     round: 1,
-    now_play: localStorage.getItem('username') ? localStorage.getItem('username') : '你',
+    now_play: getUserName() || '你',
     return_msg: [
         {
-            msg: `Hi! ${localStorage.getItem('username') ? localStorage.getItem('username') : ''} 跟著指示一起操作吧！`,
+            msg: `Hi! ${getUserName() || ''} 跟著指示一起操作吧！`,
             msg_type: 'ERROR',
         },
         {
@@ -457,7 +459,7 @@ const TutorialGameData = {
     ],
     player_list: [
         {
-            id: localStorage.getItem('username') ? localStorage.getItem('username') : '你',
+            id: getUserName() || '你',
             role: true,
             point: 0,
             hand_cards: [

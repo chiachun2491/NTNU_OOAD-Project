@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
 import axiosInstance from '../api/Api';
+import getUserName from '../utils/getUserName';
 
 class Signup extends Component {
     constructor(props) {
@@ -44,8 +45,7 @@ class Signup extends Component {
     }
 
     render() {
-        const username = localStorage.getItem('username');
-        if (username != null) {
+        if (getUserName()) {
             window.location.href = '/games/';
         } else {
             return (

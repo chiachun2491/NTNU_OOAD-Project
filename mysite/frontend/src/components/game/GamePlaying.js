@@ -52,7 +52,7 @@ class GamePlaying extends Component {
     }
 
     actionIsLegal(pos, action) {
-        const username = localStorage.getItem('username') ? localStorage.getItem('username') : '你';
+        const username = this.props.username || '你';
         if (this.props.roomData.game_data.now_play === username) {
             if (this.state.selectHandCardNo !== -1) {
                 if (this.cardIsMulti(this.state.selectHandCardNo) && action === -1 && pos >= BOARD_BASE) {
@@ -120,7 +120,7 @@ class GamePlaying extends Component {
     }
 
     render() {
-        const username = localStorage.getItem('username') ? localStorage.getItem('username') : '你';
+        const username = this.props.username || '你';
         const gameData = this.props.roomData.game_data;
         const nowStep =
             this.props.nowStep !== undefined

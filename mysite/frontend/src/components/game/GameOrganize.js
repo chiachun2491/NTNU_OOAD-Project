@@ -52,7 +52,7 @@ class GameOrganize extends Component {
     }
 
     render() {
-        const username = localStorage.getItem('username');
+        const username = this.props.username;
         const adminName = this.props.roomData.admin;
         const admin = adminName === username;
 

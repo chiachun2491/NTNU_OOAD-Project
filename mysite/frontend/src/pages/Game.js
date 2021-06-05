@@ -6,6 +6,7 @@ import GameOrganize from '../components/game/GameOrganize';
 import GamePlaying from '../components/game/GamePlaying';
 import GameEnd from '../components/game/GameEnd';
 import GameRoomError from '../components/errors/GameRoomError';
+import getUserName from '../utils/getUserName';
 
 const wsProtocol = window.location.origin.includes('https') ? 'wss://' : 'ws://';
 let wsBaseURL;
@@ -83,7 +84,7 @@ class Game extends Component {
         ws.onmessage = (event) => {
             // listen to data sent from the websocket server
             const message = JSON.parse(event.data);
-            const username = localStorage.getItem('username');
+            const username = getUserName();
             switch (message.event) {
                 case 'room_data_updated':
                     this.setState({ roomData: message.room_data });
@@ -157,20 +158,19 @@ class Game extends Component {
             let gameComponent;
             let roundBadge, cardPoolBadge;
             let title;
+            const props = {
+                ws: this.state.ws,
+                roomName: this.state.roomName,
+                roomData: this.state.roomData,
+                socketErrorMessage: this.state.socketErrorMessage,
+                username: getUserName(),
+            };
             if (this.state.roomData.status === RoomStatus.ORGANIZE) {
-                gameComponent = (
-                    <GameOrganize ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData} />
-                );
                 title = '正在等待';
+                gameComponent = <GameOrganize {...props} />;
             } else if (this.state.roomData.status === RoomStatus.PLAYING) {
-                gameComponent = (
-                    <GamePlaying
-                        ws={this.state.ws}
-                        roomName={this.state.roomName}
-                        roomData={this.state.roomData}
-                        socketErrorMessage={this.state.socketErrorMessage}
-                    />
-                );
+                title = '正在遊戲';
+                gameComponent = <GamePlaying {...props} />;
                 roundBadge = (
                     <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
                         回合： {this.state.roomData.game_data.round} / 3
@@ -181,12 +181,9 @@ class Game extends Component {
                         卡池剩餘：{this.state.roomData.game_data.card_pool.length}
                     </Badge>
                 );
-                title = '正在遊戲';
             } else if (this.state.roomData.status === RoomStatus.END) {
-                gameComponent = (
-                    <GameEnd ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData} />
-                );
                 title = '遊戲結果';
+                gameComponent = <GameEnd {...props} />;
             }
 
             return (

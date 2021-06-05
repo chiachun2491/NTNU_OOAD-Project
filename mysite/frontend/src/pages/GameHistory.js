@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Badge } from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
 import axiosInstance from '../api/Api';
+import getUserName from '../utils/getUserName';
 import RoomItem from '../components/RoomItem';
 import { Loading } from '../components/Loading';
 
@@ -28,7 +29,7 @@ class GameHistory extends Component {
     }
 
     render() {
-        const username = localStorage.getItem('username');
+        const username = getUserName();
         let roomPlayingHistory = [];
         let roomEndHistory = [];
         let historyDiv;

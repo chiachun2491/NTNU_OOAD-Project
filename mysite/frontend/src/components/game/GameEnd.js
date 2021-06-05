@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCog, faUser, faCrown } from '@fortawesome/free-solid-svg-icons';
+import getUserName from '../../utils/getUserName';
 
 class GameEnd extends Component {
     constructor(props) {
@@ -19,7 +20,7 @@ class GameEnd extends Component {
     }
 
     render() {
-        const username = localStorage.getItem('username');
+        const username = this.props.username;
         const adminName = this.props.roomData.admin;
         const admin = adminName === username;
 

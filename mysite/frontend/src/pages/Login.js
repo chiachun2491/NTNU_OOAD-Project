@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
 import axiosInstance from '../api/Api';
+import getUserName from '../utils/getUserName';
 
 class Login extends Component {
     constructor(props) {
@@ -42,7 +43,6 @@ class Login extends Component {
                 axiosInstance.defaults.headers['Authorization'] = 'JWT ' + response.data.access;
                 localStorage.setItem('access_token', response.data.access);
                 localStorage.setItem('refresh_token', response.data.refresh);
-                localStorage.setItem('username', this.state.username);
                 if (this.state.redirectURL) {
                     window.location.href = this.state.redirectURL;
                 } else {
@@ -59,8 +59,7 @@ class Login extends Component {
     }
 
     render() {
-        const username = localStorage.getItem('username');
-        if (username != null) {
+        if (getUserName()) {
             window.location.href = '/games/';
         } else {
             return (
