@@ -52,10 +52,9 @@ class GamePlaying extends Component {
     }
 
     actionIsLegal(pos, action) {
-        const username = localStorage.getItem('username') ? localStorage.getItem('username') : '你';
+        const username = this.props.username || '你';
         if (this.props.roomData.game_data.now_play === username) {
             if (this.state.selectHandCardNo !== -1) {
-                console.log(this.state.selectHandCardNo, this.state.selectHandCardRotate, pos, action);
                 if (this.cardIsMulti(this.state.selectHandCardNo) && action === -1 && pos >= BOARD_BASE) {
                     this.setState(
                         {
@@ -110,7 +109,7 @@ class GamePlaying extends Component {
                     })
                 );
             } catch (e) {
-                console.log(e);
+                console.error(e);
             }
             // reset select card
             this.setState({
@@ -121,7 +120,7 @@ class GamePlaying extends Component {
     }
 
     render() {
-        const username = localStorage.getItem('username') ? localStorage.getItem('username') : '你';
+        const username = this.props.username || '你';
         const gameData = this.props.roomData.game_data;
         const nowStep =
             this.props.nowStep !== undefined
@@ -136,7 +135,7 @@ class GamePlaying extends Component {
         const popover = this.props.popover !== undefined ? this.props.popover : null;
 
         // set self_id
-        let self_id = 0;
+        let self_id = -1;
         const list_len = gameData.player_list.length;
         for (let i = 0; i < list_len; i++) {
             if (gameData.player_list[i].id === username) {
@@ -147,8 +146,8 @@ class GamePlaying extends Component {
 
         // set other players components
         let other_players = [];
-        for (let i = 1; i < list_len; i++) {
-            let playerIndex = (self_id + i) % list_len;
+        for (let i = self_id === -1 ? 0 : 1; i < list_len; i++) {
+            let playerIndex = ((self_id === -1 ? 0 : self_id) + i) % list_len;
             let player = gameData.player_list[playerIndex];
             other_players.push(
                 <TutorialOverlayTrigger
@@ -174,7 +173,17 @@ class GamePlaying extends Component {
         } else if (this.state.alertMessage !== null) {
             alertMessage = this.state.alertMessage;
         } else {
-            alertMessage = gameData.return_msg[self_id];
+            if (self_id !== -1) {
+                alertMessage = gameData.return_msg[self_id];
+            } else {
+                alertMessage = Object.entries(
+                    gameData.return_msg.reduce((a, v) => {
+                        msg = v.msg;
+                        a[msg] = a[msg] ? { v: v, count: a[msg].count + 1 } : { v: v, count: 1 };
+                        return a;
+                    }, {})
+                ).reduce((a, v) => (v[1].count >= a[1].count ? v : a), [null, { count: 0 }])[1].v;
+            }
         }
         let variant;
         if (alertMessage) {
@@ -228,17 +237,19 @@ class GamePlaying extends Component {
                         <Col xs={12} lg={4}>
                             {/* Rival name & status */}
                             <Row>{other_players}</Row>
-                            <SelfGamePlayer
-                                player={gameData.player_list[self_id]}
-                                playerID={self_id}
-                                nowPlaying={gameData.now_play === username}
-                                onHandCardClick={this.handleHandCardClick}
-                                selectHandCardNo={this.state.selectHandCardNo}
-                                selectHandCardRotate={this.state.selectHandCardRotate}
-                                onPositionClick={this.handlePositionClick}
-                                overlay={popover}
-                                showPosition={nowStep.showPosition}
-                            />
+                            {self_id !== -1 ? (
+                                <SelfGamePlayer
+                                    player={gameData.player_list[self_id]}
+                                    playerID={self_id}
+                                    nowPlaying={gameData.now_play === username}
+                                    onHandCardClick={this.handleHandCardClick}
+                                    selectHandCardNo={this.state.selectHandCardNo}
+                                    selectHandCardRotate={this.state.selectHandCardRotate}
+                                    onPositionClick={this.handlePositionClick}
+                                    overlay={popover}
+                                    showPosition={nowStep.showPosition}
+                                />
+                            ) : null}
                         </Col>
                     </Row>
                 </Container>

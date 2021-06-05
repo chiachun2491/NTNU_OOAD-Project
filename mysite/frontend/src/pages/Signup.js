@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
 import axiosInstance from '../api/Api';
+import getUserName from '../utils/getUserName';
 
 class Signup extends Component {
     constructor(props) {
@@ -32,21 +33,19 @@ class Signup extends Component {
                 email: this.state.email,
             })
             .then((response) => {
-                console.log(response.data);
                 window.location.href = '/account/login/';
             })
             .catch((err) => {
-                console.log(err.response);
+                console.error(err.response);
                 this.setState({
                     errors: err.response.data,
                 });
-                console.log(this.state.errors);
+                console.error(this.state.errors);
             });
     }
 
     render() {
-        const username = localStorage.getItem('username');
-        if (username != null) {
+        if (getUserName()) {
             window.location.href = '/games/';
         } else {
             return (

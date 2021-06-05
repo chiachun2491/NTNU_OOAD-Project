@@ -1,16 +1,13 @@
-from authentication.models import CustomUser
-from django.db import models
-from django.urls import reverse
-from datetime import datetime
 import base64
 import hashlib
-
+from datetime import datetime
+from django.db import models
+from django.urls import reverse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+
+from authentication.models import CustomUser
 from saboteur import GameController, GameState
-
-
-# Create your models here.
 
 
 class GameRoom(models.Model):
@@ -101,7 +98,7 @@ class GameRoom(models.Model):
             # send delete alert to lobby
             self._send_delete_to_lobby()
             # create new n-player GameController
-            self.init_game_data()
+            self._init_game_data()
             self.save()
 
         elif status == GameRoom.StatusType.END:
@@ -113,6 +110,25 @@ class GameRoom(models.Model):
                 playerData.save()
 
             self.save()
+
+    def state_control(self, card_id, position, rotate, action):
+        controller = self._get_controller()
+        # play card and get feedback
+        return_msg = controller.state_control(card_id=card_id, position=position, rotate=rotate, act_type=action)
+
+        # save result
+        self.game_data = controller.to_dict()
+        self.save()
+
+        # determine end game or not
+        if controller.game_state == GameState.end_game:
+            self.change_status(GameRoom.StatusType.END)
+
+        return return_msg
+
+    def _init_game_data(self):
+        controller = GameController.from_scratch(self._get_player_list())
+        self.game_data = controller.to_dict()
 
     def _get_player_list(self):
         return [player.username for player in self.players.all()]
@@ -149,26 +165,6 @@ class GameRoom(models.Model):
                 'type': 'update_room',
             }
         )
-
-    def init_game_data(self):
-        controller = GameController.from_scratch(self._get_player_list())
-        self.game_data = controller.to_dict()
-
-    def state_control(self, card_id, position, rotate, action):
-        print('model state_control called')
-        controller = self._get_controller()
-        # play card and get feedback
-        return_msg = controller.state_control(card_id=card_id, position=position, rotate=rotate, act_type=action)
-
-        # save result
-        self.game_data = controller.to_dict()
-        self.save()
-
-        # determine end game or not
-        if controller.game_state == GameState.end_game:
-            self.change_status(GameRoom.StatusType.END)
-
-        return return_msg
 
 
 class PlayerData(models.Model):

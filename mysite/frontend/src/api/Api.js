@@ -3,9 +3,9 @@ import axios from 'axios';
 let APIbaseURL;
 
 if (process.env.NODE_ENV === 'production') {
-    APIbaseURL = window.location.origin + /api/;
+    APIbaseURL = window.location.origin + '/api/';
 } else {
-    APIbaseURL = process.env.REACT_APP_API_URL;
+    APIbaseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/';
 }
 
 const axiosInstance = axios.create({
@@ -46,7 +46,6 @@ axiosInstance.interceptors.response.use(
 
                 // exp date in token is expressed in seconds, while now() returns milliseconds:
                 const now = Math.ceil(Date.now() / 1000);
-                console.log(tokenParts.exp);
 
                 if (tokenParts.exp > now) {
                     return axiosInstance
