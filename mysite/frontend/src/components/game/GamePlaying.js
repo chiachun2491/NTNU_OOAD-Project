@@ -55,7 +55,6 @@ class GamePlaying extends Component {
         const username = localStorage.getItem('username') ? localStorage.getItem('username') : '你';
         if (this.props.roomData.game_data.now_play === username) {
             if (this.state.selectHandCardNo !== -1) {
-                console.log(this.state.selectHandCardNo, this.state.selectHandCardRotate, pos, action);
                 if (this.cardIsMulti(this.state.selectHandCardNo) && action === -1 && pos >= BOARD_BASE) {
                     this.setState(
                         {
@@ -110,7 +109,7 @@ class GamePlaying extends Component {
                     })
                 );
             } catch (e) {
-                console.log(e);
+                console.error(e);
             }
             // reset select card
             this.setState({

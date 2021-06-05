@@ -19,10 +19,8 @@ class GameHistory extends Component {
         axiosInstance
             .get('game/history/')
             .then((response) => {
-                // console.log(response);
                 let roomList = response.data;
                 this.setState({ roomList: roomList, loaded: true });
-                console.log(roomList);
             })
             .catch((err) => {
                 console.error(err);

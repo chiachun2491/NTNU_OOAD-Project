@@ -34,7 +34,6 @@ class Lobby extends Component {
         axiosInstance
             .get('game/room_list/')
             .then((response) => {
-                // console.log(response);
                 this.setState({ roomList: response.data, loaded: true });
 
                 // TODO: Websocket connect to fetch new room status
@@ -50,11 +49,9 @@ class Lobby extends Component {
         // check token valid first
         axiosInstance
             .get('/auth/hello/')
-            .then((response) => {
-                console.log('obtain/refresh token successfully', response);
-            })
+            .then((response) => {})
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             });
 
         const token = localStorage.getItem('access_token');
@@ -64,7 +61,6 @@ class Lobby extends Component {
 
         ws.onopen = () => {
             // on connecting, do nothing but log it to the console
-            console.log('connected');
             this.setState({ socketErrorMessage: null });
 
             this.setState({ ws: ws });
@@ -93,7 +89,7 @@ class Lobby extends Component {
                     newRoomList.splice(roomIndex);
                     break;
                 default:
-                    console.log(message);
+                    console.error('This event did not handled', message);
                     break;
             }
             this.setState({ roomList: newRoomList });
@@ -118,7 +114,7 @@ class Lobby extends Component {
 
     countDownMsgSet = (timeout) => {
         const close_msg = `Socket is closed. Reconnect will be attempted in ${timeout / 1000} second.`;
-        console.log(close_msg);
+        console.error(close_msg);
         this.setState({ socketErrorMessage: close_msg }, () => {
             if (timeout - 1000 < 0) {
                 this.setState({ socketErrorMessage: 'Reconnecting...' });
@@ -139,7 +135,6 @@ class Lobby extends Component {
         axiosInstance
             .post('/game/room_create/')
             .then((response) => {
-                // console.log(response.data);
                 window.location.href = '/games/' + response.data.permanent_url + '/';
             })
             .catch((err) => {

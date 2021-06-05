@@ -32,15 +32,14 @@ class Signup extends Component {
                 email: this.state.email,
             })
             .then((response) => {
-                console.log(response.data);
                 window.location.href = '/account/login/';
             })
             .catch((err) => {
-                console.log(err.response);
+                console.error(err.response);
                 this.setState({
                     errors: err.response.data,
                 });
-                console.log(this.state.errors);
+                console.error(this.state.errors);
             });
     }
 

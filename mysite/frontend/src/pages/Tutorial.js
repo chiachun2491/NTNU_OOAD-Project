@@ -22,7 +22,6 @@ class Tutorial extends Component {
         let newState = this.state;
         let gameData = newState.roomData.game_data;
         const username = localStorage.getItem('username') ? localStorage.getItem('username') : '你';
-        // console.log(newState.nowStep, cardNo, rotate, pos, action, button);
         if (newState.nowStep === TutorialStep.INTRO && button === true) {
             newState.nowStep = TutorialStep.SELECT_ROAD_AND_ROTATE;
         } else if (newState.nowStep === TutorialStep.SELECT_ROAD_AND_ROTATE && cardNo === 9 && rotate === true) {

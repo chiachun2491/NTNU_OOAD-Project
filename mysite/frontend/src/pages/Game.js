@@ -41,7 +41,6 @@ class Game extends Component {
         axiosInstance
             .get('/game/' + roomName + '/')
             .then((response) => {
-                console.log(response.data);
                 this.setState({ roomData: response.data });
                 this.connectSocket(roomName);
             })
@@ -60,11 +59,9 @@ class Game extends Component {
         // check token valid first
         axiosInstance
             .get('/auth/hello/')
-            .then((response) => {
-                console.log('obtain/refresh token successfully', response);
-            })
+            .then((response) => {})
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             });
 
         const token = localStorage.getItem('access_token');
@@ -74,7 +71,6 @@ class Game extends Component {
 
         ws.onopen = () => {
             // on connecting, do nothing but log it to the console
-            console.log('connected');
             this.setState({ socketErrorMessage: null });
 
             this.setState({ ws: ws });
@@ -102,7 +98,7 @@ class Game extends Component {
                     window.location.href = `/games/${message.room_id}/`;
                     break;
                 default:
-                    console.log(message);
+                    console.error('This event did not handled', message);
                     break;
             }
         };
@@ -126,7 +122,7 @@ class Game extends Component {
 
     countDownMsgSet = (timeout) => {
         const close_msg = `連線已中斷，我們將在 ${timeout / 1000} 秒後重新連線`;
-        console.log(close_msg);
+        console.error(close_msg);
         this.setState(
             {
                 socketErrorMessage: {

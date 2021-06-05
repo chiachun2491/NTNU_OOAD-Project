@@ -39,7 +39,6 @@ class Login extends Component {
                 password: this.state.password,
             })
             .then((response) => {
-                console.log(response.data);
                 axiosInstance.defaults.headers['Authorization'] = 'JWT ' + response.data.access;
                 localStorage.setItem('access_token', response.data.access);
                 localStorage.setItem('refresh_token', response.data.refresh);
@@ -51,11 +50,11 @@ class Login extends Component {
                 }
             })
             .catch((err) => {
-                console.log(err.response);
+                console.error(err.response);
                 this.setState({
                     errors: err.response.data,
                 });
-                console.log(this.state.errors);
+                console.error(this.state.errors);
             });
     }
 
