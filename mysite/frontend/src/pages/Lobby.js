@@ -11,7 +11,7 @@ let wsBaseURL;
 if (process.env.NODE_ENV === 'production') {
     wsBaseURL = window.location.host;
 } else {
-    wsBaseURL = process.env.REACT_APP_WS_URL;
+    wsBaseURL = process.env.REACT_APP_WS_URL || 'localhost:8000';
 }
 
 class Lobby extends Component {

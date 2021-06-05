@@ -3,9 +3,9 @@ import axios from 'axios';
 let APIbaseURL;
 
 if (process.env.NODE_ENV === 'production') {
-    APIbaseURL = window.location.origin + /api/;
+    APIbaseURL = window.location.origin + '/api/';
 } else {
-    APIbaseURL = process.env.REACT_APP_API_URL;
+    APIbaseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/';
 }
 
 const axiosInstance = axios.create({
