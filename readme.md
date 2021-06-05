@@ -65,7 +65,7 @@ ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 ```
 
-Becasue of Django need database, so you need to prepare database and redis in your envrionment, you can just start docker-compose redis and Postgres service.
+Because of Django need database, so you need to prepare database and redis in your environment, you can just start docker-compose redis and Postgres service.
 
 ```ba
 docker-compose up -d db redis
@@ -172,7 +172,7 @@ Please make sure to update tests as appropriate.
 
 ## Authors and acknowledgment
 
-This repository is a team project work in OOAD class teached by [Prof. Chun-Han Lin](https://sites.google.com/site/aaronchlin/home_e?authuser=0).
+This repository is a team project work in OOAD class taught by [Prof. Chun-Han Lin](https://sites.google.com/site/aaronchlin/home_e?authuser=0).
 
 ### Course info
 
@@ -193,3 +193,5 @@ This repository is a team project work in OOAD class teached by [Prof. Chun-Han 
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
+
+This project is a digital version of the well-known board game Saboteur, so all the copyrights of the game content belong to the game company. Therefore, we do not recommend that you use it for a commercial profit. In this project, we used it for academic reference only.
