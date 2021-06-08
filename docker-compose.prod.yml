@@ -22,7 +22,6 @@ services:
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
 
   app:
-    container_name: ooad-django
     build:
       context: ./mysite
       dockerfile: Dockerfile.prod
