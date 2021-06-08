@@ -1,29 +1,13 @@
 version: '3'
 services:
 
-  nginx:
-    container_name: ooad-nginx
-    build: ./nginx
-    restart: always
-    volumes:
-      - ./nginx/log:/var/log/nginx
-      - ./mysite:/docker_django
-    depends_on:
-      - app
-    environment:
-      - VIRTUAL_HOST=${VIRTUAL_HOST}
-      - VIRTUAL_NETWORK=${VIRTUAL_NETWORK}
-      - VIRTUAL_PORT=${VIRTUAL_PORT}
-      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST}
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
-
   redis:
     container_name: ooad-redis
     image: redis
     restart: always
     command: ["redis-server", "--appendonly", "yes"]
-    ports:
-      - "6379:6379"
+    expose:
+      - 6379
     volumes:
       - redis-data:/data
     depends_on:
@@ -38,10 +22,10 @@ services:
       python manage.py migrate &&
       daphne -b 0.0.0.0 -p 8000 mysite.asgi:application"
     restart: always
-    ports:
-      - "8000:8000"
+    expose:
+      - 8000
     volumes:
-      - ./mysite:/mysite
+      - django-data:/mysite
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -52,8 +36,8 @@ services:
   db:
     container_name: ooad-postgres
     restart: always
-    ports:
-      - "5432:5432"
+    expose:
+      - 5432
     image: postgres
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -63,4 +47,5 @@ services:
 volumes:
   redis-data:
   pgdata:
+  django-data:
 

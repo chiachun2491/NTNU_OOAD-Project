@@ -9,6 +9,7 @@ services:
     restart: always
     volumes:
       - ./nginx/log:/var/log/nginx
+      - ./mysite:/docker_django
     networks:
       - proxy
     depends_on:
@@ -21,10 +22,11 @@ services:
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
 
   app:
-    container_name: ooad-django
     build:
       context: ./mysite
       dockerfile: Dockerfile.ci
+    volumes:
+      - ./mysite:/mysite
     networks:
       - proxy
       - default
