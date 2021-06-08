@@ -4,107 +4,151 @@ It's an online game website created by the well-known board game Saboteur. All g
 
 ## Installation
 
-### Docker-compose version (Suggest)
+### Step1: Generate your own SECRET_KEY
 
-Export environment variable or add `.env` at repo root directory.
+You can generate from [`django.core.management.utils.get_random_secret_key()`](https://github.com/django/django/blob/3c447b108ac70757001171f7a4791f493880bf5b/django/core/management/utils.py#L82).
 
-```bash
-export SECRET_KEY='PUT_YOUR_SECRET_KEY_HERE'
-export POSTGRES_PASSWORD='SET_YOUR_OWN_DATABASE_PASSWORD_HERE'
-```
+About more Django SECRET_KEY information ([django docs](https://docs.djangoproject.com/en/3.2/ref/settings/#secret-key)).
 
-or 
+### Step2: Setup environment
 
-```bash
-# .env
-SECRET_KEY=PUT_YOUR_SECRET_KEY_HERE
-POSTGRES_PASSWORD=SET_YOUR_OWN_DATABASE_PASSWORD_HERE
-```
+We suggest you use `docker-compose` version setup your local server, it's simply and clean, or if you want go on develop more feature, you can setup `node.js + django + db + redis` yourself.
 
-Please prepare the [docker-compose]() and [docker]() environment first.
+#### Docker-compose version (Suggest for setup localhost server)
 
- ```bash
- docker-compose build --no-cache
- ```
+1. Export environment variable or add `.env` at repo root directory.
 
-### No-NGINX localhost version (For development)
+   ```bash
+   export SECRET_KEY='PUT_YOUR_SECRET_KEY_HERE'
+   export POSTGRES_PASSWORD='SET_YOUR_OWN_DATABASE_PASSWORD_HERE'
+   ```
 
-Use the node.js package manager yarn to install react.js and other frontend requirements.
+   or
 
-```bash
-# if you don't have installed yarn install it first
-brew install yarn 
-# or 
-npm install yarn --g
+   ```bash
+   # .env
+   SECRET_KEY=PUT_YOUR_SECRET_KEY_HERE
+   POSTGRES_PASSWORD=SET_YOUR_OWN_DATABASE_PASSWORD_HERE
+   ```
 
-cd mysite/frontend/
-yarn install
-```
+2. Please prepare the [docker-compose](https://docs.docker.com/compose/) and [docker](https://docs.docker.com/) environment first.
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install Django and other backend requirements.
+   ```bash
+   docker-compose build --no-cache
+   ```
 
-```bash
-cd mysite/
-pip install -r requirements.txt
-```
+#### Development version (node.js + django + db + redis)
 
-Add `local_settings.py` in `mysite/mysite/settings/`
+1. Use the [node.js](https://nodejs.org/) package manager [yarn](https://yarnpkg.com/) to install react.js and other frontend requirements.
 
-```python
-# mysite/mysite/settings/local_settings.py
-import os
-os.environ['SECRET_KEY'] = 'PUT_YOUR_SECRET_KEY_HERE'
-os.environ['POSTGRES_PASSWORD'] = 'PUT_YOUR_DATABASE_PASSWORD_HERE' 
+   ```bash
+   # if you don't have installed yarn install it first
+   brew install yarn 
+   # or 
+   npm install yarn --g
+   
+   cd mysite/frontend/
+   yarn install
+   ```
 
-from .base import *
+2. Use the package manager [pip](https://pip.pypa.io/en/stable/) to install Django and other backend requirements.
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+   ```bash
+   cd mysite/
+   pip install -r requirements.txt
+   ```
 
-ALLOWED_HOSTS = ['*']
-CORS_ORIGIN_ALLOW_ALL = True
-```
+3. Because of Django need database, so you need to prepare database and redis in your environment, you can just start docker-compose redis and Postgres service,
 
-Because of Django need database, so you need to prepare database and redis in your environment, you can just start docker-compose redis and Postgres service.
+   ```bash
+   export POSTGRES_PASSWORD='SET_YOUR_OWN_DATABASE_PASSWORD_HERE'  
+   # or you can add in .env
+   
+   docker-compose up -d db redis
+   ```
 
-```ba
-docker-compose up -d db redis
-```
+   then add `local_settings.py` in `mysite/mysite/settings/`.
 
-Or if you have own database and redis server, you need to add your setting in Django settings file to connect you database servers.
+   ```python
+   # mysite/mysite/settings/local_settings.py
+   import os
+   os.environ['SECRET_KEY'] = 'PUT_YOUR_SECRET_KEY_HERE'
+   os.environ['POSTGRES_PASSWORD'] = 'SET_YOUR_DATABASE_PASSWORD_HERE' 
+   
+   from .base import *
+   
+   # SECURITY WARNING: don't run with debug turned on in production!
+   DEBUG = True
+   
+   ALLOWED_HOSTS = ['*']
+   CORS_ORIGIN_ALLOW_ALL = True
+   
+   # Channels
+   ASGI_APPLICATION = 'mysite.asgi.application'
+   CHANNEL_LAYERS = {
+       'default': {
+           'BACKEND': 'channels_redis.core.RedisChannelLayer',
+           'CONFIG': {
+               "hosts": [('localhost', 6379)],  # edit your redis service host and port here
+           },
+       },
+   }
+   
+   # Database
+   # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+   # Edit following field to fit your database setting
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+           'NAME': 'postgres',
+           'USER': 'postgres',
+           'PASSWORD': str(os.environ['POSTGRES_PASSWORD']),
+           'HOST': 'localhost',
+           'PORT': 5432,
+       }
+   }
+   ```
 
-```python
-# mysite/mysite/settings/local_settings.py
+   Or if you have own database and redis server, you need to edit your setting in Django settings file to connect you database servers.
 
-# Channels
-ASGI_APPLICATION = 'mysite.asgi.application'
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('redis', 6379)],  # edit your redis service host and port here
-        },
-    },
-}
+   ##### Django database and redis setting references
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-# Edit following field to fit your database setting
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': str(os.environ['POSTGRES_PASSWORD']),
-        'HOST': 'db',
-        'PORT': 5432,
-    }
-}
-```
+   + Django database setting: https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+
+   + Redis channel layer setting: https://channels.readthedocs.io/en/stable/topics/channel_layers.html
+
+   ```python
+   # mysite/mysite/settings/local_settings.py
+   
+   # Channels
+   ASGI_APPLICATION = 'mysite.asgi.application'
+   CHANNEL_LAYERS = {
+       'default': {
+           'BACKEND': 'channels_redis.core.RedisChannelLayer',
+           'CONFIG': {
+               "hosts": [('redis', 6379)],  # edit your redis service host and port here
+           },
+       },
+   }
+   
+   # Database
+   # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+   # Edit following field to fit your database setting
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+           'NAME': 'postgres',
+           'USER': 'postgres',
+           'PASSWORD': str(os.environ['POSTGRES_PASSWORD']),
+           'HOST': 'db',
+           'PORT': 5432,
+       }
+   }
+   ```
 
 ## Usage
 
-### Docker-compose version (Suggest)
+### Docker-compose version (Suggest for setup localhost server)
 
 #### Start server
 
@@ -114,7 +158,7 @@ Start docker-compose services up, then open your browser to view website http://
 docker-compose up -d
 ```
 
-### No-NGINX localhost version (For development)
+### Development version (node.js + django + db + redis)
 
 Start react and django server then open your browser to view website http://localhost:3000/.
 
@@ -142,9 +186,11 @@ yarn start
 ## Content of this repo
 
 ```tree
+├── .env                         # environment variables
 ├── docker-compose.ci.yml        # docker-compose github action setting 
+├── docker-compose.override.yml  # docker-compose localhost setting 
 ├── docker-compose.prod.yml      # docker-compose production setting
-├── docker-compose.yml           # docker-compose localhost setting
+├── docker-compose.yml           # docker-compose base setting
 ├── mysite/                      # Django project (backend) files
 │   ├── Dockerfile                   # Docker general setting
 │   ├── Dockerfile.ci                # Docker github action setting 
@@ -194,4 +240,5 @@ This repository is a team project work in OOAD class taught by [Prof. Chun-Han L
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
 
-This project is a digital version of the well-known board game Saboteur, so all the copyrights of the game content belong to the game company. Therefore, we do not recommend that you use it for a commercial profit. In this project, we used it for academic reference only.
+This project is a digital version of the well-known board game Saboteur, so **all the copyrights of the game content belong to the game company**. Therefore, we **do not recommend** that you use it for a commercial profit. In this project, we used it **for academic reference only**.
+
