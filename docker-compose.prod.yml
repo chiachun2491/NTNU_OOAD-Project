@@ -25,14 +25,9 @@ services:
     build:
       context: ./mysite
       dockerfile: Dockerfile.prod
-    volumes:
-      - django-data:/mysite
     networks:
       - proxy
       - default
-
-volumes:
-  django-data:
 
 networks:
   proxy:

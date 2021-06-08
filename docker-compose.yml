@@ -25,7 +25,7 @@ services:
     expose:
       - 8000
     volumes:
-      - ./mysite:/mysite
+      - django-data:/mysite
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -47,4 +47,5 @@ services:
 volumes:
   redis-data:
   pgdata:
+  django-data:
 

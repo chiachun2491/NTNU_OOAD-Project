@@ -9,6 +9,7 @@ services:
     restart: always
     volumes:
       - ./nginx/log:/var/log/nginx
+      - ./mysite:/docker_django
     networks:
       - proxy
     depends_on:
@@ -24,6 +25,8 @@ services:
     build:
       context: ./mysite
       dockerfile: Dockerfile.ci
+    volumes:
+      - ./mysite:/mysite
     networks:
       - proxy
       - default
