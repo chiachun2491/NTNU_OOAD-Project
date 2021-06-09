@@ -53,11 +53,10 @@ class NetworkError extends Component {
         axiosInstance
             .get('/auth/hello/')
             .then((response) => {
-                console.log('connect server successfully', response);
                 window.location.href = this.state.redirectURL;
             })
             .catch((err) => {
-                console.log('connect error', err);
+                console.error('connect error', err);
                 this.countDownMsgSet(newTimeout);
             });
     }

@@ -1,10 +1,13 @@
 import { Container, Nav, Navbar, Button } from 'react-bootstrap';
 import { withRouter } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import handleLogout from '../components/Logout';
+import getUserName from '../utils/getUserName';
 
 const Header = (props) => {
     const { location } = props;
-    const username = localStorage.getItem('username');
+    const username = getUserName();
 
     return (
         <Navbar collapseOnSelect expand='lg' bg='light'>
@@ -13,13 +16,13 @@ const Header = (props) => {
 
             <Navbar.Collapse id='responsive-navbar-nav' className='justify-content-end'>
                 <Nav className='mr-auto' activeKey={location.pathname}>
-                    {username !== null ? <Nav.Link href='/games/'>遊戲大廳</Nav.Link> : null}
+                    {username ? <Nav.Link href='/games/'>遊戲大廳</Nav.Link> : null}
                     <Nav.Link href='/tutorial/'>新手教學</Nav.Link>
                     <Nav.Link href='/rules/'>規則解說</Nav.Link>
-                    {username !== null ? <Nav.Link href='/account/history/'>遊玩紀錄</Nav.Link> : null}
+                    {username ? <Nav.Link href='/account/history/'>遊玩紀錄</Nav.Link> : null}
                 </Nav>
                 <Nav>
-                    {username !== null ? (
+                    {username ? (
                         <Button onClick={handleLogout} variant={'brown'} className={'my-2 my-lg-0'}>
                             登出 {username}
                         </Button>
@@ -46,15 +49,16 @@ const HeaderWithRouter = withRouter(Header);
 
 const CustomLayout = (props) => {
     return (
-        <div>
+        <div className={'min-vh-100'}>
             <header>
                 <HeaderWithRouter />
             </header>
-            <Container>{props.children}</Container>
-            <footer className='text-muted text-center py-2'>
-                <Container>
-                    <p>2021 NTNU OOAD Project</p>
-                </Container>
+            <Container className={'body-container'}>{props.children}</Container>
+            <footer className='text-muted py-2 bg-light d-flex align-items-center justify-content-center'>
+                <div className={'text-muted small mr-3'}>2021 NTNU OOAD Project</div>
+                <a href={'https://github.com/chiachun2491/NTNU_OOAD-Project'} className={'text-muted'}>
+                    <FontAwesomeIcon icon={faGithub} />
+                </a>
             </footer>
         </div>
     );

@@ -6,6 +6,7 @@ import GameOrganize from '../components/game/GameOrganize';
 import GamePlaying from '../components/game/GamePlaying';
 import GameEnd from '../components/game/GameEnd';
 import GameRoomError from '../components/errors/GameRoomError';
+import getUserName from '../utils/getUserName';
 
 const wsProtocol = window.location.origin.includes('https') ? 'wss://' : 'ws://';
 let wsBaseURL;
@@ -13,7 +14,7 @@ let wsBaseURL;
 if (process.env.NODE_ENV === 'production') {
     wsBaseURL = window.location.host;
 } else {
-    wsBaseURL = process.env.REACT_APP_WS_URL;
+    wsBaseURL = process.env.REACT_APP_WS_URL || 'localhost:8000';
 }
 
 const RoomStatus = {
@@ -41,7 +42,6 @@ class Game extends Component {
         axiosInstance
             .get('/game/' + roomName + '/')
             .then((response) => {
-                console.log(response.data);
                 this.setState({ roomData: response.data });
                 this.connectSocket(roomName);
             })
@@ -60,11 +60,9 @@ class Game extends Component {
         // check token valid first
         axiosInstance
             .get('/auth/hello/')
-            .then((response) => {
-                console.log('obtain/refresh token successfully', response);
-            })
+            .then((response) => {})
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             });
 
         const token = localStorage.getItem('access_token');
@@ -74,7 +72,6 @@ class Game extends Component {
 
         ws.onopen = () => {
             // on connecting, do nothing but log it to the console
-            console.log('connected');
             this.setState({ socketErrorMessage: null });
 
             this.setState({ ws: ws });
@@ -87,7 +84,7 @@ class Game extends Component {
         ws.onmessage = (event) => {
             // listen to data sent from the websocket server
             const message = JSON.parse(event.data);
-            const username = localStorage.getItem('username');
+            const username = getUserName();
             switch (message.event) {
                 case 'room_data_updated':
                     this.setState({ roomData: message.room_data });
@@ -102,7 +99,7 @@ class Game extends Component {
                     window.location.href = `/games/${message.room_id}/`;
                     break;
                 default:
-                    console.log(message);
+                    console.error('This event did not handled', message);
                     break;
             }
         };
@@ -126,7 +123,7 @@ class Game extends Component {
 
     countDownMsgSet = (timeout) => {
         const close_msg = `連線已中斷，我們將在 ${timeout / 1000} 秒後重新連線`;
-        console.log(close_msg);
+        console.error(close_msg);
         this.setState(
             {
                 socketErrorMessage: {
@@ -161,20 +158,19 @@ class Game extends Component {
             let gameComponent;
             let roundBadge, cardPoolBadge;
             let title;
+            const props = {
+                ws: this.state.ws,
+                roomName: this.state.roomName,
+                roomData: this.state.roomData,
+                socketErrorMessage: this.state.socketErrorMessage,
+                username: getUserName(),
+            };
             if (this.state.roomData.status === RoomStatus.ORGANIZE) {
-                gameComponent = (
-                    <GameOrganize ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData} />
-                );
                 title = '正在等待';
+                gameComponent = <GameOrganize {...props} />;
             } else if (this.state.roomData.status === RoomStatus.PLAYING) {
-                gameComponent = (
-                    <GamePlaying
-                        ws={this.state.ws}
-                        roomName={this.state.roomName}
-                        roomData={this.state.roomData}
-                        socketErrorMessage={this.state.socketErrorMessage}
-                    />
-                );
+                title = '正在遊戲';
+                gameComponent = <GamePlaying {...props} />;
                 roundBadge = (
                     <Badge variant={'outline-brown'} className={'ml-2 my-2'}>
                         回合： {this.state.roomData.game_data.round} / 3
@@ -185,18 +181,15 @@ class Game extends Component {
                         卡池剩餘：{this.state.roomData.game_data.card_pool.length}
                     </Badge>
                 );
-                title = '正在遊戲';
             } else if (this.state.roomData.status === RoomStatus.END) {
-                gameComponent = (
-                    <GameEnd ws={this.state.ws} roomName={this.state.roomName} roomData={this.state.roomData} />
-                );
                 title = '遊戲結果';
+                gameComponent = <GameEnd {...props} />;
             }
 
             return (
                 <>
                     <Helmet>
-                        <title>{`${title}：${this.props.roomName}`}</title>
+                        <title>{`${title}：${this.state.roomName}`}</title>
                     </Helmet>
                     <h5 className='text-center m-0'>
                         <Badge variant={'brown'} className={'my-2'}>

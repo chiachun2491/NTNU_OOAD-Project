@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
 import axiosInstance from '../api/Api';
+import getUserName from '../utils/getUserName';
 
 class Signup extends Component {
     constructor(props) {
@@ -32,21 +33,19 @@ class Signup extends Component {
                 email: this.state.email,
             })
             .then((response) => {
-                console.log(response.data);
                 window.location.href = '/account/login/';
             })
             .catch((err) => {
-                console.log(err.response);
+                console.error(err.response);
                 this.setState({
                     errors: err.response.data,
                 });
-                console.log(this.state.errors);
+                console.error(this.state.errors);
             });
     }
 
     render() {
-        const username = localStorage.getItem('username');
-        if (username != null) {
+        if (getUserName()) {
             window.location.href = '/games/';
         } else {
             return (
@@ -54,7 +53,7 @@ class Signup extends Component {
                     <Helmet>
                         <title>{'註冊新帳號'}</title>
                     </Helmet>
-                    <div className='my-3'>
+                    <div className='py-3'>
                         <h3>註冊新帳號</h3>
                         <Form className='my-3' onSubmit={this.handleSubmit}>
                             <Form.Group controlId='formBasicEmail'>
@@ -98,9 +97,14 @@ class Signup extends Component {
                                 </Form.Text>
                             </Form.Group>
 
-                            <Button variant='brown' type='submit'>
-                                註冊
-                            </Button>
+                            <div className={'d-flex align-items-center'}>
+                                <Button variant='brown' type='submit'>
+                                    註冊
+                                </Button>
+                                <div className={'text-muted small ml-3'}>
+                                    已經有帳號了嗎？<a href={'/account/login/'}>點擊這裡登入</a>
+                                </div>
+                            </div>
                         </Form>
                     </div>
                 </>

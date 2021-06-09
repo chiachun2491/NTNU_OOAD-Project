@@ -11,11 +11,10 @@ function handleLogout() {
                 localStorage.removeItem('refresh_token');
                 localStorage.removeItem('username');
                 axiosInstance.defaults.headers['Authorization'] = null;
-                console.log('Logout successful');
                 window.location.href = '/';
             });
     } catch (e) {
-        console.log(e);
+        console.error(e);
     }
 }
 

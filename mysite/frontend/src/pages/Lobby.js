@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet';
 import axiosInstance from '../api/Api';
 import RoomItem from '../components/RoomItem';
 import { Loading } from '../components/Loading';
+import getUserName from '../utils/getUserName';
 
 const wsProtocol = window.location.origin.includes('https') ? 'wss://' : 'ws://';
 let wsBaseURL;
@@ -11,7 +12,7 @@ let wsBaseURL;
 if (process.env.NODE_ENV === 'production') {
     wsBaseURL = window.location.host;
 } else {
-    wsBaseURL = process.env.REACT_APP_WS_URL;
+    wsBaseURL = process.env.REACT_APP_WS_URL || 'localhost:8000';
 }
 
 class Lobby extends Component {
@@ -34,7 +35,6 @@ class Lobby extends Component {
         axiosInstance
             .get('game/room_list/')
             .then((response) => {
-                // console.log(response);
                 this.setState({ roomList: response.data, loaded: true });
 
                 // TODO: Websocket connect to fetch new room status
@@ -50,11 +50,9 @@ class Lobby extends Component {
         // check token valid first
         axiosInstance
             .get('/auth/hello/')
-            .then((response) => {
-                console.log('obtain/refresh token successfully', response);
-            })
+            .then((response) => {})
             .catch((err) => {
-                console.log(err);
+                console.error(err);
             });
 
         const token = localStorage.getItem('access_token');
@@ -64,7 +62,6 @@ class Lobby extends Component {
 
         ws.onopen = () => {
             // on connecting, do nothing but log it to the console
-            console.log('connected');
             this.setState({ socketErrorMessage: null });
 
             this.setState({ ws: ws });
@@ -93,7 +90,7 @@ class Lobby extends Component {
                     newRoomList.splice(roomIndex);
                     break;
                 default:
-                    console.log(message);
+                    console.error('This event did not handled', message);
                     break;
             }
             this.setState({ roomList: newRoomList });
@@ -118,7 +115,7 @@ class Lobby extends Component {
 
     countDownMsgSet = (timeout) => {
         const close_msg = `Socket is closed. Reconnect will be attempted in ${timeout / 1000} second.`;
-        console.log(close_msg);
+        console.error(close_msg);
         this.setState({ socketErrorMessage: close_msg }, () => {
             if (timeout - 1000 < 0) {
                 this.setState({ socketErrorMessage: 'Reconnecting...' });
@@ -139,7 +136,6 @@ class Lobby extends Component {
         axiosInstance
             .post('/game/room_create/')
             .then((response) => {
-                // console.log(response.data);
                 window.location.href = '/games/' + response.data.permanent_url + '/';
             })
             .catch((err) => {
@@ -148,7 +144,7 @@ class Lobby extends Component {
     }
 
     render() {
-        const username = localStorage.getItem('username');
+        const username = getUserName();
         const roomList = this.state.roomList;
         // sort by value
         roomList.sort(function (a, b) {
@@ -159,7 +155,7 @@ class Lobby extends Component {
                 <Helmet>
                     <title>{'遊戲大廳'}</title>
                 </Helmet>
-                <h5 className={'text-center my-3'}>Hi, {username}!</h5>
+                <h5 className={'text-center pt-3'}>Hi, {username}!</h5>
                 <div className={'text-muted small text-center'}>
                     可以選擇加入下面任一房間或是點選 <span>新增房間</span> 來開啟新遊戲！
                 </div>

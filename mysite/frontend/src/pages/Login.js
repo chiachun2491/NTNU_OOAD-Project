@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { Helmet } from 'react-helmet';
 import axiosInstance from '../api/Api';
+import getUserName from '../utils/getUserName';
 
 class Login extends Component {
     constructor(props) {
@@ -39,11 +40,9 @@ class Login extends Component {
                 password: this.state.password,
             })
             .then((response) => {
-                console.log(response.data);
                 axiosInstance.defaults.headers['Authorization'] = 'JWT ' + response.data.access;
                 localStorage.setItem('access_token', response.data.access);
                 localStorage.setItem('refresh_token', response.data.refresh);
-                localStorage.setItem('username', this.state.username);
                 if (this.state.redirectURL) {
                     window.location.href = this.state.redirectURL;
                 } else {
@@ -51,17 +50,16 @@ class Login extends Component {
                 }
             })
             .catch((err) => {
-                console.log(err.response);
+                console.error(err.response);
                 this.setState({
                     errors: err.response.data,
                 });
-                console.log(this.state.errors);
+                console.error(this.state.errors);
             });
     }
 
     render() {
-        const username = localStorage.getItem('username');
-        if (username != null) {
+        if (getUserName()) {
             window.location.href = '/games/';
         } else {
             return (
@@ -69,7 +67,7 @@ class Login extends Component {
                     <Helmet>
                         <title>{'登入'}</title>
                     </Helmet>
-                    <div className='my-3'>
+                    <div className='py-3'>
                         <h3>登入</h3>
                         <Alert variant='danger' show={!!this.state.errors.detail}>
                             {this.state.errors.detail ? this.state.errors.detail : null}
@@ -103,9 +101,14 @@ class Login extends Component {
                                 </Form.Text>
                             </Form.Group>
 
-                            <Button variant='brown' type='submit'>
-                                登入
-                            </Button>
+                            <div className={'d-flex align-items-center'}>
+                                <Button variant='brown' type='submit'>
+                                    登入
+                                </Button>
+                                <div className={'text-muted small ml-3'}>
+                                    還沒有帳號嗎？<a href={'/account/signup/'}>點擊這裡註冊</a>
+                                </div>
+                            </div>
                         </Form>
                     </div>
                 </>
