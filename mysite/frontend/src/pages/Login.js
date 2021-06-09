@@ -101,9 +101,14 @@ class Login extends Component {
                                 </Form.Text>
                             </Form.Group>
 
-                            <Button variant='brown' type='submit'>
-                                登入
-                            </Button>
+                            <div className={'d-flex align-items-center'}>
+                                <Button variant='brown' type='submit'>
+                                    登入
+                                </Button>
+                                <div className={'text-muted small ml-3'}>
+                                    還沒有帳號嗎？<a href={'/account/signup/'}>點擊這裡註冊</a>
+                                </div>
+                            </div>
                         </Form>
                     </div>
                 </>
