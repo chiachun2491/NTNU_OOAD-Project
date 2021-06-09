@@ -67,7 +67,7 @@ class Login extends Component {
                     <Helmet>
                         <title>{'登入'}</title>
                     </Helmet>
-                    <div className='my-3'>
+                    <div className='py-3'>
                         <h3>登入</h3>
                         <Alert variant='danger' show={!!this.state.errors.detail}>
                             {this.state.errors.detail ? this.state.errors.detail : null}

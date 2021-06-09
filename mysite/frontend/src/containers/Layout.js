@@ -1,5 +1,7 @@
 import { Container, Nav, Navbar, Button } from 'react-bootstrap';
 import { withRouter } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import handleLogout from '../components/Logout';
 import getUserName from '../utils/getUserName';
 
@@ -47,15 +49,16 @@ const HeaderWithRouter = withRouter(Header);
 
 const CustomLayout = (props) => {
     return (
-        <div>
+        <div className={'min-vh-100'}>
             <header>
                 <HeaderWithRouter />
             </header>
-            <Container>{props.children}</Container>
-            <footer className='text-muted text-center py-2'>
-                <Container>
-                    <p>2021 NTNU OOAD Project</p>
-                </Container>
+            <Container className={'body-container'}>{props.children}</Container>
+            <footer className='text-muted py-2 bg-light d-flex align-items-center justify-content-center'>
+                <div className={'text-muted small mr-3'}>2021 NTNU OOAD Project</div>
+                <a href={'https://github.com/chiachun2491/NTNU_OOAD-Project'} className={'text-muted'}>
+                    <FontAwesomeIcon icon={faGithub} />
+                </a>
             </footer>
         </div>
     );

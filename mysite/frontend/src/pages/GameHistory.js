@@ -77,7 +77,7 @@ class GameHistory extends Component {
                 <Helmet>
                     <title>{`${username} 的遊玩紀錄`}</title>
                 </Helmet>
-                <h5 className={'text-center my-3'}>{username} 的遊玩紀錄</h5>
+                <h5 className={'text-center pt-3'}>{username} 的遊玩紀錄</h5>
                 {this.state.loaded ? historyDiv : <Loading />}
             </>
         );

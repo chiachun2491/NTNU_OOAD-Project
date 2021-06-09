@@ -53,7 +53,7 @@ class Signup extends Component {
                     <Helmet>
                         <title>{'註冊新帳號'}</title>
                     </Helmet>
-                    <div className='my-3'>
+                    <div className='py-3'>
                         <h3>註冊新帳號</h3>
                         <Form className='my-3' onSubmit={this.handleSubmit}>
                             <Form.Group controlId='formBasicEmail'>
