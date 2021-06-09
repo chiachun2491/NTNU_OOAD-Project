@@ -15,7 +15,7 @@ const RootSwitch = () => (
         <Route path={'/rules/'} exact component={Rules} />
         <Route path={'/tutorial/'} exact component={Tutorial} />
         <Route path={'/networkError/'} exact component={NetworkError} />
-        <Route exact component={PageNotFound} />
+        <Route component={PageNotFound} />
     </Switch>
 );
 
