@@ -44,7 +44,7 @@ class Tutorial extends Component {
             newState.nowStep = TutorialStep.SELECT_REPAIR;
             gameData.player_list[2].action_state[0] = true;
             gameData.player_list[0].hand_cards[1] = { rotate: false, card_no: 42, road_type: 1 };
-            gameData.return_msg[0] = { msg_type: 'INFO', msg: `${username} 破壞了 玩家 2 的油燈` };
+            gameData.return_msg[0] = { msg_type: 'INFO', msg: `${username} 破壞了 玩家 2 的礦燈` };
             gameData.card_pool -= 1;
         } else if (newState.nowStep === TutorialStep.SELECT_REPAIR && cardNo === 57) {
             newState.nowStep = TutorialStep.USE_REPAIR_ON_PLAYER;
@@ -52,7 +52,7 @@ class Tutorial extends Component {
             newState.nowStep = TutorialStep.SELECT_DROP;
             gameData.player_list[1].action_state[2] = false;
             gameData.player_list[0].hand_cards[2] = { rotate: false, card_no: 43, road_type: 1 };
-            gameData.return_msg[0] = { msg_type: 'INFO', msg: `${username} 修理了 玩家 1 的鏟子` };
+            gameData.return_msg[0] = { msg_type: 'INFO', msg: `${username} 修理了 玩家 1 的礦鎬` };
             gameData.card_pool -= 1;
         } else if (newState.nowStep === TutorialStep.SELECT_DROP && cardNo === 28) {
             newState.nowStep = TutorialStep.USE_DROP_CARD;
@@ -66,7 +66,7 @@ class Tutorial extends Component {
         } else if (newState.nowStep === TutorialStep.USE_MAP_ON_BOARD && cardNo === 65 && pos === 26) {
             newState.nowStep = TutorialStep.SELECT_ROCK;
             gameData.player_list[0].hand_cards[3] = { rotate: false, card_no: 62, road_type: 1 };
-            gameData.return_msg[0] = { msg_type: 'PEEK', msg: '(3, 9) 是金塊' };
+            gameData.return_msg[0] = { msg_type: 'PEEK', msg: '(3, 9) 是金礦' };
             gameData.card_pool -= 1;
         } else if (newState.nowStep === TutorialStep.SELECT_ROCK && cardNo === 62) {
             newState.nowStep = TutorialStep.USE_ROCK_ON_BOARD;
@@ -512,7 +512,7 @@ const TutorialGameData = {
 const TutorialStep = {
     INTRO: {
         title: '玩家陣營 好矮人 v.s 壞矮人',
-        content: '你是好矮人，目的是將道路連線到終點牌的金塊',
+        content: '你是好矮人，目的是將道路連線到終點道路牌的金礦',
         button: '好喔！那我該怎麼做？',
         showPosition: 'SELF_BTN',
     },
@@ -530,7 +530,7 @@ const TutorialStep = {
     },
     SELECT_BROKEN: {
         title: '使用破壞牌',
-        content: '功能牌再點選後點擊玩家即可使用，試試破壞玩家的工具吧',
+        content: '行動牌再點選後點擊任意玩家即可使用，試著破壞其他玩家的工具吧',
         button: null,
         showPosition: 'SELF_CARD_1',
     },
@@ -541,20 +541,20 @@ const TutorialStep = {
         showPosition: 'PLAYER_2',
     },
     SELECT_REPAIR: {
-        title: '使用修復牌',
-        content: '工具可以被破壞也可以被修復，試試修復玩家的工具吧',
+        title: '使用修理牌',
+        content: '工具可以被破壞也可以被修理，試著修理其他玩家的工具吧',
         button: null,
         showPosition: 'SELF_CARD_2',
     },
     USE_REPAIR_ON_PLAYER: {
         title: null,
-        content: '點擊這裡修復玩家 1的工具吧，修復的工具為指定的喔',
+        content: '點擊這裡修理玩家 1的工具吧，修理後的工具會變回灰色。注意！高級修理牌需要指定要修理的工具喔',
         button: null,
         showPosition: 'PLAYER_1',
     },
     SELECT_DROP: {
         title: '棄牌',
-        content: '當沒有可以用的卡牌時就要棄牌，試試丟棄這張卡吧',
+        content: '當沒有可以或適合出的卡牌時就要棄牌，試著丟棄這張卡吧',
         button: null,
         showPosition: 'SELF_CARD_3',
     },
@@ -566,7 +566,7 @@ const TutorialStep = {
     },
     SELECT_MAP: {
         title: '使用地圖牌',
-        content: '地圖牌在點選後可以選擇窺探終點牌，試試窺探中間的終點牌吧',
+        content: '地圖牌在點選後可以選擇窺探終點道路牌，試試窺探中間的終點道路牌吧',
         button: null,
         showPosition: 'SELF_CARD_3',
     },
@@ -578,19 +578,19 @@ const TutorialStep = {
     },
     SELECT_ROCK: {
         title: '使用落石牌',
-        content: '既然黃金的話，我們需要破壞阻擋的路，用落石牌破壞終點前的道路吧',
+        content: '既然金礦的話，我們需要摧毀阻擋的道路，用落石牌摧毀終點前的道路吧',
         button: null,
         showPosition: 'SELF_CARD_3',
     },
     USE_ROCK_ON_BOARD: {
         title: null,
-        content: '用落石牌破壞這塊道路吧',
+        content: '用落石牌摧毀這張道路牌吧',
         button: null,
         showPosition: 'BOARD_25',
     },
     SELECT_FINAL_ROAD: {
         title: '快到終點了',
-        content: '看來我們有機會迎向終點了，試試用這張道路牌連通到黃金吧',
+        content: '看來我們有機會迎向終點了，試試用這張道路牌連通到金礦吧',
         button: null,
         showPosition: 'SELF_CARD_3',
     },
@@ -614,13 +614,13 @@ const TutorialStep = {
     },
     HOW_SABOTEUR_WIN: {
         title: null,
-        content: '當卡池與玩家的手牌都歸零時還未找到黃金就是壞矮人贏了',
+        content: '當卡池與玩家的手牌都歸零時，還未找到金礦就是壞矮人贏了',
         button: '下一步',
         showPosition: 'POOL_BADGE',
     },
     END_TUTORIAL: {
         title: null,
-        content: '導覽結束，點擊離開房間去進行一場遊戲吧',
+        content: '導覽結束，點擊離開房間去進行一場真正的遊戲吧',
         button: '再看一次',
         showPosition: 'LEAVE_BTN',
     },
