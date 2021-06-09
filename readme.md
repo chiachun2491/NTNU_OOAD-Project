@@ -238,7 +238,7 @@ This repository is a team project work in OOAD class taught by [Prof. Chun-Han L
 + [Cayden-981102](https://github.com/Cayden-981102)
 
 ## License
-[MIT](https://choosealicense.com/licenses/mit/)
+[Based on MIT](https://choosealicense.com/licenses/mit/)
 
 This project is a digital version of the well-known board game Saboteur, so **all the copyrights of the game content belong to the game company**. Therefore, we **do not recommend** that you use it for a commercial profit. In this project, we used it **for academic reference only**.
 
