@@ -530,25 +530,25 @@ const TutorialStep = {
     },
     SELECT_BROKEN: {
         title: '使用破壞牌',
-        content: '行動牌再點選後點擊任意玩家即可使用，試著破壞其他玩家的工具吧',
+        content: '選擇破壞牌後點擊任意玩家就會使玩家的工具被破壞，讓對方無法使用道路牌，試著破壞其他玩家的工具吧',
         button: null,
         showPosition: 'SELF_CARD_1',
     },
     USE_BROKEN_ON_PLAYER: {
         title: null,
-        content: '點擊這裡破壞玩家 2的工具吧，被破壞的工具會呈現紅色',
+        content: '點擊這裡破壞玩家 2 的工具吧，被破壞的工具會呈現紅色',
         button: null,
         showPosition: 'PLAYER_2',
     },
     SELECT_REPAIR: {
-        title: '使用修理牌',
+        title: '使用修復牌',
         content: '工具可以被破壞也可以被修理，試著修理其他玩家的工具吧',
         button: null,
         showPosition: 'SELF_CARD_2',
     },
     USE_REPAIR_ON_PLAYER: {
         title: null,
-        content: '點擊這裡修理玩家 1的工具吧，修理後的工具會變回灰色。注意！高級修理牌需要指定要修理的工具喔',
+        content: '點擊這裡修理玩家 1 的工具吧，修理後的工具會變回灰色。注意！高級修復牌需要指定要修理的工具喔',
         button: null,
         showPosition: 'PLAYER_1',
     },
@@ -578,7 +578,7 @@ const TutorialStep = {
     },
     SELECT_ROCK: {
         title: '使用落石牌',
-        content: '既然金礦的話，我們需要摧毀阻擋的道路，用落石牌摧毀終點前的道路吧',
+        content: '既然已經知道中間的終點道路牌是金礦的話，我們需要摧毀阻擋的道路，用落石牌摧毀終點前的道路吧',
         button: null,
         showPosition: 'SELF_CARD_3',
     },

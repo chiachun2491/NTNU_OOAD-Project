@@ -145,7 +145,10 @@ function Rules() {
                             <Image src={board} fluid />
                         </Col>
                         <Col xs={12} md={6} className={'d-flex align-content-center flex-wrap'}>
-                            <p>如圖所示，一開始會看到左邊的【起始道路牌】和右邊的三張【終點道路牌】：金礦卡 x1、石頭卡 x2。</p>
+                            <p>
+                                如圖所示，一開始會看到左邊的【起始道路牌】和右邊的三張【終點道路牌】：金礦卡 x1、石頭卡
+                                x2。
+                            </p>
                             <p>玩家輪流出牌，在以下三種情況中，選擇一種來執行後，會再得到新的手牌：</p>
                             <ul>
                                 <li>出一張【一般道路牌】</li>
@@ -165,15 +168,17 @@ function Rules() {
                     <Card.Title>遊戲目標</Card.Title>
                     <Row>
                         <Col xs={12}>
-                            <p>如果玩家將道路從【起始道路】連通至【終點道路】，就可以打開【終點道路】查看：</p>
+                            <p>
+                                如果玩家將道路從【起始道路牌】連通至【終點道路牌】，該【終點道路牌】會被翻開供大家查看：
+                            </p>
                             <ul>
-                                <li>若【終點道路】上出現的是石頭，繼續進行遊戲。</li>
-                                <li>若【終點道路】上出現的是金礦，【好矮人】勝利，該回合結束。】</li>
+                                <li>若【終點道路牌】上出現的是石頭，則遊戲尚未結束，繼續進行遊戲。</li>
+                                <li>若【終點道路牌】上出現的是金礦，【好矮人】勝利，該回合結束。</li>
                             </ul>
                             <p>回合勝利條件：</p>
                             <ul>
-                                <li>好矮人：將【起始道路】連接到金礦卡</li>
-                                <li>壞矮人：若所有玩家皆沒有手牌可出，且【起始道路】尚未連接到金礦卡</li>
+                                <li>好矮人：將【起始道路牌】連接到金礦卡</li>
+                                <li>壞矮人：若所有玩家皆沒有手牌可出，且【起始道路牌】尚未連接到金礦卡</li>
                             </ul>
                         </Col>
                     </Row>
@@ -184,21 +189,19 @@ function Rules() {
                     <Card.Title>回合結束計分</Card.Title>
                     <Row>
                         <Col xs={12}>
-                            <p>
-                                玩家的分數等同於所有【金塊卡】上的金塊數量加總
-                            </p>
+                            <p>玩家的分數等同於所有【金塊卡】上的金塊數量加總</p>
                             <p className={'font-weight-bold'}>好矮人獲勝：</p>
                             <p>
-                                隨機抽取等同於玩家人數的【金塊卡】（1 / 2 / 3
-                                塊），並依序從最後完成連接道路至金礦的好矮人開始按照出牌的相反順序分發給所有好矮人，分發的【金塊卡】由金塊數量多發到少。
+                                隨機抽取等同於玩家人數的【金塊卡】（每張金塊卡數量皆不同：1 / 2 /
+                                3塊），並依序從最後完成連接道路至金礦的好矮人開始按照出牌順序分發，分發的【金塊卡】由數量最多的【金塊卡】（3塊）發到數量最少的【金塊卡】（1塊）。
                             </p>
                             <p>
                                 <small className={'text-muted'}>
-                                    若最後完成連接道路至金礦者為壞矮人，一樣按照出牌的相反順序將【金塊卡】分發給好矮人，該壞矮人並不會得到【金塊卡】。
+                                    若最後完成連接道路至金礦者為壞矮人，一樣只會按照出牌順序分發給好矮人，該壞矮人並不會得到【金塊卡】。
                                 </small>
                             </p>
                             <p className={'font-weight-bold'}>壞矮人獲勝：</p>
-                            <p>依本次遊戲的壞矮人人數得到相對應金塊數量的【金塊卡】1 或數張：</p>
+                            <p>依本次遊戲的壞矮人人數得到相對應的金塊數量：</p>
                             <ul>
                                 <li>1 位壞矮人：4 塊。</li>
                                 <li>2-3 位壞矮人：3 塊。</li>
@@ -232,7 +235,7 @@ function Rules() {
                                             <Image src={card_road0} fluid thumbnail />
                                         </Col>
                                         <Col xs={9} className={'d-flex align-items-center'}>
-                                            遊戲開始就會放置於牌桌上
+                                            遊戲開始就會放置於牌面上
                                         </Col>
                                     </Row>
                                 </Card.Body>
@@ -252,7 +255,7 @@ function Rules() {
                                             <small className={'text-muted'}>石頭卡x2</small>
                                         </Col>
                                         <Col xs={6} className={'d-flex align-items-center'}>
-                                            遊戲開始就會以卡牌背面放置於牌桌上
+                                            遊戲開始就會以卡牌背面放置於牌面上
                                         </Col>
                                     </Row>
                                 </Card.Body>
@@ -324,7 +327,7 @@ function Rules() {
                         <Col className={'mb-3'}>
                             <Card className={'h-100'}>
                                 <Card.Body>
-                                    <Card.Title>破壞工具牌</Card.Title>
+                                    <Card.Title>破壞牌</Card.Title>
                                     <Row className={'d-flex justify-content-around'}>
                                         <Col xs={3} className={'pr-0 mr-3 text-center'}>
                                             <Image src={card_ban2} fluid thumbnail />
@@ -341,7 +344,7 @@ function Rules() {
                                     </Row>
                                     <Row className={'mt-2'}>
                                         <Col>
-                                            把【破壞工具牌】放在任意一位玩家前面，被放置【破壞工具牌】的玩家就無法再出【道路牌】，只能選擇出【行動牌】或棄牌
+                                            對任意一位玩家使用【破壞牌】，該玩家的對應工具就會被破壞，就無法再出【道路牌】，只能選擇出【行動牌】或棄牌
                                         </Col>
                                     </Row>
                                 </Card.Body>
@@ -350,7 +353,7 @@ function Rules() {
                         <Col className={'mb-3'}>
                             <Card className={'h-100'}>
                                 <Card.Body>
-                                    <Card.Title>修理工具牌</Card.Title>
+                                    <Card.Title>修復牌</Card.Title>
                                     <Row className={'d-flex justify-content-around'}>
                                         <Col xs={3} className={'pr-0 mr-3 text-center'}>
                                             <Image src={card_disban2} fluid thumbnail />
@@ -366,7 +369,7 @@ function Rules() {
                                         </Col>
                                     </Row>
                                     <Row className={'mt-2'}>
-                                        <Col>【修理工具牌】可以將任意玩家面前的【破壞工具牌】移除，但只能修理相對應種類的工具</Col>
+                                        <Col>【修復牌】可以將任意玩家的對應工具修復</Col>
                                     </Row>
                                 </Card.Body>
                             </Card>
@@ -404,7 +407,7 @@ function Rules() {
                                             <Image src={card_destroy} fluid thumbnail />
                                         </Col>
                                         <Col xs={9} className={'d-flex align-items-center'}>
-                                            打出此牌，可以將一張已經擺好的【道路牌】移出牌桌到棄牌堆
+                                            打出此牌，可以將牌面上一張已經擺好的【道路牌】移出到棄牌堆
                                         </Col>
                                     </Row>
                                 </Card.Body>
