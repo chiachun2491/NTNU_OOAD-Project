@@ -208,7 +208,7 @@ class GamePlaying extends Component {
         }
         return (
             <>
-                <Badge className={'my-2 badge-block'} variant={variant}>
+                <Badge className={'mb-2 badge-block'} variant={variant}>
                     {msg}
                 </Badge>
                 <Container>
@@ -295,7 +295,7 @@ function SelfGamePlayer(props) {
     return (
         <>
             {/* Your name & status */}
-            <Row className={'my-2'}>
+            <Row className={'mb-2'}>
                 <Col xs={8} lg={12} className={'px-2'}>
                     <TutorialOverlayTrigger placement={'top'} overlay={overlay} show={showPosition === 'SELF_BTN'}>
                         <Button
@@ -308,8 +308,8 @@ function SelfGamePlayer(props) {
                         </Button>
                     </TutorialOverlayTrigger>
                 </Col>
-                <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center p-0'}>
-                    <Row className={'my-lg-1'}>
+                <Col xs={4} lg={12} className={'d-flex justify-content-around align-self-center p-0 mt-lg-2'}>
+                    <Row className={''}>
                         {props.player.action_state.map((ban, i) => (
                             <ActionStatus
                                 key={i}
@@ -364,6 +364,7 @@ function SelfGamePlayer(props) {
         </>
     );
 }
+
 function ActionStatus(props) {
     let actionIcon;
     let actionType = props.ban ? (props.actionType + 1) * -1 : props.actionType + 1;

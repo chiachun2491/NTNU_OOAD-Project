@@ -155,7 +155,7 @@ class Lobby extends Component {
                 <Helmet>
                     <title>{'遊戲大廳'}</title>
                 </Helmet>
-                <h5 className={'text-center my-3'}>Hi, {username}!</h5>
+                <h5 className={'text-center pt-3'}>Hi, {username}!</h5>
                 <div className={'text-muted small text-center'}>
                     可以選擇加入下面任一房間或是點選 <span>新增房間</span> 來開啟新遊戲！
                 </div>

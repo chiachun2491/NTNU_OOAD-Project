@@ -28,7 +28,7 @@ function Rules() {
             <Helmet>
                 <title>{'規則解說'}</title>
             </Helmet>
-            <h5 className={'my-3 text-center'}>遊戲規則解說</h5>
+            <h5 className={'pt-3 pb-2 text-center'}>遊戲規則解說</h5>
             <Card className={'mb-3'}>
                 <Card.Body>
                     <Card.Title>遊戲起始配置</Card.Title>
