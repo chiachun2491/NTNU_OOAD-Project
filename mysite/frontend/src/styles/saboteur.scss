@@ -157,3 +157,11 @@ $action-bg: #b46f50;
         border: 1px solid rgba($action-bg, 0.8);
     }
 }
+
+.body-container {
+    min-height: calc(100vh - 6.5rem);
+}
+
+footer {
+    height: 3rem;
+}

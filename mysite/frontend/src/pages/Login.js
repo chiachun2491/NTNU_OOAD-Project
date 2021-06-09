@@ -67,7 +67,7 @@ class Login extends Component {
                     <Helmet>
                         <title>{'登入'}</title>
                     </Helmet>
-                    <div className='my-3'>
+                    <div className='py-3'>
                         <h3>登入</h3>
                         <Alert variant='danger' show={!!this.state.errors.detail}>
                             {this.state.errors.detail ? this.state.errors.detail : null}
@@ -101,9 +101,14 @@ class Login extends Component {
                                 </Form.Text>
                             </Form.Group>
 
-                            <Button variant='brown' type='submit'>
-                                登入
-                            </Button>
+                            <div className={'d-flex align-items-center'}>
+                                <Button variant='brown' type='submit'>
+                                    登入
+                                </Button>
+                                <div className={'text-muted small ml-3'}>
+                                    還沒有帳號嗎？<a href={'/account/signup/'}>點擊這裡註冊</a>
+                                </div>
+                            </div>
                         </Form>
                     </div>
                 </>
